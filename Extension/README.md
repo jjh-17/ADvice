@@ -15,3 +15,14 @@
     ![Group_23](/uploads/de311ec7ba832f106d36cf17b49e3056/Group_23.png)
     - PPT 서비스 소개, 기능 소개 페이지 작성 중
     ![ppt](/uploads/8b8c234edb03b820d4c962f29e88b1c9/ppt.png)
+
+
+### [2024-04-19]
+[Figma](https://www.figma.com/file/4hNk7AfA4o6KD2cUjbKWRO/ADvice?type=design&node-id=0-1&mode=design&t=Uct3VQJYwrWCQtqr-0)
+<br/>
+[PPT(작업중)](https://www.miricanvas.com/v/133z32h)
+
+- 이민주
+    - 사용할 기술 내용 정리, PPT 기술 설명 페이지 작성
+    ![노션](/uploads/718ca02844a7a2b4da9be8303ea4fcfb/노션.png)
+    ![ppt3](/uploads/74daf8109986fbd12500087271ea73a8/ppt3.png)
