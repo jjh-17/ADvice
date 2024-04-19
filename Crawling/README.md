@@ -62,3 +62,20 @@
     [Script.html](https://prod-files-secure.s3.us-west-2.amazonaws.com/6d5bed8f-ebf3-4ada-b901-fc60fee8319e/908aab4b-c55e-4cae-a360-27ef3d1c55a1/Script.html)
     
     - 블로그, 카페 글은 `fds-comps-right-image-text-title` 클래스에 들어감
+
+
+# 24. 04. 19
+
+# 이인석
+## 티스토리
+
+- 개인이 HTML과 CSS 수정 가능
+    - p, span, div와 같이 내부에 Text가 있는 태그에 대해 수집하여 진행?
+    - 각 티스토리별로 본문의 클래스나 id가 달라 정형화되어있지 않음
+- 우선적으로 네이버 블로그와 카페를 대상으로 프로세스 실행
+
+## 기타 사이트
+
+- [식신,](https://www.siksinhot.com/) [다이닝 코드](https://www.diningcode.com/), [데이트곰](https://dategom.com/) 등등
+- 존재하긴 하나 이에 대해 AI 입력이 가능할지 미지수
+- 정형화되었지만 다른 플랫폼으로 확장성을 고려하고 배제?
