@@ -1,6 +1,6 @@
 <script setup>
 import SearchResult from "../components/SearchResult.vue";
-import { FwbToggle } from "flowbite-vue";
+import SearchDetail from "../components/SearchDetail.vue";
 </script>
 
 <template>
@@ -18,6 +18,7 @@ import { FwbToggle } from "flowbite-vue";
       </label>
     </div>
     <SearchResult />
+    <!-- <SearchDetail /> -->
   </main>
 </template>
 
