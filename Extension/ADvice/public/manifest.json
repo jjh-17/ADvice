@@ -1,0 +1,15 @@
+{
+    "name": "ADvice",
+    "description": "실시간 페이지 분석을 통한 게시글 필터링 도우미",
+    "version": "1.0",
+    "manifest_version": 3,
+    "permissions": [
+      "storage",
+      "activeTab",
+      "scripting"
+    ],
+    "action": {
+      "default_popup": "index.html"
+    }
+  }
+  
