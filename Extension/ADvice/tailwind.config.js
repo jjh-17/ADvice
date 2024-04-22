@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-  content: [],
+  content: ["./node_modules/flowbite/**/*.js"],
   theme: {
     extend: {
       grayscale: {
@@ -14,5 +14,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [require("flowbite/plugin")],
 };
