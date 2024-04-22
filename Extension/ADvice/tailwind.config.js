@@ -3,8 +3,16 @@ export default {
   purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   content: [],
   theme: {
-    extend: {},
+    extend: {
+      grayscale: {
+        50: "50%",
+        30: "30%",
+        10: "10%",
+      },
+      colors: {
+        "theme-blue": "#4379EE",
+      },
+    },
   },
   plugins: [],
-}
-
+};
