@@ -1,15 +1,30 @@
 {
-    "name": "ADvice",
-    "description": "실시간 페이지 분석을 통한 게시글 필터링 도우미",
-    "version": "1.0",
-    "manifest_version": 3,
-    "permissions": [
-      "storage",
-      "activeTab",
-      "scripting"
-    ],
-    "action": {
-      "default_popup": "index.html"
+  "name": "ADvice",
+  "description": "실시간 페이지 분석을 통한 게시글 필터링 도우미",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "contentScript.js"
+      ],
+      "css" : [
+        "styles.css"
+      ]
     }
+  ],
+  "action": {
+    "default_popup": "index.html"
   }
-  
+}

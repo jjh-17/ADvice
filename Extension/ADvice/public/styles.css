@@ -1,0 +1,24 @@
+/* 모달 스타일 정의 */
+.modal-content {
+    background-color: #fefefe;
+    /* margin: 15% auto; */
+    padding: 20px;
+    border: 1px solid lightgray;
+    box-shadow: 1px 1px lightgray;
+    width: 20vw; /* 모달의 너비를 내용에 맞게 조정합니다. */
+    /* max-width: 300px; 최대 너비를 설정할 수 있습니다. */
+  }
+  
+  .close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
