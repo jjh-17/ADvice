@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <h3 class="mt-2 mb-1 text-sm font-bold">키워드 검색</h3>
+    <h3 class="mt-2 mb-2 text-sm font-bold">키워드 검색</h3>
     <!-- 검색 창 start-->
     <form class="max-w-md mx-auto">
       <label
@@ -47,7 +47,7 @@
     <!-- 검색 창 end-->
   </div>
   <div>
-    <div class="mt-5 mb-1 text-sm font-bold">유용성 판단 기준</div>
+    <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
     <ul
       class="max-w-md text-sm text-gray-900 bg-white border-t border-x border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
     >
