@@ -4,13 +4,8 @@ import openpyxl
 import re
 
 # input, output 폴더 경로
-input_train_path = "data/conversation/input/train/"
-input_validation_path = "data/conversation/input/validation/"
-output_path = "data/conversation/output/"
-
-# 엑셀 파일 이름
-train_file_name = "train_conversation.xlsx"
-validation_file_name = "validation_conversation.xlsx"
+input_path = "data/conversation/input/"
+output_path = "data/conversation/output/data_conversation.xlsx"
 
 # 감정과 그 정도에 따라 숫자 부여
 def getNum(emotion, level):
@@ -39,10 +34,8 @@ def getNum(emotion, level):
     return result
 
 # input 파일들에서 필요한 데이터를 추출하여 하나의 파일로 만드는 메서드
-def setWB(isTrain):
-    # 필요한 변수 선언
-    input_path = input_train_path if isTrain else input_validation_path
-    output_file_path = output_path + (train_file_name if isTrain else validation_file_name)
+def setWB():
+    # 컬럼 정보
     column = ["Text", "Class"]
 
     # 엑셀 파일 관련 설정
@@ -72,8 +65,7 @@ def setWB(isTrain):
                 print(file, row)
                 exit(-1)
 
-    wb.save(output_file_path)
+    wb.save(output_path)
     wb.close()
 
-setWB(True)
-setWB(False)
+setWB()
