@@ -13,7 +13,6 @@ class NaverBlogScrapper:
         soup = BeautifulSoup(res.text, "html.parser")
 
         for tag in soup.select("iframe"):
-            
             if tag["id"] == "mainFrame":
                 frame = requests.get(self.__naver_url + tag["src"])
                 soup = BeautifulSoup(frame.text, "html.parser")
@@ -22,7 +21,40 @@ class NaverBlogScrapper:
         return self.__scrape_internal_frame(soup)
 
     def __scrape_internal_frame(self, soup: BeautifulSoup):
-
         main_container = soup.find("div", class_="se-main-container")
 
+        text = self.extract_text(main_container)
+        images, stickers = self.extract_images(main_container)
+
         return None
+
+    # 텍스트 추출
+    def extract_text(self, main_container: BeautifulSoup):
+        all_text = main_container.get_text()
+        split_text = all_text.split("\n")
+        clean_lines = [line.strip() for line in split_text if line.strip()]
+
+        return clean_lines
+
+    # 이미지 추출
+    def extract_images(self, main_container: BeautifulSoup):
+        images = main_container.find_all("img", recursive=True)
+
+        images_url = []
+        stickers = []
+        for img in images:
+            if not img.get("src") or not img.parent.get("data-linktype"):
+                continue
+
+            if img.parent["data-linktype"] == "sticker":
+                stickers.append(img["src"])
+
+            else:
+                images_url.append(img["src"])
+
+        return images_url, stickers
+
+
+if __name__ == "__main__":
+    scraper = NaverBlogScrapper()
+    scraper.scrape_naver_blogs("https://blog.naver.com/nanunnaha/223057473985")
