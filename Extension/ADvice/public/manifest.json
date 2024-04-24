@@ -14,10 +14,10 @@
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "*://search.naver.com/*"
       ],
       "js": [
-        "contentScript.js"
+        "searchScript.js"
       ],
       "css" : [
         "styles.css"
