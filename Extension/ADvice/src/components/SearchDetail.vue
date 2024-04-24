@@ -72,7 +72,7 @@ onMounted(() => {
 <template>
   <canvas ref="chartRef"></canvas>
   <div>
-    <div class="mt-5 mb-1 text-sm font-bold">유용성 판단 기준</div>
+    <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
     <ul
       class="max-w-md text-sm text-gray-900 bg-white border-t border-x border-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
     >

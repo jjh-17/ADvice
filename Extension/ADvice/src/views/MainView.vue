@@ -1,8 +1,28 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from "vue";
 import SearchResult from "../components/SearchResult.vue";
 import SearchDetail from "../components/SearchDetail.vue";
-</script>
 
+const currentUrl = ref(""); // 현재 URL을 저장할 반응형 참조
+const flag = ref(false);
+const rerenderKey = ref(0);
+
+onMounted(() => {
+  chrome.runtime.sendMessage({ action: "checkUrl" }, (response) => {
+    console.log("onMounted! :" + response.url);
+    currentUrl.value = response.url;
+    if (currentUrl.value.includes("search.naver.com")) {
+      flag.value = true;
+    } else {
+      flag.value = false;
+    }
+  });
+});
+
+onUnmounted(() => {
+  console.log("unmounted!");
+});
+</script>
 <template>
   <main>
     <div>
@@ -17,8 +37,10 @@ import SearchDetail from "../components/SearchDetail.vue";
         ></div>
       </label>
     </div>
-    <SearchResult />
-    <!-- <SearchDetail /> -->
+    <div>
+      <SearchResult v-if="flag" />
+      <SearchDetail v-else />
+    </div>
   </main>
 </template>
 
