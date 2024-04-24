@@ -24,14 +24,13 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/cafe-crawl")
-def cafe_crawl():
+def cafe_crawl(url: str):
     # options = webdriver.ChromeOptions()
     # options.add_argument(
     #     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
     # )
     # driver = webdriver.Chrome(options=options)
     driver = webdriver.Chrome()
-    url = 'https://cafe.naver.com/zzop/2306213?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtaW50ZW50LXZpZXc=.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Inp6b3AiLCJhcnRpY2xlSWQiOjIzMDYyMTMsImlzc3VlZEF0IjoxNzEzOTIyODUzOTM1fQ.88I1lv4mO6sUpYXDGeREfviVNjBCDGpJZkkL3odfcyo'
     driver.get(url)
     time.sleep(1)
 
@@ -40,16 +39,32 @@ def cafe_crawl():
 
     #print(soup.select('.se-main-container'))
     # data = soup.select('.se-main-container > div')
-    key = 1
     texts = soup.select('.se-main-container > div > div > div > div > p > span')
+    textList = []
+    key = 1
     for t in texts:
-        {key : t.text}
-        print(key, t.text)
+        #print(t.text)
+        list = []
+        list.append(key)
+        list.append(t.text)
+        textList.append(list)
         key+=1
 
+    imgList = []
     key = 1
     imgs = soup.select('.se-main-container > div > div > div > div > a > img.se-image-resource')
     for img in imgs:
-        {key: img.get('src')}
-        print(key, img.get('src'))
-        key += 1
+        #print(img.get('src'))
+        list = []
+        list.append(key)
+        list.append(img.get('src'))
+        imgList.append(list)
+        key+=1
+
+    response_data = {
+        "url": url,
+        "textList": textList,
+        "imgList": imgList
+    }
+
+    return JSONResponse(content=response_data)
