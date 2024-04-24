@@ -1,24 +1,12 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import SerachResult from './components/SearchResult_tmp.vue'
-
-console.log(1111111111)
+import MainView from "./views/MainView.vue";
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-    <div>
-      ADvice
-    </div>
-    <SerachResult/>
-  </header>
-
-  <RouterView />
+  <MainView />
 </template>
 
 <style scoped>
-
 header {
   line-height: 1.5;
   max-height: 100vh;

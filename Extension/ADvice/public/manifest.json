@@ -4,24 +4,21 @@
   "version": "1.0",
   "manifest_version": 3,
   "permissions": [
+    "tabs",
     "storage",
     "activeTab",
-    "scripting"
+    "scripting",
+    "webNavigation",
+    "background"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://search.naver.com/*"
-      ],
-      "js": [
-        "searchScript.js"
-      ],
-      "css" : [
-        "styles.css"
-      ]
+      "matches": ["*://search.naver.com/*"],
+      "js": ["searchScript.js"],
+      "css": ["styles.css"]
     }
   ],
   "action": {
