@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from models.exception.CustomException import CustomException
+from models.exception.custom_exception import CustomException
 
 app = FastAPI()
 
