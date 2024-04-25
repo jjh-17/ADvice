@@ -30,9 +30,16 @@ class NaverBlogScrapper:
 
     # 텍스트 추출
     def extract_text(self, main_container: BeautifulSoup):
-        all_text = main_container.get_text()
-        split_text = all_text.split("\n")
-        clean_lines = [line.strip() for line in split_text if line.strip()]
+        clean_lines = []
+        text_tag = main_container.find_all("p")
+
+        curr = []
+        for tag in text_tag:
+            if tag.get_text().replace("\u200B", "").strip():
+                curr.append(tag.get_text().replace("\u200B", "").strip())
+            elif curr:
+                clean_lines.append(curr)
+                curr = []
 
         return clean_lines
 
@@ -55,6 +62,6 @@ class NaverBlogScrapper:
         return images_url, stickers
 
 
-if __name__ == "__main__":
-    scraper = NaverBlogScrapper()
-    scraper.scrape_naver_blogs("https://blog.naver.com/nanunnaha/223057473985")
+# if __name__ == "__main__":
+#     scraper = NaverBlogScrapper()
+#     scraper.scrape_naver_blogs("https://blog.naver.com/nasy1346/223206741687")
