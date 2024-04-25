@@ -19,6 +19,11 @@
       "matches": ["*://search.naver.com/*"],
       "js": ["searchScript.js"],
       "css": ["styles.css"]
+    },
+    {
+      "matches": ["*://blog.naver.com/*"],
+      "js": ["searchBlogDetail.js"],
+      "css": ["styles.css"]
     }
   ],
   "action": {
