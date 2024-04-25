@@ -83,17 +83,15 @@ def cafe_crawl(url: str):
 @app.get("/cafe-crawl2")
 def cafe_crawl2(url: str):
     start = time.time()
-    # options = webdriver.ChromeOptions()
-    # options.add_argument("--disable-popup-blocking")
-    # options.add_argument("headless")
-    # options.add_argument("--disable-gpu")
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--blink-settings=imagesEnabled=false");
     # caps = DesiredCapabilities.CHROME
     # caps["pageLoadStrategy"] = "none"
-    # options.add_argument(
-    #     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-    # )
-    #driver = webdriver.Chrome(options=options)
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome()
     driver.get(url)
     time.sleep(1)
 
@@ -107,10 +105,10 @@ def cafe_crawl2(url: str):
     for i in range(len(data)):
         cur = data[i]
         cur_list = []
-        if(cur['class'][1] =='se-text'):
+        if(cur['class'][1] == 'se-text'):
             cur_list.append(key)
             cur_list.append("text")
-            cur_list.append(cur.div.div.div.p.span.string)
+            cur_list.append(cur.div.div.div.text.strip())
             list.append(cur_list)
             key += 1
         if (cur['class'][1] == 'se-image'):
@@ -125,6 +123,5 @@ def cafe_crawl2(url: str):
         "list": list
     }
 
-    end = time.time()
-    print("요청시간", end - start)
+    print("요청시간", time.time() - start)
     return JSONResponse(content=response_data)
