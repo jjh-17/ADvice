@@ -13,16 +13,16 @@ chrome.webNavigation.onCommitted.addListener(function (details) {
   }
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete") {
-    console.log("업데이트된 탭의 URL:", tab.url);
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.tabs.get(activeInfo.tabId, function (tab) {
     if (
       tab.url !==
       "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@8771130bd84f76d855ae42fbe02752b03e352f17/&panel=elements&targetType=tab&veLogging=true"
     ) {
       url = tab.url;
     }
-  }
+    console.log("tab 변경됨 : ", url);
+  });
 });
 
 // modal 요청이 왔을 때

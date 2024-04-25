@@ -4,9 +4,30 @@ let level = [2, 2, 3, 4, 5];
 const maxLevel = 5;
 
 Array.from(userInfoElements).forEach((element, index) => {
-  console.log(element.innerHTML);
+  // console.log(element.innerHTML);
   setUI(element);
 });
+
+const searchAllresult = Array.from(document.querySelectorAll(".desktop_mode"));
+searchAllresult.forEach((result) => {
+  console.log("result", result);
+  setUI(result);
+})
+
+// const tmp = document.getElementsByClassName("fds-keep-group");
+// console.log("tmp", tmp);
+// for(let i = 0; i < tmp.length; i++){
+//   const parentElement = tmp[i].parentNode;
+//   console.log(tmp[i]);
+//   parentElement.insertAdjacentHTML("beforeend", "<div>111111</div>");
+// }
+// tmp.forEach((element) => {
+//   // console.log("tmp", tmp);
+//   const progressBarHTML = "<div>11111111</div>"
+//   // element.insertAdjacentHTML("beforebegin", progressBarHTML);
+// })
+
+// setUI(null, "fds-keep-group")
 
 // ------- 호버 모달 설정
 const modalHTML = `
@@ -27,18 +48,27 @@ window.onclick = function (event) {
   }
 };
 
+function setUI(node) {
+  console.log("setUI 실행");
+  // let userInfoElements;
+  // if(node == null){
+  //   userInfoElements = document.querySelectorAll(tag)
+  // }else{
+  //   userInfoElements = node.querySelectorAll(tag)
+  // }
+  // const userInfoElements = node.querySelectorAll(
+  //   ".api_save_group, .fds-keep-group"
+  // );
 
-
-function setUI(node){
-  console.log("setUI 실행")
-  const userInfoElements = node.querySelectorAll(".api_save_group")
-  // const userInfoElements = document.getElementsByClassName("api_save_group");
+  const userInfoElements = node.querySelectorAll(
+    ".api_save_group, .fds-keep-group"
+  );
 
   Array.from(userInfoElements).forEach((element, index) => {
-    console.log(element.innerHTML);
+    console.log(element);
     const levelValue = level[index];
     const percentage = (levelValue / maxLevel) * 100; // 최대 단계에 대한 현재 단계의 백분율
-  
+
     // 진행 상태 표시
     const progressBarHTML = `
       <div style="float : right; display : flex; padding : 1% 2%;; border-radius : 15px 15px; border: 1px solid lightgray; box-shadow: 1px 1px 2px lightgray; width : 20%;">
@@ -57,44 +87,46 @@ function setUI(node){
         </div>
       <div>
     `;
-  
-    element.insertAdjacentHTML("afterend", progressBarHTML);
-    element.style.display = "flex";
-    const userBox = element.parentNode.querySelector(".user_box_inner");
-  });
-  
-  // -------- 유용도 박스
 
+    element.insertAdjacentHTML("beforebegin", progressBarHTML);
+    element.style.display = "flex";
+    // const userBox = element.parentNode.querySelector(".user_box_inner");
+  });
+
+  // -------- 유용도 박스
 
   const links = node.querySelectorAll(".title_area a");
   links.forEach((link) => {
     link.addEventListener("mouseover", function () {
       console.log(link);
       modalText.textContent = `게시글 요약${link}`;
-  
+
       const linkRect = link.getBoundingClientRect();
       modal.style.left = `${linkRect.left + window.scrollX}px`;
       modal.style.top = `${linkRect.bottom + window.scrollY}px`;
       modal.style.display = "block";
-      modal.style.position = 'absolute';
+      modal.style.position = "absolute";
     });
-  
-    link.addEventListener("mouseout", function() {
-      modal.style.display = "none";
-    })
-  });
 
+    link.addEventListener("mouseout", function () {
+      modal.style.display = "none";
+    });
+  });
 }
 
-// ------------ 처음 검색 결과에 ui 씌우기 
+// ------------ 처음 검색 결과에 ui 씌우기
 
 // 콜백 함수 정의
-const callback = function(mutationsList, observer) {
+const callback = function (mutationsList, observer) {
   for (const mutation of mutationsList) {
-    if (mutation.type === 'childList') {
+    if (mutation.type === "childList") {
       mutation.addedNodes.forEach((node) => {
-        if (node.tagName === 'LI' && node.classList.contains('bx')) {
-          console.log('새로운 <li> 태그가 추가됨:', node);
+        if (node.tagName === "LI" && node.classList.contains("bx")) {
+          console.log("새로운 <li> 태그가 추가됨:", node);
+          setUI(node);
+        }
+        if (node.tagName == "div" && node.classList.contains("_keep_wrap")) {
+          console.log("새로운 _keep_wrap 태그 추가됨");
           setUI(node);
         }
       });
@@ -102,15 +134,20 @@ const callback = function(mutationsList, observer) {
   }
 };
 
-// MutationObserver 인스턴스 생성
-const observer = new MutationObserver(callback);
+const url = window.location.href;
+if (url.includes("tab.blog")) {
+  // MutationObserver 인스턴스 생성
+  const observer = new MutationObserver(callback);
 
-// 관찰 설정: 자식 요소의 변화를 관찰
-const config = { childList: true, subtree: true };
-const targetNode = document.querySelector('.lst_view');
+  // 관찰 설정: 자식 요소의 변화를 관찰
+  const config = { childList: true, subtree: true };
+  const targetNode = document.querySelector(".lst_view");
 
-// 변화 관찰 시작
-observer.observe(targetNode, config);
+  // 변화 관찰 시작
+  observer.observe(targetNode, config);
 
-// 페이지가 언로드될 때 옵저버를 해제
-window.addEventListener('unload', () => observer.disconnect());
+  // 페이지가 언로드될 때 옵저버를 해제
+  window.addEventListener("unload", () => observer.disconnect());
+}
+
+
