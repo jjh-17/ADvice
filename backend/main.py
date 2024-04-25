@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import time
+import datetime
 from bs4 import BeautifulSoup
 
 from models.exception.CustomException import CustomException
@@ -23,14 +25,21 @@ async def root():
     raise CustomException(status_code=404, message="exception test ok")
     return {"message": "Hello World"}
 
+# 이미지와 텍스트 분리
 @app.get("/cafe-crawl")
 def cafe_crawl(url: str):
-    # options = webdriver.ChromeOptions()
+    start = time.time()
+    options = webdriver.ChromeOptions()
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("headless")
+    options.add_argument("--disable-gpu")
+    caps = DesiredCapabilities.CHROME
+    caps["pageLoadStrategy"] = "none"
     # options.add_argument(
     #     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
     # )
-    # driver = webdriver.Chrome(options=options)
-    driver = webdriver.Chrome()
+    driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome()
     driver.get(url)
     time.sleep(1)
 
@@ -67,4 +76,55 @@ def cafe_crawl(url: str):
         "imgList": imgList
     }
 
+    end = time.time()
+    print("요청시간", end - start)
+    return JSONResponse(content=response_data)
+
+@app.get("/cafe-crawl2")
+def cafe_crawl2(url: str):
+    start = time.time()
+    # options = webdriver.ChromeOptions()
+    # options.add_argument("--disable-popup-blocking")
+    # options.add_argument("headless")
+    # options.add_argument("--disable-gpu")
+    # caps = DesiredCapabilities.CHROME
+    # caps["pageLoadStrategy"] = "none"
+    # options.add_argument(
+    #     'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+    # )
+    #driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome()
+    driver.get(url)
+    time.sleep(1)
+
+    driver.switch_to.frame("cafe_main")
+    soup = BeautifulSoup(driver.page_source, "html.parser")
+
+    data = soup.select('.se-main-container > div')
+    list = []
+    key = 1
+
+    for i in range(len(data)):
+        cur = data[i]
+        cur_list = []
+        if(cur['class'][1] =='se-text'):
+            cur_list.append(key)
+            cur_list.append("text")
+            cur_list.append(cur.div.div.div.p.span.string)
+            list.append(cur_list)
+            key += 1
+        if (cur['class'][1] == 'se-image'):
+            cur_list.append(key)
+            cur_list.append("image")
+            cur_list.append(cur.div.div.div.a.img['src'])
+            list.append(cur_list)
+            key += 1
+
+    response_data = {
+        "url": url,
+        "list": list
+    }
+
+    end = time.time()
+    print("요청시간", end - start)
     return JSONResponse(content=response_data)
