@@ -143,6 +143,7 @@ def cafe_crawl2(url: str):
                 key += 1
                 list.append(cur_list)
         if (cur['class'][1] == 'se-image'):
+            cur_list = []
             cur_list.append(key)
             cur_list.append("image")
             cur_list.append(cur.div.div.div.a.img['src'])
