@@ -1,15 +1,27 @@
 {
-    "name": "ADvice",
-    "description": "실시간 페이지 분석을 통한 게시글 필터링 도우미",
-    "version": "1.0",
-    "manifest_version": 3,
-    "permissions": [
-      "storage",
-      "activeTab",
-      "scripting"
-    ],
-    "action": {
-      "default_popup": "index.html"
+  "name": "ADvice",
+  "description": "실시간 페이지 분석을 통한 게시글 필터링 도우미",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "tabs",
+    "storage",
+    "activeTab",
+    "scripting",
+    "webNavigation",
+    "background"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://search.naver.com/*"],
+      "js": ["searchScript.js"],
+      "css": ["styles.css"]
     }
+  ],
+  "action": {
+    "default_popup": "index.html"
   }
-  
+}
