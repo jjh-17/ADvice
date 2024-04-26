@@ -34,9 +34,9 @@ def oneShotConv2Data():
 def attrBased2Data():
     # 화자 감정에 따라 부정/중립/긍정 반환
     def getEmotion(emotion):
-        if(emotion=="-1"):  return "부정"
-        elif(emotion=="0"): return "중립"
-        else:               return "긍정"
+        if(int(emotion)<=-1):   return "부정"
+        elif(emotion=="0"):     return "중립"
+        else:                   return "긍정"
 
     # input_path 내 파일 순회
     folder_name = "속성기반_감정분석_데이터/"
@@ -50,11 +50,13 @@ def attrBased2Data():
                 infos = json.load(input_file)
 
                 for info in infos:
-                    text = info["RawText"]
-                    emotion = getEmotion(getEmotion("GeneralPolarity"))
-                    row = [text, emotion]
-                    data_list.append(row)
-
+                    try: 
+                        text = info["RawText"]
+                        emotion = getEmotion(info["GeneralPolarity"])
+                        row = [text, emotion]
+                        data_list.append(row)
+                    except:
+                        continue
     pd.DataFrame(data_list, columns=columns).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig', header=False)
 
 # 한국어 감성 사전 데이터 전처리 함수
