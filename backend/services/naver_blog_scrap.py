@@ -1,5 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+from requests import ConnectionError, Timeout, TooManyRedirects
+
+from models.exception.custom_exception import CustomException
 
 
 class NaverBlogScrapper:
@@ -7,7 +10,7 @@ class NaverBlogScrapper:
         self.__naver_url = "https://blog.naver.com/"
 
     def scrape_naver_blogs(self, url: str):
-        res = requests.get(url)
+        res = self.__download_page(url)
 
         # iframe으로 구성된 경우 url 수정
         soup = BeautifulSoup(res.text, "html.parser")
@@ -20,8 +23,19 @@ class NaverBlogScrapper:
 
         return self.__scrape_internal_frame(soup)
 
+    def __download_page(self, url: str):
+        # TODO : requests를 다른 서비스에서 사용할 경우 분리
+        try:
+            res = requests.get(url)
+            return res
+        except (ConnectionError, Timeout, TooManyRedirects):
+            raise CustomException(400, "페이지에 연결할 수 없습니다")
+
     def __scrape_internal_frame(self, soup: BeautifulSoup):
         main_container = soup.find("div", class_="se-main-container")
+
+        if not main_container:
+            raise CustomException(400, "메인 컨테이너를 찾을 수 없습니다.")
 
         text = self.extract_text(main_container)
         images = self.extract_images(main_container)
@@ -58,3 +72,9 @@ class NaverBlogScrapper:
             images_url.append(img["src"])
 
         return images_url
+
+
+if __name__ == "__main__":
+    scraper = NaverBlogScrapper()
+
+    print(scraper.scrape_naver_blogs("https://kimdj1989"))
