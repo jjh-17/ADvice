@@ -24,22 +24,22 @@ class NaverBlogScrapper:
         main_container = soup.find("div", class_="se-main-container")
 
         text = self.extract_text(main_container)
-        images, stickers = self.extract_images(main_container)
+        images = self.extract_images(main_container)
 
-        return None
+        return text, images
 
     # 텍스트 추출
     def extract_text(self, main_container: BeautifulSoup):
         clean_lines = []
-        text_tag = main_container.find_all("p")
+        text_tag = main_container.find_all("div", class_="se-text")
 
-        curr = []
         for tag in text_tag:
             if tag.get_text().replace("\u200B", "").strip():
-                curr.append(tag.get_text().replace("\u200B", "").strip())
-            elif curr:
-                clean_lines.append(curr)
-                curr = []
+                clean_lines.append(
+                    tag.get_text(separator=" ", strip=True)
+                    .replace("\u200B", "")
+                    .strip()
+                )
 
         return clean_lines
 
@@ -48,20 +48,13 @@ class NaverBlogScrapper:
         images = main_container.find_all("img", recursive=True)
 
         images_url = []
-        stickers = []
         for img in images:
             if not img.get("src") or not img.parent.get("data-linktype"):
                 continue
 
-            if img.parent["data-linktype"] == "sticker":
-                stickers.append(img["src"])
+            if img.parent["data-linktype"] == "sticker" and ".gif" in img["src"]:
+                continue
 
-            else:
-                images_url.append(img["src"])
+            images_url.append(img["src"])
 
-        return images_url, stickers
-
-
-# if __name__ == "__main__":
-#     scraper = NaverBlogScrapper()
-#     scraper.scrape_naver_blogs("https://blog.naver.com/nasy1346/223206741687")
+        return images_url
