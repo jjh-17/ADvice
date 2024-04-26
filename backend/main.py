@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webdriver_manager.chrome import ChromeDriverManager
@@ -126,13 +127,21 @@ def cafe_crawl2(url: str):
 
     for i in range(len(data)):
         cur = data[i]
-        cur_list = []
         if(cur['class'][1] == 'se-text'):
-            cur_list.append(key)
-            cur_list.append("text")
-            cur_list.append(cur.div.div.div.text.strip())
-            list.append(cur_list)
-            key += 1
+            # 전체
+            # cur_list.append(key)
+            # cur_list.append("text")
+            # cur_list.append(cur.div.div.div.text.strip())
+            # list.append(cur_list)
+            span_text_list = cur.select("span")
+            for j in range(len(span_text_list)):
+                span_text = span_text_list[j]
+                cur_list = []
+                cur_list.append(key)
+                cur_list.append("text")
+                cur_list.append(span_text.get_text())
+                key += 1
+                list.append(cur_list)
         if (cur['class'][1] == 'se-image'):
             cur_list.append(key)
             cur_list.append("image")
