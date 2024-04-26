@@ -1,3 +1,5 @@
+import time
+
 from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -24,9 +26,11 @@ async def root():
 
 @app.get("/cafe-crawl")
 def cafe_crawl(url: str):
+    start = time.time()
     scraper = NaverCafeScrapper()
     list = scraper.scrape_naver_cafe(url)
 
+    print("요청 시간", time.time()-start)
     return JSONResponse(
         content=list,
     )

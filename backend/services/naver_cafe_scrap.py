@@ -4,7 +4,10 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+from kss import split_sentences
 from bs4 import BeautifulSoup
+
+from services.text_ad_detection import TextAdDetection
 
 class NaverCafeScrapper:
 
@@ -61,10 +64,7 @@ class NaverCafeScrapper:
             self.driver = None
 
     def scrape_naver_cafe(self, url: str):
-        try:
-            if not self.driver:
-                self.initialize_driver()
-
+        self.initialize_driver()
         self.driver.get(url)
         time.sleep(1)
         # driver.implicitly_wait(3)
@@ -85,6 +85,8 @@ class NaverCafeScrapper:
                 # cur_list.append(cur.div.div.div.text.strip())
                 # list.append(cur_list)
 
+                result = self.paragraph_ad(cur.div.div.div.text.strip())
+
                 span_text_list = cur.select("span")
                 for j in range(len(span_text_list)):
                     span_text = span_text_list[j]
@@ -103,3 +105,15 @@ class NaverCafeScrapper:
                 key += 1
 
         return result_list
+
+    def paragraph_ad(self, paragraph: str):
+        detector = TextAdDetection()
+        list = split_sentences(paragraph)
+        ad_result = detector.predict(list)
+        result = ""
+        # print(len(list), " ", len(ad_result))
+        for i in range(len(list)):
+            # print(list[i], " ", len(list[i]), " -> ", ad_result[i], " ", type(ad_result[i]))
+            result = result+(len(list[i]) * str(ad_result[i]))
+            # print(result)
+        return result
