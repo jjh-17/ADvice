@@ -73,11 +73,36 @@ def oneShotConv2Data():
     # 데이터 추가
     pd.DataFrame(filtered_df[["Text", "Emotion"]]).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig')
 
+
 # 속성기반 감정분석 데이터 전처리 함수
+def attrBased2Data():
+    # 화자 감정에 따라 부정/중립/긍정 반환
+    def getEmotion(emotion):
+        if(emotion=="-1"):  return "부정"
+        elif(emotion=="0"): return "중립"
+        else:               return "긍정"
 
+    # input_path 내 파일 순회
+    folder_name = "속성기반_감정분석_데이터/"
+    data_list = []
+    for (root, directories, files) in os.walk(input_path + folder_name):
+        print(len(files))
+        # input_path 내 모든 퍄일 순회
+        for file in files:
+            # 파일을 열어 데이터 추출
+            with open(input_path + folder_name + file, 'r', encoding='UTF-8') as input_file:
+                infos = json.load(input_file)
 
+                for info in infos:
+                    text = info["RawText"]
+                    emotion = getEmotion(getEmotion("GeneralPolarity"))
+                    row = [text, emotion]
+                    data_list.append(row)
+
+    pd.DataFrame(data_list, columns=columns).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig', header=False)
 
 # 전처리 시작
 oneShotConv2Data()
+attrBased2Data()
 
 # 파일 저장 및 종료
