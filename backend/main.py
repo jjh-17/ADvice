@@ -9,7 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 from bs4 import BeautifulSoup
 
-from models.exception.CustomException import CustomException
+from models.exception.custom_exception import CustomException
 
 app = FastAPI()
 
