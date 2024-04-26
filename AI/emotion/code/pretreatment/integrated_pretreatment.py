@@ -27,7 +27,7 @@ def oneShotConv2Data():
     filtered_df.rename(columns={'Sentence': 'Text', 'Emotion': 'Emotion'}, inplace=True)
 
     # 데이터 추가
-    pd.DataFrame(filtered_df[["Text", "Emotion"]]).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig')
+    pd.DataFrame(filtered_df[["Text", "Emotion"]]).to_csv(output_path, index=False, mode='w', encoding='utf-8-sig')
 
 
 # 속성기반 감정분석 데이터 전처리 함수
