@@ -57,6 +57,29 @@ def attrBased2Data():
 
     pd.DataFrame(data_list, columns=columns).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig', header=False)
 
+# 한국어 감성 사전 데이터 전처리 함수
+def dict2Data():
+    # 감정에 따른 반환 
+    def getEmotion(emotion):
+        if(emotion in ["-2", "-1"]):    return "부정"
+        elif(emotion == "0"):           return "중립"
+        else:                           return "긍정"
+
+    # 파일을 열어 데이터 추출
+    file_name = "SentiWord_info.json"
+    data_list = []
+
+    with open(input_path + file_name, 'r', encoding='UTF-8') as input_file:
+        infos = json.load(input_file)
+        for info in infos:
+            text = info["word"]
+            emotion = getEmotion(info["polarity"])
+            row = [text, emotion]
+            data_list.append(row)
+        
+    pd.DataFrame(data_list, columns=columns).to_csv(output_path, index=False, mode='a', encoding='utf-8-sig', header=False)
+
 # 전처리 시작
 oneShotConv2Data()
 attrBased2Data()
+dict2Data()
