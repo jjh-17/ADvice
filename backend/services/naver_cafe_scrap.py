@@ -1,6 +1,3 @@
-from fastapi import FastAPI, HTTPException
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -11,8 +8,10 @@ from bs4 import BeautifulSoup
 
 class NaverCafeScrapper:
 
-    def scrape_naver_cafe(self, url: str):
-        start = time.time()
+    def __init__(self):
+        self.driver = None
+
+    def create_webdriver(self):
         options = webdriver.ChromeOptions()
         options.headless = True
         options.add_argument('--headless')
@@ -51,17 +50,30 @@ class NaverCafeScrapper:
         caps["pageLoadStrategy"] = "none"
 
         driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        # driver = webdriver.Chrome()
-        driver.get(url)
+        return driver
 
+    def initialize_driver(self):
+        self.driver = self.create_webdriver()
+
+    def close_driver(self):
+        if self.driver:
+            self.driver.quit()
+            self.driver = None
+
+    def scrape_naver_cafe(self, url: str):
+        try:
+            if not self.driver:
+                self.initialize_driver()
+
+        self.driver.get(url)
         time.sleep(1)
         # driver.implicitly_wait(3)
 
-        driver.switch_to.frame("cafe_main")
-        soup = BeautifulSoup(driver.page_source, "html.parser")
+        self.driver.switch_to.frame("cafe_main")
+        soup = BeautifulSoup(self.driver.page_source, "html.parser")
 
         data = soup.select('.se-main-container > div')
-        list = []
+        result_list = []
         key = 1
 
         for i in range(len(data)):
@@ -72,6 +84,7 @@ class NaverCafeScrapper:
                 # cur_list.append("text")
                 # cur_list.append(cur.div.div.div.text.strip())
                 # list.append(cur_list)
+
                 span_text_list = cur.select("span")
                 for j in range(len(span_text_list)):
                     span_text = span_text_list[j]
@@ -80,60 +93,13 @@ class NaverCafeScrapper:
                     cur_list.append("text")
                     cur_list.append(span_text.get_text())
                     key += 1
-                    list.append(cur_list)
+                    result_list.append(cur_list)
             if (cur['class'][1] == 'se-image'):
                 cur_list = []
                 cur_list.append(key)
                 cur_list.append("image")
                 cur_list.append(cur.div.div.div.a.img['src'])
-                list.append(cur_list)
+                result_list.append(cur_list)
                 key += 1
 
-        return list
-
-    # 텍스트와 이미지 분리
-    def cafe_crawl_separate(self, url: str):
-        start = time.time()
-        options = webdriver.ChromeOptions()
-        driver = webdriver.Chrome(options=options)
-
-        driver.get(url)
-        time.sleep(1)
-
-        driver.switch_to.frame("cafe_main")
-        driver.quit()
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-
-        # print(soup.select('.se-main-container'))
-        # data = soup.select('.se-main-container > div')
-        texts = soup.select('.se-main-container > div > div > div > div > p > span')
-        textList = []
-        key = 1
-        for t in texts:
-            # print(t.text)
-            list = []
-            list.append(key)
-            list.append(t.text)
-            textList.append(list)
-            key += 1
-
-        imgList = []
-        key = 1
-        imgs = soup.select('.se-main-container > div > div > div > div > a > img.se-image-resource')
-        for img in imgs:
-            # print(img.get('src'))
-            list = []
-            list.append(key)
-            list.append(img.get('src'))
-            imgList.append(list)
-            key += 1
-
-        response_data = {
-            "url": url,
-            "textList": textList,
-            "imgList": imgList
-        }
-
-        end = time.time()
-        print("요청시간", end - start)
-        return JSONResponse(content=response_data)
+        return result_list
