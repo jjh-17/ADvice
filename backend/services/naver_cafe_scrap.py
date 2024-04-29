@@ -93,7 +93,13 @@ class NaverCafeScrapper:
                     cur_list = []
                     cur_list.append(key)
                     cur_list.append("text")
-                    cur_list.append(span_text.get_text())
+                    #cur_list.append(span_text.get_text())
+                    list = self.split_string(span_text.get_text())
+                    ad_string=""
+                    for k in range(len(list)):
+                        if(list[k] in result):
+                            ad_string = ad_string+list[k]
+                    cur_list.append(ad_string)
                     key += 1
                     result_list.append(cur_list)
             if (cur['class'][1] == 'se-image'):
@@ -108,12 +114,16 @@ class NaverCafeScrapper:
 
     def paragraph_ad(self, paragraph: str):
         detector = TextAdDetection()
-        list = split_sentences(paragraph)
+        list = self.split_string(paragraph)
         ad_result = detector.predict(list)
         result = ""
-        # print(len(list), " ", len(ad_result))
         for i in range(len(list)):
-            # print(list[i], " ", len(list[i]), " -> ", ad_result[i], " ", type(ad_result[i]))
-            result = result+(len(list[i]) * str(ad_result[i]))
-            # print(result)
+            if ad_result[i] == 1:
+                result = result + list[i]
+            print(list[i], " ", len(list[i]), " -> ", ad_result[i])
+            #result = result+(len(list[i]) * str(ad_result[i]))
         return result
+
+    def split_string(self, paragraph: str):
+        list = split_sentences(paragraph)
+        return list
