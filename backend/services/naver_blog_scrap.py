@@ -58,3 +58,12 @@ class NaverBlogScrapper:
             images_url.append(img["src"])
 
         return images_url
+
+if __name__ == "__main__":
+    scrapper = NaverBlogScrapper()
+    text, images = scrapper.scrape_naver_blogs("https://blog.naver.com/wpqlks7/222918166440")
+    
+    print(text)
+    print("=======================================")
+    print(images)
+    
