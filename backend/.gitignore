@@ -393,3 +393,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,python,pycharm+all,visualstudiocode,flask
+
+services/config.json
+services/pytorch_model.bin
+services/training_args.bin
