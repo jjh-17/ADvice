@@ -1,28 +1,33 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted } from "vue";
 import SearchResult from "../components/SearchResult.vue";
 import SearchDetail from "../components/SearchDetail.vue";
+import Default from "../components/Default.vue";
 
 const currentUrl = ref(""); // 현재 URL을 저장할 반응형 참조
-const flag = ref(false);
-const rerenderKey = ref(0);
+const viewState = ref("default");
 
 onMounted(() => {
   chrome.runtime.sendMessage({ action: "checkUrl" }, (response) => {
-    console.log("onMounted! :" + response.url);
     currentUrl.value = response.url;
-    if (currentUrl.value.includes("search.naver.com")) {
-      flag.value = true;
-    } else {
-      flag.value = false;
-    }
+    updateViewState(currentUrl.value);
   });
 });
 
-onUnmounted(() => {
-  console.log("unmounted!");
-});
+function updateViewState(url) {
+  if (url.includes("https://search.naver.com")) {
+    viewState.value = "searchResult";
+  } else if (
+    url.includes("https://blog.naver.com") ||
+    url.includes("https://cafe.naver.com")
+  ) {
+    viewState.value = "searchDetail";
+  } else {
+    viewState.value = "default";
+  }
+}
 </script>
+
 <template>
   <main>
     <div>
@@ -38,8 +43,9 @@ onUnmounted(() => {
       </label>
     </div>
     <div>
-      <SearchResult v-if="flag" />
-      <SearchDetail v-else />
+      <SearchResult v-if="viewState === 'searchResult'" />
+      <SearchDetail v-if="viewState === 'searchDetail'" />
+      <Default v-if="viewState === 'default'" />
     </div>
   </main>
 </template>
