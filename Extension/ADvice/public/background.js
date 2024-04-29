@@ -13,16 +13,15 @@ chrome.webNavigation.onCommitted.addListener(function (details) {
   }
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "complete") {
-    console.log("업데이트된 탭의 URL:", tab.url);
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.tabs.get(activeInfo.tabId, function (tab) {
     if (
       tab.url !==
       "devtools://devtools/bundled/devtools_app.html?remoteBase=https://chrome-devtools-frontend.appspot.com/serve_file/@8771130bd84f76d855ae42fbe02752b03e352f17/&panel=elements&targetType=tab&veLogging=true"
     ) {
       url = tab.url;
     }
-  }
+  });
 });
 
 // modal 요청이 왔을 때
@@ -43,8 +42,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-
-    return true; // 비동기 응답을 위해 true를 반환
   } else if (request.action == "hoverAPI") {
     console.log(request.url);
     fetch("http://127.0.0.1:8000/hover_urls", {
