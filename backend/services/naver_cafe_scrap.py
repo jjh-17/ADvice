@@ -53,7 +53,7 @@ class NaverCafeScrapper:
         # caps["pageLoadStrategy"] = "none"
 
         # ChromeDriver 경로 지정 및 옵션 설정
-        driver_path = "/home/ubuntu/chrome/chromedriver"
+        driver_path = "chromedriver"
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
