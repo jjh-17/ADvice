@@ -182,6 +182,7 @@ function setUI(node, index) {
   const links = node.querySelectorAll(
     ".title_area a, .fds-comps-right-image-text-title, .total_tit a"
   );
+
   links.forEach((link) => {
     // 호버 -> API로 링크 전송 -> 요약문 return
     link.addEventListener("mouseover", function () {
@@ -259,7 +260,6 @@ if (url.includes("tab.blog")) {
 
   // 변화 관찰 시작
   observer.observe(targetNode, config);
-
   // 페이지가 언로드될 때 옵저버를 해제
   window.addEventListener("unload", () => observer.disconnect());
 }

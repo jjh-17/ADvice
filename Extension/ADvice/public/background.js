@@ -21,7 +21,6 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     ) {
       url = tab.url;
     }
-    console.log("tab 변경됨 : ", url);
   });
 });
 
@@ -43,24 +42,66 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-
-    return true; // 비동기 응답을 위해 true를 반환
-  } else if(request.action == "hoverAPI"){
-    console.log(request.url)
+  } else if (request.action == "hoverAPI") {
+    console.log(request.url);
     fetch("http://127.0.0.1:8000/hover_urls", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({url : request.url}),
+      body: JSON.stringify({ url: request.url }),
     })
       .then((response) => response.json())
       .then((data) => sendResponse({ success: true, data: data }))
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-
-    return true; // 비동기 응답을 위해 true를 반환
+  } else if (request.action === "detailBlog") {
+    fetch("http://127.0.0.1:8000/blog", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Response:", data);
+        sendResponse({ success: true, data: data });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
+  } else if (request.action === "detailCafe") {
+    fetch("http://127.0.0.1:8000/cafe", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Response:", data);
+        sendResponse({ success: true, data: data });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
+  } else if (request.action === "sendData") {
+    console.log(request.data);
+    fetch("http://127.0.0.1:8000/process_data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ urls: request.data }),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ success: true, data: data }))
+      .catch((error) =>
+        sendResponse({ success: false, error: error.toString() })
+      );
   }
   return true; // Keep the messaging channel open for the response
 });
