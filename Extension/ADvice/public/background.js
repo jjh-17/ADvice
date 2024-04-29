@@ -45,6 +45,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       );
 
     return true; // 비동기 응답을 위해 true를 반환
+  } else if(request.action == "hoverAPI"){
+    console.log(request.url)
+    fetch("http://127.0.0.1:8000/hover_urls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({url : request.url}),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ success: true, data: data }))
+      .catch((error) =>
+        sendResponse({ success: false, error: error.toString() })
+      );
+
+    return true; // 비동기 응답을 위해 true를 반환
   }
   return true; // Keep the messaging channel open for the response
 });

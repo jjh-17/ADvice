@@ -1,4 +1,4 @@
-const userInfoElements = document.getElementsByClassName("bx");
+const userInfoElements = document.getElementsByClassName("view_wrap");
 let urlList = [];
 let level = [];
 const maxLevel = 5;
@@ -21,12 +21,13 @@ chrome.runtime.sendMessage(
       const urlIndex = urlList.indexOf(url);
       if (urlIndex !== -1) {
         level[urlIndex] = response.data[url];
+        console.log(level[urlIndex]);
       }
     });
 
     console.log(level);
     Array.from(userInfoElements).forEach((element, index) => {
-      // console.log(element.innerHTML);
+      console.log("ui setting", element);
       setUI(element, index);
     });
   }
@@ -59,7 +60,7 @@ searchAllresult.forEach((result) => {
 // ------- 호버 모달 설정
 const modalHTML = `
   <div id="myModal" class="modal" style="position: absolute; display: none; z-index: 1000;">
-    <div class="modal-content">
+    <div class="modal-content" style="word-wrap : break-word;">
       <p id="modalText">링크 정보가 여기에 표시됩니다.</p>
     </div>
   </div>
@@ -182,9 +183,17 @@ function setUI(node, index) {
     ".title_area a, .fds-comps-right-image-text-title, .total_tit a"
   );
   links.forEach((link) => {
+    // 호버 -> API로 링크 전송 -> 요약문 return
     link.addEventListener("mouseover", function () {
-      console.log(link);
-      modalText.textContent = `게시글 요약${link}`;
+      console.log(link.href);
+      // background.js로 메시지 보내기
+      chrome.runtime.sendMessage(
+        { action: "hoverAPI", url: link.href },
+        function (response) {
+          console.log("API 호출 결과 받음:", response);
+          modalText.textContent = `${response.data}`;
+        }
+      );
 
       const linkRect = link.getBoundingClientRect();
       modal.style.left = `${linkRect.left + window.scrollX}px`;
@@ -207,22 +216,32 @@ const callback = function (mutationsList, observer) {
     if (mutation.type === "childList") {
       mutation.addedNodes.forEach((node) => {
         if (node.tagName === "LI" && node.classList.contains("bx")) {
-          console.log("새로운 <li> 태그가 추가됨:", node);
-          // 새로 추가된 url을 갖고 background.js로 메시지 보내기
-          urlList.push(node.querySelector(".title_area a").href);
-          chrome.runtime.sendMessage(
-            { action: "searchAPI", urlList: [node.querySelector(".title_area a").href] },
-            function (response) {
-              console.log("API 호출 결과 받음:", response);
-              level.push(response.data[0]);
-              console.log(level);
-              // Array.from(userInfoElements).forEach((element, index) => {
-              //   // console.log(element.innerHTML);
-              //   setUI(element, index);
-              // });
-            }
+          console.log(
+            "새로운 LI 태그가 추가됨:",
+            node.querySelector(".view_wrap")
           );
-          // setUI(node);
+          const addNode = node.querySelector(".view_wrap");
+          if (addNode != null) {
+            const url = addNode.querySelector(".title_area a").href;
+            // 새로 추가된 url을 갖고 background.js로 메시지 보내기
+            // urlList.push(node.querySelector(".title_area a").href);
+            chrome.runtime.sendMessage(
+              {
+                action: "searchAPI",
+                urlList: [url],
+              },
+              function (response) {
+                console.log("API 호출 결과 받음:", response);
+                level.push(response.data[url]);
+                console.log(level);
+                setUI(addNode, level.length - 1);
+                // Array.from(userInfoElements).forEach((element, index) => {
+                //   // console.log(element.innerHTML);
+                //   setUI(element, index);
+                // });
+              }
+            );
+          }
         }
       });
     }
@@ -236,7 +255,7 @@ if (url.includes("tab.blog")) {
 
   // 관찰 설정: 자식 요소의 변화를 관찰
   const config = { childList: true, subtree: true };
-  const targetNode = document.querySelector(".lst_view");
+  const targetNode = document.body; //document.querySelector(".lst_view");
 
   // 변화 관찰 시작
   observer.observe(targetNode, config);
