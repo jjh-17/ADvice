@@ -18,7 +18,8 @@
     {
       "matches": ["*://search.naver.com/*"],
       "js": ["searchScript.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_end"
     }
   ],
   "action": {
