@@ -19,7 +19,7 @@ class NaverCafeScrapper:
         options = webdriver.ChromeOptions()
         options.add_argument('--headless')
         options.add_argument('--no-sandbox')
-        options.add_argument('disable-dev-shm-usage')
+        options.add_argument('--disable-dev-shm-usage')
         options.add_experimental_option("detach", True)
         #
         # # 속도 향상을 위한 옵션 해제
