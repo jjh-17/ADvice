@@ -6,6 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 from kss import split_sentences
 from bs4 import BeautifulSoup
+import os
 
 from services.text_ad_detection import TextAdDetection
 
@@ -51,9 +52,9 @@ class NaverCafeScrapper:
         #
         # caps = DesiredCapabilities.CHROME
         # caps["pageLoadStrategy"] = "none"
-
+        print(os.getcwd())
         # ChromeDriver 경로 지정 및 옵션 설정
-        driver_path = "chromedriver"
+        driver_path = "./backend/chromedriver"
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
