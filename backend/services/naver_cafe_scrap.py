@@ -52,7 +52,7 @@ class NaverCafeScrapper:
         caps = DesiredCapabilities.CHROME
         caps["pageLoadStrategy"] = "none"
 
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        driver = webdriver.Chrome(options=options)
         return driver
 
     def initialize_driver(self):
