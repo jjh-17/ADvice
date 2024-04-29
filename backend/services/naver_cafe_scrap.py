@@ -16,19 +16,11 @@ class NaverCafeScrapper:
         self.driver = None
 
     def create_webdriver(self):
-        # options = webdriver.ChromeOptions()
-        # options.headless = True
-        # options.add_argument('--headless')
-        # options.add_argument('--ignore-ssl-errors=yes')
-        # options.add_argument('--ignore-certificate-errors')
-        # options.add_argument('--disable-dev-shm-usage')
-        # options.add_argument('--no-sandbox')
-        # options.add_argument('--log-level=3')
-        # options.add_argument('--disable-gpu')
-        # options.add_argument('--disable-infobars')
-        # options.add_argument('--disable-extensions')
-        # options.add_argument('--incognito')
-        # options.add_argument('--disable-images')
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('disable-dev-shm-usage')
+        options.add_experimental_option("detach", True)
         #
         # # 속도 향상을 위한 옵션 해제
         # prefs = {'profile.default_content_setting_values': {'cookies': 2, 'images': 2, 'plugins': 2, 'popups': 2,
@@ -60,7 +52,7 @@ class NaverCafeScrapper:
         # 웹드라이버 초기화
         #driver = webdriver.Chrome(service=service)
         #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='120').install()))
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(options=options)
         return driver
 
     def initialize_driver(self):
