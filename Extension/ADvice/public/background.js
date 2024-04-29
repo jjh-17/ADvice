@@ -102,6 +102,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+  }else if(request.action === "updateCheck"){
+        // 현재 활성 탭을 찾아 해당 탭의 Content Script로 메시지를 전달
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            action: "updateCheck",
+            isChecked: request.isChecked
+          });
+        });
   }
   return true; // Keep the messaging channel open for the response
 });
