@@ -52,8 +52,13 @@ class NaverCafeScrapper:
         # caps = DesiredCapabilities.CHROME
         # caps["pageLoadStrategy"] = "none"
 
-        # driver = webdriver.Chrome(options=options)
-        driver = webdriver.Chrome()
+        # ChromeDriver 경로 지정 및 옵션 설정
+        driver_path = "/home/ubuntu/chrome/chromedriver.exe"
+        service = Service(executable_path=driver_path)
+
+        # 웹드라이버 초기화
+        driver = webdriver.Chrome(service=service)
+        #driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         return driver
 
     def initialize_driver(self):
