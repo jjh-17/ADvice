@@ -1,6 +1,6 @@
 // 테스트 url : https://cafe.naver.com/specup/7458685
 
-setInterval(1000); // 로딩 기다리기
+setInterval(10000); // 로딩 기다리기
 var iframe = document.getElementById("cafe_main");
 
 if (iframe) {
@@ -48,10 +48,8 @@ if (iframe) {
           });
         });
 
-        var listData = {};
-
         chrome.runtime.sendMessage(
-          { action: "detailCafe" },
+          { action: "detailCafe", crawlResults: crawlResults },
           function (response) {
             listData = response.data;
 
