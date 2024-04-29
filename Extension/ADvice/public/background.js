@@ -45,6 +45,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.error("Error:", error);
         sendResponse({ success: false, error: error.toString() });
       });
+  } else if (request.action === "detailCafe") {
+    fetch("http://127.0.0.1:8000/cafe", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Response:", data);
+        sendResponse({ success: true, data: data });
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
   }
   return true; // Keep the messaging channel open for the response
 });
