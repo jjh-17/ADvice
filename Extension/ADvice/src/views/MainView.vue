@@ -13,12 +13,16 @@ onMounted(() => {
     currentUrl.value = response.url;
     updateViewState(currentUrl.value);
   });
+  
+  chrome.runtime.sendMessage({ action: "updateCheck" }, (response) => {
+    isChecked.value = response.check;
+  });
 });
 
 const checkboxUpdate = (event) => {
   isChecked.value = event.target.checked;
   console.log("check 변경", isChecked.value)
-  chrome.runtime.sendMessage({action : "updateCheck", isChecked : isChecked.value});
+  chrome.runtime.sendMessage({action : "saveCheck", isChecked : isChecked.value});
 }
 
 function updateViewState(url) {

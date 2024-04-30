@@ -16,6 +16,45 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
+  // ------- 호버 모달 설정
+  const modalHTML = `
+  <div id="myModal" class="modal" style="position: absolute; display: none; z-index: 1000;">
+    <div class="modal-content" style="word-wrap : break-word;">
+      <p id="modalText">링크 정보가 여기에 표시됩니다.</p>
+    </div>
+  </div>
+`;
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+
+  const modal = document.getElementById("myModal");
+  const modalText = document.getElementById("modalText");
+
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  };
+
+function hoverHandler(link) {
+  return  function () {
+    console.log(link.href);
+    // background.js로 메시지 보내기
+    chrome.runtime.sendMessage(
+      { action: "hoverAPI", url: link.href },
+      function (response) {
+        console.log("API 호출 결과 받음:", response);
+        modalText.textContent = `${response.data}`;
+      }
+    );
+
+    const linkRect = link.getBoundingClientRect();
+    modal.style.left = `${linkRect.left + window.scrollX}px`;
+    modal.style.top = `${linkRect.bottom + window.scrollY}px`;
+    modal.style.display = "block";
+    modal.style.position = "absolute";
+  }
+}
+
 function setting() {
   const userInfoElements = document.getElementsByClassName("view_wrap");
   let urlList = [];
@@ -76,24 +115,7 @@ function setting() {
 
   // setUI(null, "fds-keep-group")
 
-  // ------- 호버 모달 설정
-  const modalHTML = `
-  <div id="myModal" class="modal" style="position: absolute; display: none; z-index: 1000;">
-    <div class="modal-content" style="word-wrap : break-word;">
-      <p id="modalText">링크 정보가 여기에 표시됩니다.</p>
-    </div>
-  </div>
-`;
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  const modal = document.getElementById("myModal");
-  const modalText = document.getElementById("modalText");
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
 
   function saveURL(node) {
     const links = node.querySelectorAll(".title_area a");
@@ -172,28 +194,6 @@ function setting() {
       if (!element.parentNode.querySelector(".progress")) {
         // 진행 상태 표시
       }
-      //   const progressBarHTML = `
-      //   <div class="progress" style="float : right; display : flex; padding : 1% 2%;; border-radius : 15px 15px; border: 1px solid lightgray; box-shadow: 1px 1px 2px lightgray; width : 20%;">
-      //     <div style="width : 30%; white-space : nowrap; text-align : right; margin-right : 10%">유용도</div>
-      //     <div class="progress-container" style="width:70%; position : relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
-      //       ${[...Array(maxLevel - 1)]
-      //         .map(
-      //           (_, i) => `
-      //       <div class="progress-divider" style="position: absolute; left: ${
-      //         (i + 1) * (100 / maxLevel)
-      //       }%; width: 1px; height: 100%; background-color: #fff;"></div>
-      //     `
-      //         )
-      //         .join("")}
-      //     <div class="progress-bar" style="width: ${percentage}%; background-color: #007bff; height: 100%;"></div>
-      //   </div>
-      // <div>
-      // `;
-      //   // element.parentNode.innerHTML = progressBarHTML;
-      //   element.insertAdjacentHTML("afterend", progressBarHTML);
-      //   element.style.display = "flex";
-      //   console.log("after", element.parentNode);
-      // const userBox = element.parentNode.querySelector(".user_box_inner");
     });
 
     // -------- 유용도 박스
@@ -204,27 +204,14 @@ function setting() {
 
     links.forEach((link) => {
       // 호버 -> API로 링크 전송 -> 요약문 return
-      link.addEventListener("mouseover", function () {
-        console.log(link.href);
-        // background.js로 메시지 보내기
-        chrome.runtime.sendMessage(
-          { action: "hoverAPI", url: link.href },
-          function (response) {
-            console.log("API 호출 결과 받음:", response);
-            modalText.textContent = `${response.data}`;
-          }
-        );
-
-        const linkRect = link.getBoundingClientRect();
-        modal.style.left = `${linkRect.left + window.scrollX}px`;
-        modal.style.top = `${linkRect.bottom + window.scrollY}px`;
-        modal.style.display = "block";
-        modal.style.position = "absolute";
-      });
+      const handler = hoverHandler(link)
+      link.addEventListener("mouseover", handler);
 
       link.addEventListener("mouseout", function () {
         modal.style.display = "none";
       });
+
+      link.handler = handler;
     });
   }
 
@@ -294,7 +281,11 @@ function unsetting() {
   })
 
   const links = document.querySelectorAll(".view_wrap .title_area a");
+  console.log("unsetting", links)
   links.forEach((link) => {
-    // link.removeEventListener("mouseover");
+    link.removeEventListener("mouseover", link.handler);
+    if(link.handler){
+      link.removeEventListener("mouseover", link.handler);
+    }
   })
 }

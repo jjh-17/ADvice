@@ -1,4 +1,5 @@
 url = "";
+checkflag = true;
 
 // url 확인 할 때
 chrome.webNavigation.onCommitted.addListener(function (details) {
@@ -28,7 +29,9 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "checkUrl") {
     sendResponse({ url: url });
-  } else if (request.action === "searchAPI") {
+  }else if(request.action === "updateCheck"){
+    sendResponse({ check : checkflag });
+  }else if (request.action === "searchAPI") {
     console.log(request.urlList);
     fetch("http://127.0.0.1:8000/process_urls", {
       method: "POST",
@@ -102,7 +105,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-  }else if(request.action === "updateCheck"){
+  }else if(request.action === "saveCheck"){
+      checkflag = request.isChecked;
         // 현재 활성 탭을 찾아 해당 탭의 Content Script로 메시지를 전달
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
           chrome.tabs.sendMessage(tabs[0].id, {
