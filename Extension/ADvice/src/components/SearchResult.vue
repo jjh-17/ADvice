@@ -13,6 +13,7 @@ const selected = ref([]);
 watch(selected, (newValue) => {
   chrome.runtime.sendMessage({ action: "changeOption", options: newValue });
 });
+
 </script>
 
 <template>
