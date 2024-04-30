@@ -8,6 +8,9 @@ class DetailService:
     def __init__(self):
         self.__detail_evaluation = AdEvaluation()
 
+    async def evaluate(self, data: DetailRequest):
+        return {"adDetection": await self.evaluate_ad(data)}
+
     async def evaluate_ad(self, data: DetailRequest):
         text = [
             {"id": tag.id, "data": tag.data} for tag in data.script if tag.type == "txt"
