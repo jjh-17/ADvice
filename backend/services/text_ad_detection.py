@@ -6,7 +6,7 @@ class TextAdDetection:
     def __init__(self):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            "./model/KcELECTRA_ad", num_labels=2
+            "./backend/model/KcELECTRA_ad", num_labels=2
         ).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained("beomi/KcELECTRA-base")
 
