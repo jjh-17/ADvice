@@ -1,4 +1,40 @@
-setting();
+
+function sleep(sec) {
+  return new Promise((resolve) => setTimeout(resolve, sec));
+}
+
+const topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
+const url = window.location.href;
+if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
+  (async () => {
+    await sleep(1);
+    console.log("sleep end");
+    let content = document.querySelectorAll(".desktop_mode");
+    let checkInterval = setInterval(function () {
+      let checkflag = true;
+      content.forEach((node) => {
+        console.log(node);
+        let contentAttr = node.parentNode.getAttribute("data-slog-container");
+        console.log(contentAttr);
+        if (contentAttr.endsWith("R")) {
+          let contentDetail = node.getElementsByClassName("fds-keep-group");
+          console.log(contentDetail);
+          console.log(contentDetail.length);
+          if (contentDetail.length == 0) {
+            checkflag = false;
+          }
+        }
+      });
+      if (checkflag) {
+        clearInterval(checkInterval);
+        console.log("clearInterval");
+        setting("all");
+      }
+    }, 100);
+  })();
+} else {
+  setting("tab");
+}
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   console.log(message);
@@ -8,15 +44,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       console.log("Checkbox is checked. Perform specific action.");
       // 체크박스가 체크되었을 때 실행할 코드
       const url = window.location.href;
-      let content = document.querySelectorAll(".desktop_mode");
-      if(url.includes("tab.nx.all")){
-        let checkInterval = setInterval(function() {
-          content.forEach((node) => {
-            
-          })
-        }, 100);
+      if (url.includes("tab.nx.all")) {
+        setting("all");
+      }else{
+        setting("tab");
       }
-      setting();
     } else {
       console.log("Checkbox is not checked. Perform alternative action.");
       unsetting();
@@ -25,27 +57,27 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-  // ------- 호버 모달 설정
-  const modalHTML = `
+// ------- 호버 모달 설정
+const modalHTML = `
   <div id="myModal" class="modal" style="position: absolute; display: none; z-index: 1000;">
     <div class="modal-content" style="word-wrap : break-word;">
       <p id="modalText">링크 정보가 여기에 표시됩니다.</p>
     </div>
   </div>
 `;
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
+document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-  const modal = document.getElementById("myModal");
-  const modalText = document.getElementById("modalText");
+const modal = document.getElementById("myModal");
+const modalText = document.getElementById("modalText");
 
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
 
 function hoverHandler(link) {
-  return  function () {
+  return function () {
     console.log(link.href);
     // background.js로 메시지 보내기
     chrome.runtime.sendMessage(
@@ -61,11 +93,13 @@ function hoverHandler(link) {
     modal.style.top = `${linkRect.bottom + window.scrollY}px`;
     modal.style.display = "block";
     modal.style.position = "absolute";
-  }
+  };
 }
 
-function setting() {
-  const userInfoElements = document.getElementsByClassName("view_wrap");
+function setting(position) {
+  const userInfoElements = document.querySelectorAll(
+    ".view_wrap, .fds-ugc-block-mod"
+  );
   let urlList = [];
   let level = [];
   const maxLevel = 5;
@@ -87,12 +121,13 @@ function setting() {
         console.log(url);
         const urlIndex = urlList.indexOf(url);
         if (urlIndex !== -1) {
-          level[urlIndex] = response.data[url];
+          level[urlIndex] = {index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장  //response.data[url];
           console.log(level[urlIndex]);
         }
       });
 
       console.log(level);
+
       Array.from(userInfoElements).forEach((element, index) => {
         console.log("ui setting", element);
         setUI(element, index);
@@ -103,56 +138,26 @@ function setting() {
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
   );
+
   searchAllresult.forEach((result) => {
     console.log("result", result);
-    // setUI(result);
-    // setTimeout(setUI(result), 2000)
-    // setTimeout(() => console.log("2초 후에 실행됨"), 2000);
   });
-  // const tmp = document.getElementsByClassName("fds-keep-group");
-  // console.log("tmp", tmp);
-  // for(let i = 0; i < tmp.length; i++){
-  //   const parentElement = tmp[i].parentNode;
-  //   console.log(tmp[i]);
-  //   parentElement.insertAdjacentHTML("beforeend", "<div>111111</div>");
-  // }
-  // tmp.forEach((element) => {
-  //   // console.log("tmp", tmp);
-  //   const progressBarHTML = "<div>11111111</div>"
-  //   // element.insertAdjacentHTML("beforebegin", progressBarHTML);
-  // })
-
-  // setUI(null, "fds-keep-group")
-
 
 
   function saveURL(node) {
-    const links = node.querySelectorAll(".title_area a");
+    const links = node.querySelectorAll(
+      ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
+    );
     links.forEach((link) => {
       // console.log(link.href);
-      urlList.push(link.href);
+      if(link.href != undefined){
+        urlList.push(link.href);
+      }
     });
   }
 
   function setUI(node, index) {
     console.log("setUI 실행");
-    // console.log(level);
-    // let userInfoElements;
-    // if(node == null){
-    //   userInfoElements = document.querySelectorAll(tag)
-    // }else{
-    //   userInfoElements = node.querySelectorAll(tag)
-    // }
-    // const userInfoElements = node.querySelectorAll(
-    //   ".api_save_group, .fds-keep-group"
-    // );
-    // const customStyle = document.createElement('style');
-    // customStyle.textContent = `
-    //   .fds-keep-group {
-    //     background-color: yellow;
-    //   }
-    // `;
-    // document.head.appendChild(customStyle);
     const userInfoElements = node.querySelectorAll(
       // ".fds-keep-group"
       ".api_save_group, .fds-keep-group"
@@ -167,8 +172,9 @@ function setting() {
     if (userInfoElements.length != 0) {
       console.log(userInfoElements);
       const progressBarHTML = `
-      <div class="progress" style="float : right; display : flex; padding : 1% 2%;; border-radius : 15px 15px; border: 1px solid lightgray; box-shadow: 1px 1px 2px lightgray; width : 20%;">
-        <div style="width : 30%; white-space : nowrap; text-align : right; margin-right : 10%">유용도</div>
+      <div class="progress" style="float : right; display : flex; padding : 1% 2%; border-radius : 15px 15px; border: 1px solid lightgray;
+      box-shadow: 1px 1px 2px lightgray; width : ${position == "all" ? "25%" : "20%"}; margin-top : ${position == "all" ? "0%" : "-1%"}">
+        <div style="width : 30%; white-space : nowrap; font-size : 13px; text-align : right; margin-right : 10%">유용도</div>
         <div class="progress-container" style="width:70%; position : relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
           ${[...Array(maxLevel - 1)]
             .map(
@@ -183,17 +189,17 @@ function setting() {
       </div>
     <div>
     `;
-      userInfoElements[0].insertAdjacentHTML("afterend", progressBarHTML);
+      if (position == "all") {
+        userInfoElements[0].insertAdjacentHTML("beforebegin", progressBarHTML);
+      } else {
+        userInfoElements[0].insertAdjacentHTML("afterend", progressBarHTML);
+      }
       userInfoElements[0].style.display = "flex";
       console.log("after", userInfoElements.parentNode);
     }
 
-    // element.parentNode.innerHTML = progressBarHTML;
-
     Array.from(userInfoElements).forEach((element, index) => {
       // 프로그레스 바를 fds-keep-group 요소 이전에 추가
-      // element.innerHTML = progressBarElement;
-      // element.innerText = "";
       console.log(index);
       console.log("before", element.parentNode);
       const levelValue = level[index];
@@ -213,7 +219,7 @@ function setting() {
 
     links.forEach((link) => {
       // 호버 -> API로 링크 전송 -> 요약문 return
-      const handler = hoverHandler(link)
+      const handler = hoverHandler(link);
       link.addEventListener("mouseover", handler);
 
       link.addEventListener("mouseout", function () {
@@ -279,22 +285,27 @@ function setting() {
     window.addEventListener("unload", () => observer.disconnect());
   }
 }
+// --- end setting function
 
 // 체크박스 해제할 때 화면에 있던 유용도/호버 모달 같이 해제하기
 function unsetting() {
-  const userInfoElements = document.querySelectorAll(".view_wrap .progress");
+  const userInfoElements = document.querySelectorAll(
+    ".view_wrap .progress,  .fds-ugc-block-mod .progress"
+  );
   Array.from(userInfoElements).forEach((element) => {
-    if(element.parentNode){
+    if (element.parentNode) {
       element.parentNode.removeChild(element);
     }
-  })
+  });
 
-  const links = document.querySelectorAll(".view_wrap .title_area a");
-  console.log("unsetting", links)
+  const links = document.querySelectorAll(
+    ".view_wrap .title_area a, .fds-comps-right-image-text-title"
+  );
+  console.log("unsetting", links);
   links.forEach((link) => {
     link.removeEventListener("mouseover", link.handler);
-    if(link.handler){
+    if (link.handler) {
       link.removeEventListener("mouseover", link.handler);
     }
-  })
+  });
 }
