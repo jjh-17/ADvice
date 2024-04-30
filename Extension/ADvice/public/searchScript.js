@@ -7,6 +7,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.isChecked) {
       console.log("Checkbox is checked. Perform specific action.");
       // 체크박스가 체크되었을 때 실행할 코드
+      const url = window.location.href;
+      let content = document.querySelectorAll(".desktop_mode");
+      if(url.includes("tab.nx.all")){
+        let checkInterval = setInterval(function() {
+          content.forEach((node) => {
+            
+          })
+        }, 100);
+      }
       setting();
     } else {
       console.log("Checkbox is not checked. Perform alternative action.");
