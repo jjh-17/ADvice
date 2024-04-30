@@ -18,7 +18,19 @@
     {
       "matches": ["*://search.naver.com/*"],
       "js": ["searchScript.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["*://blog.naver.com/*"],
+      "js": ["searchBlogDetail.js"],
       "css": ["styles.css"]
+    },
+    {
+      "matches": ["*://cafe.naver.com/*"],
+      "js": ["searchCafeDetail.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
