@@ -46,13 +46,12 @@ class NaverCafeScrapper:
         # caps["pageLoadStrategy"] = "none"
         print(os.getcwd())
         # ChromeDriver 경로 지정 및 옵션 설정
-        driver_path = "/usr/bin/chromedriver"
+        driver_path = "chromedriver"
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
-        #driver = webdriver.Chrome(service=service)
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
-        time.sleep(5)
+        driver = webdriver.Chrome(service=service)
+        #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
         #driver = webdriver.Chrome(service=service, options=options)
         return driver
 
@@ -67,7 +66,7 @@ class NaverCafeScrapper:
     def scrape_naver_cafe(self, url: str):
         self.initialize_driver()
         self.driver.get(url)
-        time.sleep(1)
+        time.sleep(3)
         # driver.implicitly_wait(3)
 
         self.driver.switch_to.frame("cafe_main")
