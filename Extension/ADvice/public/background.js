@@ -1,4 +1,5 @@
 url = "";
+options = [];
 
 // url 확인 할 때
 chrome.webNavigation.onCommitted.addListener(function (details) {
@@ -28,6 +29,9 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "checkUrl") {
     sendResponse({ url: url });
+  } else if (request.action === "changeOption") {
+    options = request.options;
+    console.log(options);
   } else if (request.action === "searchAPI") {
     console.log(request.urlList);
     fetch("http://127.0.0.1:8000/process_urls", {
