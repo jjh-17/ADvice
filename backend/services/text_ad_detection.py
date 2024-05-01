@@ -6,7 +6,7 @@ class TextAdDetection:
     def __init__(self):
         # self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.device = torch.device('cpu')
-        self.model = AutoModelForSequenceClassification.from_pretrained("./backend/model/KcELECTRA_ad", num_labels=2).to(self.device)
+        self.model = AutoModelForSequenceClassification.from_pretrained("./model/KcELECTRA_ad", num_labels=2).to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained("beomi/KcELECTRA-base")
 
     def predict(self, texts):
@@ -39,7 +39,7 @@ class TextAdDetection:
         logits = outputs[0]
         logits = logits.detach().cpu()
         return 1 if logits.argmax(-1) == 1 else 0
-    
+
 texts = [
     "안녕하세요, 여러분!",
     "오늘은 제가 최근에 경험한 특별한 여행 이야기를 여러분과 공유하고 싶어서 글을 적게 되었어요.",
