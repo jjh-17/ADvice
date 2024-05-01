@@ -49,7 +49,7 @@ class BERTClassifier(torch.nn.Module):
 class TextEmotionPrediction:
     def __init__(self):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        self.model = torch.load("./backend/model/KoBERT_emo/emotion_classification_model.pt", map_location=self.device)    \
+        self.model = torch.load("./model/KoBERT_emo/emotion_classification_model.pt", map_location=self.device)    \
                         .to(self.device)
         self.tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')
