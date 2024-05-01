@@ -3,8 +3,6 @@ import gluonnlp as nlp
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from kobert_tokenizer import KoBERTTokenizer
-from fastapi import APIRouter
-from starlette.responses import JSONResponse
 
 
 # 학습/테스트 데이터 전처리를 위한 클래스
