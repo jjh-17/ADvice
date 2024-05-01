@@ -47,6 +47,7 @@ class BERTClassifier(torch.nn.Module):
 
 # input 데이터 전처리
 class TextEmotionPrediction:
+    # 초기화
     def __init__(self):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.model = torch.load("./model/KoBERT_emo/emotion_classification_model.pt", map_location=self.device)    \
@@ -55,6 +56,7 @@ class TextEmotionPrediction:
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')
         self.tok = self.tokenizer.tokenize    
 
+    # 예측 결과 반환 메서드
     def predict(self, texts):
         results = []
         for text in texts:
@@ -88,6 +90,6 @@ class TextEmotionPrediction:
 
             with torch.no_grad():
                 output = self.model(token_ids, valid_length, segment_ids)
-            logits = output.detach().cpu().numpy()
-            # logits = np.round(new_softmax(logits), 3).tolist()
+                logits = output.detach().cpu().numpy()
+                # logits = np.round(new_softmax(logits), 3).tolist()
         return np.argmax(logits)-1
