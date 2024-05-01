@@ -58,11 +58,25 @@ class TextEmotionPrediction:
 
     # 예측 결과 반환 메서드
     def predict(self, texts):
-        results = []
+        cnt_neg, cnt_neu, cnt_pos = 0, 0, 0
         for text in texts:
-            results.append(self.sentence_predict(text))
+            result = self.sentence_predict(text)
+            if result == -1:
+                cnt_neg += 1
+            elif result == 0:
+                cnt_neu += 1
+            else:
+                cnt_pos += 1
 
-        return results
+        return self.emotion_analyze(cnt_neg, cnt_neu, cnt_pos)
+
+    # 감정값 기반 글 성향 분석 결과 반환
+    def emotion_analyze(self, cnt_neg, cnt_neu, cnt_pos):
+        if cnt_neg >= cnt_neu + cnt_pos:
+            return -1
+        elif cnt_pos >= cnt_neg + cnt_neu:
+            return 1
+        return 0
 
     #  부정 : -1, 중립 : 0, 긍정 : 1
     def sentence_predict(self, sentence):
