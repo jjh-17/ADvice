@@ -1,8 +1,11 @@
 import torch
-from torch.utils.data import Dataset, DataLoader
-from kobert_tokenizer import KoBERTTokenizer
 import gluonnlp as nlp
 import numpy as np
+from torch.utils.data import Dataset, DataLoader
+from kobert_tokenizer import KoBERTTokenizer
+from fastapi import APIRouter
+from starlette.responses import JSONResponse
+
 
 # 학습/테스트 데이터 전처리를 위한 클래스
 class BERTDataset(Dataset):
@@ -18,6 +21,7 @@ class BERTDataset(Dataset):
 
     def __len__(self):
         return (len(self.labels))
+
 
 # 모델 구조
 class BERTClassifier(torch.nn.Module):
@@ -39,19 +43,20 @@ class BERTClassifier(torch.nn.Module):
     def forward(self, token_ids, valid_length, segment_ids):
         attention_mask = self.gen_attention_mask(token_ids, valid_length)
 
-        _, pooler = self.bert(input_ids = token_ids, token_type_ids = segment_ids.long(),
-                                attention_mask = attention_mask.float().to(token_ids.device), return_dict = False)
+        _, pooler = self.bert(input_ids=token_ids, token_type_ids=segment_ids.long(),
+                              attention_mask=attention_mask.float().to(token_ids.device), return_dict=False)
         if self.dr_rate:
             out = self.dropout(pooler)
         return self.classifier(out)
+
 
 # input 데이터 전처리
 class TextEmotionPrediction:
     # 초기화
     def __init__(self):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        self.model = torch.load("./model/KoBERT_emo/emotion_classification_model.pt", map_location=self.device)    \
-                        .to(self.device)
+        self.model = (torch.load("./model/KoBERT_emo/emotion_classification_model.pt", map_location=self.device)
+                      .to(self.device))
         self.tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')
         self.tok = self.tokenizer.tokenize    
