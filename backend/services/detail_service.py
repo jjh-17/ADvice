@@ -9,12 +9,14 @@ class DetailService:
         self.__detail_evaluation = AdEvaluation()
 
     async def evaluate(self, data: DetailRequest):
+        data = [
+            {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
+            for tag in data.script
+        ]
         return {"adDetection": await self.evaluate_ad(data)}
 
-    async def evaluate_ad(self, data: DetailRequest):
-        text = [
-            {"id": tag.id, "data": tag.data} for tag in data.script if tag.type == "txt"
-        ]
+    async def evaluate_ad(self, data):
+        text = list(filter(lambda tag: tag["type"] == "txt", data))
 
         if len(text) < 1:
             return []
@@ -38,10 +40,18 @@ class DetailService:
         good_list, bad_list = [], []
 
         while sentence_row < len(sentence) and text_row < len(text):
+            if len(text[text_row]["data"]) < 1:
+                text_row += 1
+                continue
+
+            if len(sentence[sentence_row]) < 1:
+                sentence_row += 1
+                continue
+
             if sentence[sentence_row][sentence_col] == text[text_row]["data"][text_col]:
                 buffer += sentence[sentence_row][sentence_col]
-                text_col += 1
-            sentence_col += 1
+                sentence_col += 1
+            text_col += 1
 
             # 문장이 종료된 경우 => 평가가 변경됨
             if sentence_col >= len(sentence[sentence_row]):

@@ -46,13 +46,13 @@ class NaverCafeScrapper:
         # caps["pageLoadStrategy"] = "none"
         print(os.getcwd())
         # ChromeDriver 경로 지정 및 옵션 설정
-        driver_path = "chromedriver"
+        driver_path = "/usr/local/bin/chromedriver"
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
-        driver = webdriver.Chrome(service=service)
+        #driver = webdriver.Chrome(service=service)
         #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
-        #driver = webdriver.Chrome(service=service, options=options)
+        driver = webdriver.Chrome(service=service, options=options)
         return driver
 
     def initialize_driver(self):
