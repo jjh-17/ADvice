@@ -4,8 +4,8 @@ import re
 import pandas as pd
 
 # input, output 폴더 경로
-input_path = "./AI/emotion/data/input/"
-output_path = "./AI/emotion/data/output/pretreated_data.csv"
+input_path = "./emotion/data/input/"
+output_path = "./emotion/data/output/pretreated_data.csv"
 
 # 컬럼 정보
 columns = ['Text', 'Emotion']
