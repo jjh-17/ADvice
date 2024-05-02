@@ -117,10 +117,10 @@ function setting(position) {
     { action: "searchAPI", urlList: urlList },
     function (response) {
       console.log("API 호출 결과 받음:", response);
+      const sortLevel = [];
       Object.keys(response.data).forEach((url, index) => {
         console.log(url);
         const urlIndex = urlList.indexOf(url);
-        const sortLevel = [];
         if (urlIndex !== -1) {
           const curLevel = {url : url, level : response.data[url]};
           sortLevel.push(curLevel);
