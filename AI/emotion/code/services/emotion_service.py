@@ -1,7 +1,7 @@
 from functools import reduce
 
-from models.detail_request import DetailRequest
-from internals.emotion_prediction import EmoPrediction
+from emotion.code.models.detail_request import Element, DetailRequest
+from emotion.code.internals.emotion_prediction import EmoPrediction
 
 
 class EmotionPredictionService:
@@ -38,3 +38,7 @@ class EmotionPredictionService:
         elif cnt_pos >= cnt_neg + cnt_neu:
             result = 1
         return result
+
+emotionService = EmotionPredictionService()
+detail_request = DetailRequest(script=[Element(data="안녕"), Element(data="안녕2")])
+print(emotionService.predict(detail_request))
