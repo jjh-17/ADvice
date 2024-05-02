@@ -1,6 +1,6 @@
 from kss import split_sentences
 
-from services.text_emotion_prediction import BERTDataset, BERTClassifier, TextEmotionPrediction
+from emotion.code.services.text_emotion_prediction import BERTDataset, BERTClassifier, TextEmotionPrediction
 
 
 class EmoPrediction:
