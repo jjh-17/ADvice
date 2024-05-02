@@ -8,7 +8,8 @@ from starlette.responses import JSONResponse
 from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
 from services.naver_cafe_scrap import NaverCafeScrapper
-from services.text_emotion_prediction import TextEmotionPrediction
+
+from routers.emotion_prediction import emotion
 
 app = FastAPI()
 
@@ -21,7 +22,7 @@ app.add_middleware(
 )
 
 app.include_router(detail)
-
+app.include_router(emotion)
 
 @app.exception_handler(CustomException)
 async def custom_exception_handler(request: Request, exc: CustomException):
@@ -47,12 +48,3 @@ def cafe_crawl(url: str):
     return JSONResponse(
         content=list,
     )
-
-# @app.get("/emo-predict")
-# def emo_prediction(texts: []):
-    # start = time.time()
-    # emotion_detector = TextEmotionPrediction()  # 텍스트 감정 분석기 선언
-    # result = emotion_detector.predict(texts)
-    # print("요청 시간", time.time() - start)
-    #
-    # return {"result": result}
