@@ -2,6 +2,8 @@ import os
 from google.cloud import vision
 import urllib.request
 import urllib.error
+from ultralytics import YOLO
+import pandas as pd
 
 from backend.models.exception.custom_exception import CustomException
 from backend.services.text_ad_detection import TextAdDetection
@@ -17,7 +19,7 @@ class ImageAdDetection:
         detector = TextAdDetection()
         for image_path in image_paths:
             texts = self.read_text_from_image(image_path)
-            if texts != "no image":
+            if texts is not None:
                 flag = detector.sentence_predict(texts)
                 if flag > 0:
                     return True
@@ -34,10 +36,24 @@ class ImageAdDetection:
         response_image = response.read()
         image = vision.Image(content=response_image)
 
-        client = vision.ImageAnnotatorClient()
-
         # 요청 넣기
-        response = client.text_detection(image=image)
+        response = self.client.text_detection(image=image)
         texts = response.text_annotations
 
-        return ' '.join(texts[0].description.split('\n')) if len(texts) > 0 else "no image"
+        return texts[0].description.replace("\n", " ") if len(texts) > 0 else None
+class UnnaturalImageDetection:
+    def __init__(self):
+        self.model = YOLO("./model/YOLOv8/yolov8n.pt")
+
+    def count_objects_in_images(self, image_paths, object_class_number):
+        results = self.model(image_paths)
+
+        for result in results:
+            counts = 0
+            detected_data = result.boxes.data
+            px = pd.DataFrame(detected_data).astype("float")
+
+            for index, row in px.iterrows():
+                if row[5] == object_class_number:
+                    counts += 1
+        return counts
