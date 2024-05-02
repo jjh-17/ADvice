@@ -8,7 +8,8 @@ from starlette.responses import JSONResponse
 from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
 from services.naver_cafe_scrap import NaverCafeScrapper
-from services.text_emotion_prediction import TextEmotionPrediction
+from services.summary_service import SummaryService
+#from services.text_emotion_prediction import TextEmotionPrediction
 
 app = FastAPI()
 
@@ -47,6 +48,14 @@ def cafe_crawl(url: str):
     return JSONResponse(
         content=list,
     )
+
+@app.post("/summarize")
+def summarize(url: str):
+    scraper = NaverCafeScrapper()
+    text = scraper.scrape_naver_cafe_text(url)
+    summary = SummaryService()
+    result = summary.summarize(text)
+    return {"urlSummary": result}
 
 # @app.get("/emo-predict")
 # def emo_prediction(texts: []):

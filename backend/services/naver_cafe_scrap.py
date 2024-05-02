@@ -63,6 +63,21 @@ class NaverCafeScrapper:
             self.driver.quit()
             self.driver = None
 
+    def scrape_naver_cafe_text(self, url: str):
+        self.initialize_driver()
+        self.driver.get(url)
+        time.sleep(1)
+
+        self.driver.switch_to.frame("cafe_main")
+        soup = BeautifulSoup(self.driver.page_source, "html.parser")
+        texts = soup.select('.se-main-container > div > div > div > div > p > span')
+
+        result = ""
+        for t in texts:
+            result = result + t.text + " "
+
+        return result
+
     def scrape_naver_cafe(self, url: str):
         self.initialize_driver()
         self.driver.get(url)
