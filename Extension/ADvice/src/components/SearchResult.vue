@@ -14,54 +14,116 @@ watch(selected, (newValue) => {
   chrome.runtime.sendMessage({ action: "changeOption", options: newValue });
 });
 
+const currentRank = ref(0);
+const ranks = ref([
+  {
+    rank: 1,
+    title: "[홍대] 오브젝트 서교점 최고심 팝업스...",
+    url: "https://blog.naver.com/kus4242/223420431358",
+    author: "저는 캐릭터 중에서도 '최고심'을 엄청 좋아해요ㅎㅎ",
+    score: 100,
+  },
+  {
+    rank: 2,
+    title:
+      "홍대 소품샵 투어: 수바코, 오브젝트서교점(최고심), 유어마인드(책갈피)",
+    url: "https://blog.naver.com/dudungha22/223432930949",
+    score: 90,
+    author: "최고심이랑 콜라보를 했나봐요!! 벌써 구ㅏ여워 속마음 비밀해제",
+  },
+  {
+    rank: 3,
+    title: "최고심 팝업스토어 홍대, 속마음 비밀해제 와펜",
+    url: "https://blog.naver.com/aswqeeddrr5r/223414746493",
+    score: 80,
+    author: "이번에 롯데월드타워 잔디광장에도 등장한 최고심! 작년에는",
+  },
+  {
+    rank: 4,
+    title: "홍대ㅣ최고심 팝업 오브젝트서교 파우치 구입 후기",
+    url: "https://blog.naver.com/qpskxn41/223424509961",
+    score: 70,
+    author:
+      "오브젝트(서교점) 현명한 소비의 시작, 오브젝트 (insideobject.com) ️서울 마포구 와우산로",
+  },
+  {
+    rank: 5,
+    title: "옵젵상가X최고심 팝업 일정, 와펜 굿즈 가득한 오브젝트 서교점",
+    url: "https://blog.naver.com/woodyda/223418209479",
+    score: 60,
+    author:
+      "1년만에 돌아온 최고심 팝업스토어!!! 1년 전 오브젝트 서교점에서 최고심",
+  },
+]);
+
+const next = () => {
+  currentRank.value = (currentRank.value + 1) % ranks.value.length;
+};
+
+const prev = () => {
+  currentRank.value =
+    (currentRank.value + ranks.value.length - 1) % ranks.value.length;
+};
 </script>
 
 <template>
   <div>
     <div>
-      <h3 class="mt-2 mb-2 text-sm font-bold">키워드 검색</h3>
-      <!-- 검색 창 start-->
-      <form class="max-w-md mx-auto">
-        <label
-          for="default-search"
-          class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-          >Search</label
-        >
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-          >
-            <svg
-              class="w-4 h-4 text-gray-500 dark:text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
-          </div>
-          <input
-            type="search"
-            id="default-search"
-            class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-theme-blue focus:border-theme-blue dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-theme-blue dark:focus:border-theme-blue"
-            placeholder="Search..."
-          />
-          <!-- <button
-        type="submit"
-        class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+      <h3 class="mt-2 mb-2 text-sm font-bold">유용도 랭킹</h3>
+      <!-- 랭킹 캐러셀 start-->
+      <div
+        id="text-carousel-example"
+        class="relative w-full flex items-center justify-between mt-1 mb-8 border"
       >
-        Search
-      </button> -->
+        <!-- Left control -->
+        <button
+          @click="prev"
+          class="z-30 flex h-full cursor-pointer items-center justify-center px-4 focus:outline-none"
+        >
+          <span class="text-theme-blue text-3xl">‹</span>
+        </button>
+
+        <!-- Carousel wrapper -->
+        <div class="flex-grow flex pt-4 pb-3">
+          <!-- Text items -->
+          <div
+            v-for="(rank, index) in ranks"
+            :key="index"
+            :class="{ hidden: currentRank !== index }"
+          >
+            <div class="text-xs mb-1">
+              <span class="font-semibold" v-if="rank.rank <= 3">
+                👑 {{ rank.rank }}위
+              </span>
+              <!-- Crown only if rank is 3 or less -->
+              <span class="font-semibold" v-else>{{ rank.rank }}위</span>
+            </div>
+
+            <div class="text-semi-sm font-semibold mb-1">
+              {{
+                rank.title.length > 18
+                  ? rank.title.substring(0, 18) + "..."
+                  : rank.title
+              }}
+            </div>
+            <div class="text-xs mb-1">
+              {{
+                rank.author.length > 18
+                  ? rank.author.substring(0, 18) + "..."
+                  : rank.author
+              }}
+            </div>
+          </div>
         </div>
-      </form>
-      <!-- 검색 창 end-->
+        <!-- Right control -->
+        <button
+          @click="next"
+          class="z-30 flex h-full cursor-pointer items-center justify-center px-4 focus:outline-none"
+        >
+          <span class="text-theme-blue text-3xl">›</span>
+        </button>
+      </div>
+      <!-- 랭킹 캐러셀 end-->
     </div>
     <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
     <ul
