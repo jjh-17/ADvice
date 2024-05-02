@@ -9,7 +9,6 @@ from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.summary_service import SummaryService
-#from services.text_emotion_prediction import TextEmotionPrediction
 
 app = FastAPI()
 
@@ -56,12 +55,3 @@ def summarize(url: str):
     summary = SummaryService()
     result = summary.summarize(text)
     return {"urlSummary": result}
-
-# @app.get("/emo-predict")
-# def emo_prediction(texts: []):
-    # start = time.time()
-    # emotion_detector = TextEmotionPrediction()  # 텍스트 감정 분석기 선언
-    # result = emotion_detector.predict(texts)
-    # print("요청 시간", time.time() - start)
-    #
-    # return {"result": result}

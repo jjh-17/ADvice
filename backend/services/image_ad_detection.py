@@ -5,8 +5,8 @@ import urllib.error
 from ultralytics import YOLO
 import pandas as pd
 
-from backend.models.exception.custom_exception import CustomException
-from backend.services.text_ad_detection import TextAdDetection
+from models.exception.custom_exception import CustomException
+from services.text_ad_detection import TextAdDetection
 
 class ImageAdDetection:
     def __init__(self):
