@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-  } else if (request.action === "detailBlog") {
+  } else if (request.action === "detail") {
     fetch("http://k10a403.p.ssafy.io:8000/detail", {
       method: "POST",
       headers: {
@@ -72,19 +72,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       body: JSON.stringify({
         script: request.crawlResults,
       }),
-    })
-      .then((response) => response.json())
-      .then((data) => sendResponse({ success: true, data: data }))
-      .catch((error) =>
-        sendResponse({ success: false, error: error.toString() })
-      );
-  } else if (request.action === "detailCafe") {
-    fetch("http://127.0.0.1:8000/cafe", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(request.crawlResults),
     })
       .then((response) => response.json())
       .then((data) => sendResponse({ success: true, data: data }))

@@ -1,5 +1,3 @@
-// 테스트 url : https://cafe.naver.com/mokpomam/2191234?art=ZXh0ZXJuYWwtc2VydmljZS1uYXZlci1zZWFyY2gtY2FmZS1wcg.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjYWZlVHlwZSI6IkNBRkVfVVJMIiwiY2FmZVVybCI6Im1va3BvbWFtIiwiYXJ0aWNsZUlkIjoyMTkxMjM0LCJpc3N1ZWRBdCI6MTcxNDM3MTA2NTQ5Mn0._YtVE3Gpnl1vaGNVAoECgq8wNRi3fuHHCSSaBx1hhTA
-
 var iframe = document.getElementById("cafe_main");
 var checkInterval = setInterval(function () {
   var iframeDoc = iframe.contentWindow.document;
@@ -42,11 +40,12 @@ var checkInterval = setInterval(function () {
         });
       });
     });
+    console.log(crawlResults);
 
     chrome.runtime.sendMessage(
-      { action: "detailCafe", crawlResults: crawlResults },
+      { action: "detail", crawlResults: crawlResults },
       function (response) {
-        listData = response.data;
+        var listData = response.data.adDetection;
 
         // goodList의 각 항목에 대해서
         listData.goodList.forEach(function (item) {
