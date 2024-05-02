@@ -9,8 +9,6 @@ from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
 from services.naver_cafe_scrap import NaverCafeScrapper
 
-from routers.emotion_prediction import emotion
-
 app = FastAPI()
 
 app.add_middleware(
@@ -22,7 +20,6 @@ app.add_middleware(
 )
 
 app.include_router(detail)
-app.include_router(emotion)
 
 @app.exception_handler(CustomException)
 async def custom_exception_handler(request: Request, exc: CustomException):
