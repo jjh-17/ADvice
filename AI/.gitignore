@@ -5,3 +5,4 @@ emotion/Scripts
 emotion/share
 emotion/pyvenv.cfg
 emotion/code/model
+**/__pycache__
