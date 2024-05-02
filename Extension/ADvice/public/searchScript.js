@@ -3,7 +3,7 @@ function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec));
 }
 
-const topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
+let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
 const url = window.location.href;
 if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   (async () => {
@@ -117,14 +117,21 @@ function setting(position) {
     { action: "searchAPI", urlList: urlList },
     function (response) {
       console.log("API 호출 결과 받음:", response);
+      const sortLevel = [];
       Object.keys(response.data).forEach((url, index) => {
         console.log(url);
         const urlIndex = urlList.indexOf(url);
         if (urlIndex !== -1) {
-          level[urlIndex] = {index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장  //response.data[url];
+          const curLevel = {url : url, level : response.data[url]};
+          sortLevel.push(curLevel);
+          level[urlIndex] = response.data[url]; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장  
           console.log(level[urlIndex]);
         }
       });
+
+      sortLevel.sort((a, b) => b.level - a.level);
+      topList = sortLevel.slice(0, 5);
+      console.log("topList", topList);
 
       console.log(level);
 
@@ -256,11 +263,11 @@ function setting(position) {
                   console.log("API 호출 결과 받음:", response);
                   level.push(response.data[url]);
                   console.log(level);
+                  if(response.data[url] > topList[topList.length - 1]){ // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
+                    topList[topList.length - 1] = {url : url, level : response.data[url]};
+                    topList.sort((a, b) => b.level - a.level);
+                  }
                   setUI(addNode, level.length - 1);
-                  // Array.from(userInfoElements).forEach((element, index) => {
-                  //   // console.log(element.innerHTML);
-                  //   setUI(element, index);
-                  // });
                 }
               );
             }
