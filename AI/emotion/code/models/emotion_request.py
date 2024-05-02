@@ -2,5 +2,5 @@ from pydantic import BaseModel
 from typing import List
 
 
-class DetailRequest(BaseModel):
+class EmotionRequest(BaseModel):
     script: List[str]
