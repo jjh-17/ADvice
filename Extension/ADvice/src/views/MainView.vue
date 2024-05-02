@@ -6,13 +6,24 @@ import Default from "../components/Default.vue";
 
 const currentUrl = ref(""); // 현재 URL을 저장할 반응형 참조
 const viewState = ref("default");
+const isChecked = ref(true);
 
 onMounted(() => {
   chrome.runtime.sendMessage({ action: "checkUrl" }, (response) => {
     currentUrl.value = response.url;
     updateViewState(currentUrl.value);
   });
+  
+  chrome.runtime.sendMessage({ action: "updateCheck" }, (response) => {
+    isChecked.value = response.check;
+  });
 });
+
+const checkboxUpdate = (event) => {
+  isChecked.value = event.target.checked;
+  console.log("check 변경", isChecked.value)
+  chrome.runtime.sendMessage({action : "saveCheck", isChecked : isChecked.value});
+}
 
 function updateViewState(url) {
   if (url.includes("https://search.naver.com")) {
@@ -36,7 +47,7 @@ function updateViewState(url) {
           class="me-3 text-sm font-medium text-theme-blue dark:text-gray-300"
           >ADvice</span
         >
-        <input type="checkbox" value="" class="sr-only peer" checked />
+        <input type="checkbox" :checked="isChecked" @change="checkboxUpdate" value="" class="sr-only peer" />
         <div
           class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-theme-blue"
         ></div>

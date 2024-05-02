@@ -24,12 +24,14 @@
     {
       "matches": ["*://blog.naver.com/*"],
       "js": ["searchBlogDetail.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_end"
     },
     {
       "matches": ["*://cafe.naver.com/*"],
       "js": ["searchCafeDetail.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
