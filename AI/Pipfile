@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pydantic = "*"
+pandas = "*"
+openpyxl = "*"
+torch = "*"
+kss = "*"
+gluonnlp = "*"
+mxnet = ">=1.5"
+transformers = "*"
+sentencepiece = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
