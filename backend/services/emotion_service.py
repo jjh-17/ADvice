@@ -5,9 +5,11 @@ from internals.emotion_prediction import EmoPrediction
 
 
 class EmotionPredictionService:
+    # 초기화
     def __init__(self):
         self.__emotion_prediction = EmoPrediction()
 
+    # 데이터 전처리 이후 감정 예측 수행
     async def predict(self, data: DetailRequest):
         data = [
             {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
@@ -15,11 +17,12 @@ class EmotionPredictionService:
         ]
         return {"emoPrediction": await self.predict_emo(data)}
 
+    # 데이터 중 txt만 추출하여 감정 예측 수행
     async def predict_emo(self, data):
         text = list(filter(lambda tag: tag["type"] == "txt", data))
 
         if len(text) < 1:
-            return {}
+            return -2
 
         paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x["data"], text)))
         result = self.__emotion_prediction.cnt_emo(paragraph)
