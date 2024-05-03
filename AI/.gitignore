@@ -3,7 +3,8 @@ emotion/include
 emotion/Lib
 emotion/Scripts
 emotion/share
-emotion/pyvenv.cfg
-emotion/code/model
+pyvenv.cfg
+model
 **/__pycache__
-emotion/code/pretreatment
+emotion/training
+emo_predict
