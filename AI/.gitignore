@@ -6,5 +6,5 @@ emotion/share
 pyvenv.cfg
 model
 **/__pycache__
-emotion/training/pretreatment
+emotion/training
 emo_predict

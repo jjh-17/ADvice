@@ -1,6 +1,6 @@
 from kss import split_sentences
 
-from services.text_emotion_prediction import TextEmotionPrediction
+from emotion.services.text_emotion_prediction import TextEmotionPrediction
 
 
 class EmoPrediction:
