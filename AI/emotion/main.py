@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from emotion.routers.emotion_prediction import emotion
+from routers.emotion_prediction import emotion
 
 app = FastAPI()
 
