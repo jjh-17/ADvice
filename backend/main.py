@@ -8,7 +8,9 @@ from starlette.responses import JSONResponse
 from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
 from services.naver_cafe_scrap import NaverCafeScrapper
-from services.text_emotion_prediction import TextEmotionPrediction
+from services.summary_service import SummaryService
+from services.option_service import OptionService
+from models.full_request import FullRequest
 
 app = FastAPI()
 
@@ -36,6 +38,10 @@ async def root():
     raise CustomException(status_code=404, message="exception test ok")
     return {"message": "Hello World"}
 
+@app.post("/full-option")
+def full_option(data: FullRequest):
+    optionService = OptionService()
+    return JSONResponse(status_code=200, content=optionService.option_service(data))
 
 @app.get("/cafe-crawl")
 def cafe_crawl(url: str):
@@ -48,11 +54,10 @@ def cafe_crawl(url: str):
         content=list,
     )
 
-# @app.get("/emo-predict")
-# def emo_prediction(texts: []):
-    # start = time.time()
-    # emotion_detector = TextEmotionPrediction()  # 텍스트 감정 분석기 선언
-    # result = emotion_detector.predict(texts)
-    # print("요청 시간", time.time() - start)
-    #
-    # return {"result": result}
+@app.get("/summarize")
+def summarize(url: str):
+    scraper = NaverCafeScrapper()
+    text = scraper.scrape_naver_cafe_text(url)
+    summary = SummaryService()
+    result = summary.summarize(text)
+    return {"urlSummary": result}
