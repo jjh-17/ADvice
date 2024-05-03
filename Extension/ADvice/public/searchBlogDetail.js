@@ -7,6 +7,75 @@ var checkInterval = setInterval(function () {
 
   if (iframeElements.length > 0) {
     clearInterval(checkInterval); // 요소가 발견되면 setInterval 종료
+
+    // 모달 시작
+    const elements = iframeDoc.querySelectorAll(
+      ".se-main-container img, .se-main-container span, .se-main-container a"
+    );
+
+    function showModal(id, event) {
+      let modal = iframeDoc.getElementById("hover-modal");
+
+      if (!modal) {
+        modal = iframeDoc.createElement("div");
+        modal.id = "hover-modal";
+        modal.style.position = "absolute";
+        modal.style.padding = "10px";
+        modal.style.background = "white";
+        modal.style.border = "1px solid black";
+        modal.style.zIndex = "1000";
+        iframeDoc.body.appendChild(modal);
+      }
+      modal.textContent = "ID: " + id;
+      modal.style.display = "block"; // 먼저 보이게 하여 높이를 측정할 수 있도록 함
+
+      const rect = event.target.getBoundingClientRect();
+      const scrollY =
+        iframe.contentWindow.pageYOffset ||
+        iframe.contentWindow.document.documentElement.scrollTop;
+      const scrollX =
+        iframe.contentWindow.pageXOffset ||
+        iframe.contentWindow.document.documentElement.scrollLeft;
+
+      // Adjust modal position to show above the element
+      modal.style.top = rect.top + scrollY - modal.offsetHeight - 10 + "px"; // 위치 조정
+      modal.style.left = rect.left + scrollX + "px";
+
+      modal.style.display = "block"; // Display the modal
+    }
+
+    function hideModal() {
+      const modal = iframeDoc.getElementById("hover-modal");
+      if (modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    elements.forEach((element) => {
+      element.addEventListener("mouseover", function (event) {
+        event.stopPropagation();
+        var id = "";
+        if (event.target.tagName.toLowerCase() === "img") {
+          var dataLinkData =
+            event.target.parentNode.getAttribute("data-linkdata");
+          if (dataLinkData) {
+            var linkData = JSON.parse(dataLinkData);
+            id = linkData.id;
+          }
+        } else {
+          id = event.target.parentNode.id;
+        }
+        console.log(id);
+        showModal(id, event);
+      });
+
+      element.addEventListener("mouseout", function (event) {
+        hideModal();
+      });
+    });
+    // 모달 end
+
+    // goodList - badList 출력
     var divArray = Array.from(elementsArray[0].children);
     var crawlResults = []; // 결과를 저장할 배열
 
