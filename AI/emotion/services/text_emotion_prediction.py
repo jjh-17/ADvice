@@ -1,6 +1,7 @@
 import torch
 import gluonnlp as nlp
 import numpy as np
+from queue import PriorityQueue
 from torch.utils.data import Dataset, DataLoader
 from kobert_tokenizer import KoBERTTokenizer
 from transformers import BertModel
@@ -73,6 +74,41 @@ class TextEmotionPrediction:
             else:
                 cnt_pos += 1
         return [cnt_neg, cnt_neu, cnt_pos]
+
+    # 전체 글에서 부정, 중립, 긍정 글 중 가장 높은 확률을 가지는 글 반환
+    def predict_summary(self, texts):
+        neg_queue, neu_queue, pos_queue = PriorityQueue(), PriorityQueue(), PriorityQueue()
+
+        for text in texts:
+            result = self.sentence_predict(text)
+            if result[1] == -1:
+                neg_queue.put((-1*result[0], text))
+            elif result[1] == 0:
+                neu_queue.put((-1*result[0], text))
+            else:
+                pos_queue.put((-1*result[0], text))
+
+        # 긍정 - 중립 - 부정 순으로 많아 져야 함
+        neg_list, neu_list, pos_list = [], [], []
+        max_cnt = 3
+        neg_cnt = 0 if neg_queue.empty() else 1
+        neu_cnt = 0 if neu_queue.empty() else 1
+        pos_cnt = np.min([pos_queue.qsize(), max_cnt - neg_cnt - neu_cnt])
+        neu_cnt = np.min([neu_queue.qsize(), max_cnt - pos_cnt])
+        neg_cnt = np.min([neg_queue.qsize(), max_cnt - pos_cnt - neu_cnt])
+
+        for i in range(neg_cnt):
+            neg_list.append(neg_queue.get()[1])
+        for i in range(neu_cnt):
+            neu_list.append(neu_queue.get()[1])
+        for i in range(pos_cnt):
+            pos_list.append(pos_queue.get()[1])
+
+        return {
+            "negList": neg_list,
+            "neuList": neu_list,
+            "posList": pos_list
+        }
 
     #  가장 높은 확률의 감정값 반환
     def sentence_predict(self, sentence):
