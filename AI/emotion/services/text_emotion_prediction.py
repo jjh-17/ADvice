@@ -65,9 +65,10 @@ class TextEmotionPrediction:
         cnt_neg, cnt_neu, cnt_pos = 0, 0, 0
         for text in texts:
             result = self.sentence_predict(text)
-            if result == -1:
+            print(result)
+            if result[1] == -1:
                 cnt_neg += 1
-            elif result == 0:
+            elif result[1] == 0:
                 cnt_neu += 1
             else:
                 cnt_pos += 1
@@ -88,5 +89,14 @@ class TextEmotionPrediction:
             valid_length = valid_length
             with torch.no_grad():
                 output = self.model(token_ids, valid_length, segment_ids)
-                logits = output.detach().cpu().numpy()
-        return np.argmax(logits) - 1
+                logits = output[0].detach().cpu().numpy()
+                logits = np.round(self.new_softmax(logits), 3).tolist()
+        return [np.max(logits), np.argmax(logits) - 1]
+
+    # 실수를 치역으로 한 가중치 값을 softmax함수를 사용하여 텍스트를 확률값으로 변환
+    def new_softmax(self, a):
+        c = np.max(a)  # 최댓값
+        exp_a = np.exp(a - c)  # 각각의 원소에 최댓값을 뺀 값에 exp를 취한다. (이를 통해 overflow 방지)
+        sum_exp_a = np.sum(exp_a)
+        y = (exp_a / sum_exp_a) * 100
+        return np.round(y, 3)
