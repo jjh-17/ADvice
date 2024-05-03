@@ -1,13 +1,13 @@
 from functools import reduce
 
 from models.emotion_request import EmotionRequest
-from internals.emotion_cnt_prediction import EmoCntPrediction
+from internals.emotion_prediction import EmoPrediction
 
 
-class EmotionCntPredictionService:
+class EmotionPredictionService:
     # 초기화
     def __init__(self):
-        self.__emotion_prediction = EmoCntPrediction()
+        self.__emotion_prediction = EmoPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
     async def predict_cnt(self, data: EmotionRequest):

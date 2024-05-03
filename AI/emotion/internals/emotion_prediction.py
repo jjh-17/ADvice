@@ -3,7 +3,7 @@ from kss import split_sentences
 from services.text_emotion_prediction import TextEmotionPrediction
 
 
-class EmoCntPrediction:
+class EmoPrediction:
     def __init__(self):
         self.__detector = TextEmotionPrediction()
 
