@@ -50,9 +50,9 @@ class NaverCafeScrapper:
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
-        #driver = webdriver.Chrome(service=service)
-        #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
         driver = webdriver.Chrome(service=service, options=options)
+        #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
+        #driver = webdriver.Chrome(options=options)
         return driver
 
     def initialize_driver(self):
@@ -63,28 +63,31 @@ class NaverCafeScrapper:
             self.driver.quit()
             self.driver = None
 
-    def scrape_naver_cafe_text(self, url: str):
-        self.initialize_driver()
-        self.driver.get(url)
-        time.sleep(1)
-
-        self.driver.switch_to.frame("cafe_main")
-        soup = BeautifulSoup(self.driver.page_source, "html.parser")
+    def scrape_naver_cafe_text(self, soup):
         texts = soup.select('.se-main-container > div > div > div > div > p > span')
 
         result = ""
         for t in texts:
-            result = result + t.text + " "
-
+            result = result + t.text
         return result
+
+    def scrape_naver_cafe_init(self, url: str):
+        self.initialize_driver()
+        self.driver.get(url)
+        time.sleep(1)
+        self.driver.switch_to.frame("cafe_main")
+        soup = BeautifulSoup(self.driver.page_source, "html.parser")
+        self.close_driver()
+        return soup
 
     def scrape_naver_cafe(self, url: str):
         self.initialize_driver()
         self.driver.get(url)
-        time.sleep(3)
+        time.sleep(1)
         # driver.implicitly_wait(3)
 
         self.driver.switch_to.frame("cafe_main")
+        self.close_driver()
         soup = BeautifulSoup(self.driver.page_source, "html.parser")
 
         data = soup.select('.se-main-container > div')
