@@ -1,0 +1,10 @@
+emotion/data
+emotion/include
+emotion/Lib
+emotion/Scripts
+emotion/share
+pyvenv.cfg
+model
+**/__pycache__
+emotion/training
+emo_predict

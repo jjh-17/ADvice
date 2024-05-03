@@ -40,3 +40,7 @@ pip install -r requirements.txt
 ```bash
 pip freeze > requirements.txt
 ```
+
+## 아키텍처 구조
+
+![image__1_](/uploads/3cac59aead580c74fc6274b6d5f3b125/image__1_.png)

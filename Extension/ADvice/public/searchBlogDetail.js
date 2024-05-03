@@ -51,7 +51,7 @@ var checkInterval = setInterval(function () {
 
     // 크롬 익스텐션에 메시지 전송 및 응답 처리
     chrome.runtime.sendMessage(
-      { action: "detailBlog", crawlResults: crawlResults },
+      { action: "detail", crawlResults: crawlResults },
       function (response) {
         var listData = response.data.adDetection;
         console.log(listData);
