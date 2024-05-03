@@ -1,4 +1,3 @@
-
 function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec));
 }
@@ -7,7 +6,7 @@ let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유�
 const url = window.location.href;
 if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   (async () => {
-    await sleep(1);
+    await sleep(100);
     console.log("sleep end");
     let content = document.querySelectorAll(".desktop_mode");
     let checkInterval = setInterval(function () {
@@ -46,7 +45,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       const url = window.location.href;
       if (url.includes("tab.nx.all")) {
         setting("all");
-      }else{
+      } else {
         setting("tab");
       }
     } else {
@@ -75,6 +74,29 @@ window.onclick = function (event) {
     modal.style.display = "none";
   }
 };
+
+function updateTopList(){
+  // topList에 있는 각 URL에 대해서만 title과 description 추가
+  topList.forEach((item) => {
+    // .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap
+    const linkElement = document.querySelector(`a[href="${item.url}"]`);
+    if (linkElement) {
+      const titleText = linkElement
+        .closest(".view_wrap, .desktop_mode")
+        .querySelector(".title_area, .fds-comps-right-image-text-title, .fds-comps-right-image-text-title-wrap")
+        .textContent.trim().slice(0, 19);
+      const descriptionText = linkElement
+        .closest(".view_wrap, .desktop_mode")
+        .querySelector(".dsc_area, .fds-comps-right-image-text-content, .fds-comps-right-image-text-content-wrap")
+        .textContent.trim().slice(0, 30);
+      console.log(titleText + " " + descriptionText);
+      item.title = titleText;
+      item.desc = descriptionText;
+    }
+  });
+  console.log("topList", topList);
+  chrome.runtime.sendMessage({ action: "saveTopList", topList: topList });
+}
 
 function hoverHandler(link) {
   return function () {
@@ -122,21 +144,27 @@ function setting(position) {
         console.log(url);
         const urlIndex = urlList.indexOf(url);
         if (urlIndex !== -1) {
-          const curLevel = {url : url, level : response.data[url]};
+          const curLevel = { url: url, level: response.data[url] };
           sortLevel.push(curLevel);
-          level[urlIndex] = response.data[url]; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장  
+          level[urlIndex] = response.data[url]; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
           console.log(level[urlIndex]);
         }
       });
 
       sortLevel.sort((a, b) => b.level - a.level);
       topList = sortLevel.slice(0, 5);
-      console.log("topList", topList);
+      updateTopList();
 
       console.log(level);
 
       Array.from(userInfoElements).forEach((element, index) => {
         console.log("ui setting", element);
+        if(element.querySelector(`.view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap`).href.includes("post.naver.com")){
+          return;
+        }
+        if(element.classList.contains("view_wrap")){
+          position = "tab";
+        }
         setUI(element, index);
       });
     }
@@ -150,14 +178,13 @@ function setting(position) {
     console.log("result", result);
   });
 
-
   function saveURL(node) {
     const links = node.querySelectorAll(
       ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
     );
     links.forEach((link) => {
       // console.log(link.href);
-      if(link.href != undefined){
+      if (link.href != undefined && !link.href.includes("post.naver.com")) { // post 글 제외
         urlList.push(link.href);
       }
     });
@@ -180,7 +207,9 @@ function setting(position) {
       console.log(userInfoElements);
       const progressBarHTML = `
       <div class="progress" style="float : right; display : flex; padding : 1% 2%; border-radius : 15px 15px; border: 1px solid lightgray;
-      box-shadow: 1px 1px 2px lightgray; width : ${position == "all" ? "25%" : "20%"}; margin-top : ${position == "all" ? "0%" : "-1%"}">
+      box-shadow: 1px 1px 2px lightgray; width : ${
+        position == "all" ? "25%" : "20%"
+      }; margin-top : ${position == "all" ? "0%" : "-1%"}">
         <div style="width : 30%; white-space : nowrap; font-size : 13px; text-align : right; margin-right : 10%">유용도</div>
         <div class="progress-container" style="width:70%; position : relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
           ${[...Array(maxLevel - 1)]
@@ -263,9 +292,14 @@ function setting(position) {
                   console.log("API 호출 결과 받음:", response);
                   level.push(response.data[url]);
                   console.log(level);
-                  if(response.data[url] > topList[topList.length - 1]){ // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
-                    topList[topList.length - 1] = {url : url, level : response.data[url]};
+                  if (response.data[url] > topList[topList.length - 1]) {
+                    // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
+                    topList[topList.length - 1] = {
+                      url: url,
+                      level: response.data[url],
+                    };
                     topList.sort((a, b) => b.level - a.level);
+                    updateTopList();
                   }
                   setUI(addNode, level.length - 1);
                 }

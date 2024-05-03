@@ -1,6 +1,7 @@
 url = "";
 options = [];
 checkflag = true;
+topList = [];
 
 // url 확인 할 때
 chrome.webNavigation.onCommitted.addListener(function (details) {
@@ -33,9 +34,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "changeOption") {
     options = request.options;
     console.log(options);
-  } else if (request.action === "updateCheck") {
+  } else if (request.action === "updateCheck") { // on/off 버튼 토글
     sendResponse({ check: checkflag });
-  } else if (request.action === "searchAPI") {
+  } else if (request.action === "searchAPI") { // 검색 전체 화면 - 유용도 계산
     console.log(request.urlList);
     fetch("http://127.0.0.1:8000/process_urls", {
       method: "POST",
@@ -49,7 +50,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-  } else if (request.action == "hoverAPI") {
+  } else if (request.action == "hoverAPI") { // 검색 전체 화면 - 링크 호버 시
     console.log(request.url);
     fetch("http://127.0.0.1:8000/hover_urls", {
       method: "POST",
@@ -100,6 +101,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         isChecked: request.isChecked,
       });
     });
+  } else if(request.action === "saveTopList"){ // 유용도 top 5 전달
+    topList = request.topList;
+  } else if(request.action === "loadTopList"){
+    sendResponse({topList : topList});
+    return true;
   }
   return true; // Keep the messaging channel open for the response
 });
