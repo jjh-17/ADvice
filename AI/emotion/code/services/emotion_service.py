@@ -10,16 +10,16 @@ class EmotionPredictionService:
         self.__emotion_prediction = EmoPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
-    def predict(self, data: EmotionRequest):
+    async def predict(self, data: EmotionRequest):
         texts = [
             text.replace("\u200B", "")
             for text in data.script
         ]
         print(texts)
-        return {"emoPrediction": self.predict_emo(texts)}
+        return {"emoPrediction": await self.predict_emo(texts)}
 
     # 데이터 중 txt만 추출하여 감정 예측 수행
-    def predict_emo(self, texts):
+    async def predict_emo(self, texts):
         if len(texts) < 1:
             return [0, 0, 0]
 
