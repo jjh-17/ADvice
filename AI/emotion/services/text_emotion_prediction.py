@@ -54,7 +54,7 @@ class TextEmotionPrediction:
         self.device = torch.device('cpu')
         bert_model = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False).to(self.device)
         self.model = BERTClassifier(bert_model, dr_rate=0.5).to(self.device)
-        self.model.load_state_dict(torch.load('./emotion/code/model/emotion_classification_weight.pt', map_location=self.device))
+        self.model.load_state_dict(torch.load('./emotion/model/emotion_classification_weight.pt', map_location=self.device))
 
         self.tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')

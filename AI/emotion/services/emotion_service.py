@@ -1,7 +1,7 @@
 from functools import reduce
 
-from emotion.code.models.emotion_request import EmotionRequest
-from emotion.code.internals.emotion_prediction import EmoPrediction
+from emotion.models.emotion_request import EmotionRequest
+from emotion.internals.emotion_prediction import EmoPrediction
 
 
 class EmotionPredictionService:
