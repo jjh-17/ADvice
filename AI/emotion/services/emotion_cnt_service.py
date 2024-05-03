@@ -1,21 +1,20 @@
 from functools import reduce
 
 from models.emotion_request import EmotionRequest
-from internals.emotion_prediction import EmoPrediction
+from internals.emotion_cnt_prediction import EmoCntPrediction
 
 
-class EmotionPredictionService:
+class EmotionCntPredictionService:
     # 초기화
     def __init__(self):
-        self.__emotion_prediction = EmoPrediction()
+        self.__emotion_prediction = EmoCntPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
-    async def predict(self, data: EmotionRequest):
+    async def predict_cnt(self, data: EmotionRequest):
         texts = [
             text.replace("\u200B", "")
             for text in data.script
         ]
-        print(texts)
         return {"emoPrediction": await self.predict_emo(texts)}
 
     # 데이터 중 txt만 추출하여 감정 예측 수행

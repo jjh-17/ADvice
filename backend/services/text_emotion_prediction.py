@@ -60,8 +60,7 @@ class TextEmotionPrediction:
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')
         self.tok = self.tokenizer.tokenize
 
-    # 전체 글에서 부정, 중립, 긍정 글 개수 반환
-    def predict_cnt(self, texts):
+    def predict(self, texts):
         cnt_neg, cnt_neu, cnt_pos = 0, 0, 0
         for text in texts:
             result = self.sentence_predict(text)
@@ -71,9 +70,10 @@ class TextEmotionPrediction:
                 cnt_neu += 1
             else:
                 cnt_pos += 1
+            print(text + " / " + str(result) + "\n")
         return [cnt_neg, cnt_neu, cnt_pos]
 
-    #  가장 높은 확률의 감정값 반환
+    #  부정 : -1, 중립 : 0, 긍정 : 1
     def sentence_predict(self, sentence):
         data = [sentence, '0']
         dataset_another = [data]
