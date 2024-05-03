@@ -93,8 +93,9 @@ class TextEmotionPrediction:
         max_cnt = 3
         neg_cnt = 0 if neg_queue.empty() else 1
         neu_cnt = 0 if neu_queue.empty() else 1
+
         pos_cnt = np.min([pos_queue.qsize(), max_cnt - neg_cnt - neu_cnt])
-        neu_cnt = np.min([neu_queue.qsize(), max_cnt - pos_cnt])
+        neu_cnt = np.min([neu_queue.qsize(), max_cnt - pos_cnt - neg_cnt])
         neg_cnt = np.min([neg_queue.qsize(), max_cnt - pos_cnt - neu_cnt])
 
         for i in range(neg_cnt):
