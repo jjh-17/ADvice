@@ -6,3 +6,4 @@ emotion/share
 emotion/pyvenv.cfg
 emotion/code/model
 **/__pycache__
+emotion/code/pretreatment
