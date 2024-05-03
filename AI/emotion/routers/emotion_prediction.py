@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from starlette.responses import JSONResponse
 
-from emotion.models.emotion_request import EmotionRequest
-from emotion.services.emotion_service import EmotionPredictionService
+from models.emotion_request import EmotionRequest
+from services.emotion_service import EmotionPredictionService
 
 emotion = APIRouter(prefix="/emo-predict")
 emotionService = EmotionPredictionService()
