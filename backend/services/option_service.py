@@ -2,6 +2,7 @@ from models.full_request import FullRequest
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from kss import split_sentences
+from services.text_ad_detection import TextAdDetection
 
 class OptionService:
 
@@ -34,6 +35,8 @@ class OptionService:
                     score = self.option_three() * 100
                 if i == 4:
                     score = (self.option_four(data.keyword) / sentence_count) * 100
+                if i == 5:
+                    score = (self.option_five() / sentence_count) * 100
                 print("goodOption", i, "점수는", score)
                 goodScore = goodScore + score
 
@@ -47,6 +50,8 @@ class OptionService:
                     score = self.option_three() * 100
                 if i == 4:
                     score = (self.option_four(data.keyword) / sentence_count) * 100
+                if i == 5:
+                    score = (self.option_five() / sentence_count) * 100
                 print("badOption", i, "점수는", score)
                 badScore = badScore + score
 
@@ -125,4 +130,12 @@ class OptionService:
                 cnt = cnt+1
 
         return cnt
-            
+
+    def option_five(self):
+        cnt = 0
+        detector = TextAdDetection()
+        ad_result = detector.predict(self.list)
+        for i in range(len(self.list)):
+            if ad_result[i] == 1:
+                cnt = cnt+1
+        return cnt
