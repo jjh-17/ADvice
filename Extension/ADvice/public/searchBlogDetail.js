@@ -153,48 +153,69 @@ var checkInterval = setInterval(function () {
 
     function showModal(id, event) {
       let modal = iframeDoc.getElementById("hover-modal");
-      let message = "ID: " + id; // 기본 메시지
-
-      if (finalResult[id]) {
-        const data = finalResult[id];
-        let listContent = "";
-
-        if (data.flag === 1) {
-          message += " - 유용한 문장입니다.";
-          listContent = `<ul>${data.goodOption
-            .map((option) => `<li>${optionName[option - 1]}</li>`)
-            .join("")}</ul>`;
-        } else if (data.flag === 0) {
-          message += " - 중립적인 문장입니다.";
-          listContent = `<ul class='good-options'>Good Option : ${data.goodOption
-            .map((option) => `<li>${optionName[option - 1]}</li>`)
-            .join("")}</ul>
-                         <ul class='bad-options'>Bad Option :${data.badOption
-                           .map(
-                             (option) => `<li>${optionName[option - 1]}</li>`
-                           )
-                           .join("")}</ul>`;
-        } else if (data.flag === -1) {
-          message += " - 유해한 문장입니다.";
-          listContent = `<ul>${data.badOption
-            .map((option) => `<li>${optionName[option - 1]}</li>`)
-            .join("")}</ul>`;
-        }
-
-        message += listContent; // 리스트를 메시지에 추가
-      }
 
       if (!modal) {
         modal = iframeDoc.createElement("div");
         modal.id = "hover-modal";
         modal.style.position = "absolute";
-        modal.style.padding = "10px";
+        modal.style.padding = "20px";
         modal.style.background = "white";
         modal.style.border = "1px solid black";
         modal.style.zIndex = "1000";
+        modal.style.display = "none"; // 초기에는 보이지 않게 설정
         iframeDoc.body.appendChild(modal);
       }
-      modal.innerHTML = message; // textContent 대신 innerHTML 사용
+
+      const data = finalResult[id];
+
+      if (data) {
+        const statusMessage =
+          data.flag === 1
+            ? "선택하신 문장은 유용한 문장으로 판단됩니다 😀"
+            : data.flag === 0
+            ? "선택하신 문장은 중립적인 문장으로 판단됩니다 😐"
+            : "선택하신 문장은 유해한 문장으로 판단됩니다 😕";
+
+        let goodOptionsList = "";
+        let badOptionsList = "";
+
+        if (data.goodOption && (data.flag === 1 || data.flag === 0)) {
+          goodOptionsList =
+            `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
+            data.goodOption
+              .map(
+                (option) =>
+                  `<li style="margin-top: 0.3125rem;">• ${
+                    optionName[option - 1]
+                  }</li>`
+              )
+              .join("") +
+            "</ul></div>";
+        }
+
+        if (data.badOption && (data.flag === -1 || data.flag === 0)) {
+          badOptionsList =
+            `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
+            data.badOption
+              .map(
+                (option) =>
+                  `<li style="margin-top: 0.3125rem;">• ${
+                    optionName[option - 1]
+                  }</li>`
+              )
+              .join("") +
+            "</ul></div>";
+        }
+
+        modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div>
+            <p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>
+            ${goodOptionsList}
+            ${badOptionsList}
+          </div>
+        </div>`;
+      }
+
       modal.style.display = "block"; // 먼저 보이게 하여 높이를 측정할 수 있도록 함
 
       const rect = event.target.getBoundingClientRect();
@@ -206,10 +227,8 @@ var checkInterval = setInterval(function () {
         iframe.contentWindow.document.documentElement.scrollLeft;
 
       // Adjust modal position to show above the element
-      modal.style.top = rect.top + scrollY - modal.offsetHeight - 10 + "px"; // 위치 조정
-      modal.style.left = rect.left + scrollX + "px";
-
-      modal.style.display = "block"; // Display the modal
+      modal.style.top = `${rect.top + scrollY - modal.offsetHeight - 10}px`; // 위치 조정
+      modal.style.left = `${rect.left + scrollX}px`;
     }
 
     function hideModal() {
