@@ -14,7 +14,8 @@ var optionName = [
   "이모티콘 개수",
 ];
 
-var selectedOption = [1, 2];
+var selectedGoodOption = [2];
+var selectedBadOption = [1];
 var tmpData = {
   adDetection: [
     {
@@ -103,7 +104,7 @@ function processData(tmpData) {
   let result = {};
 
   tmpData.adDetection.forEach((node) => {
-    if (selectedOption.includes(node.option)) {
+    if (selectedGoodOption.includes(node.option)) {
       node.goodList.forEach((data) => {
         if (!result[data.id]) {
           result[data.id] = {
@@ -114,7 +115,7 @@ function processData(tmpData) {
         }
         result[data.id].goodOption.push(node.option);
       });
-
+    } else if (selectedBadOption.includes(node.option)) {
       node.badList.forEach((data) => {
         if (!result[data.id]) {
           result[data.id] = {
