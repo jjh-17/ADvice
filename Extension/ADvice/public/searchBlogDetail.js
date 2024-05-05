@@ -15,95 +15,93 @@ var optionName = [
 ];
 
 var selectedGoodOption = [2];
-var selectedBadOption = [1];
-var tmpData = {
-  adDetection: [
-    {
-      option: 1,
-      goodList: [
-        {
-          id: "SE-600b5534-5478-40eb-93f6-66704272a14d",
-          data: ["겹벚꽃 보러,"],
-        },
-        {
-          id: "SE-e7e63fcf-f41c-439a-b75d-a67fdba06c27",
-          data: [
-            "3월 말부터 4월 초에 제주여행을 다녀왔다.",
-            "제주 여행 내내 비가 와서 제대로 벚꽃을 보지 못했는데, 서울에 오니 이미 벚꽃 엔딩이다.",
-          ],
-        },
-      ],
-      badList: [
-        {
-          id: "SE-0dd3e82e-a5c4-4d0f-b623-eb87cc6fcfee",
-          data: [
-            "정말 아쉬웠다.",
-            "벚꽃을 이렇게 보내다니.",
-            "그래서 겹벚꽃 개화를 기다렸다.",
-            '그러다 막냇동생이 "언니 어린이대공원에 겹벚꽃 만개했대"',
-            "해서 알아보니 벌써 활짝 폈다.",
-          ],
-        },
-        {
-          id: "SE-6ff4b4f4-68cb-49cf-b59d-e265e69aaa18",
-          data: [
-            "급하게 날짜를 잡고 함께 다녀왔다.",
-            "겹벚꽃 소식을 알려준 막내는 약속이 있어 못 가고 첫째 동생이랑 조카와 함께 다녀왔다.",
-          ],
-        },
-        {
-          id: "SE-8d9613c4-de90-4f58-ac2f-e944a918f834",
-          data: [
-            "요즘 꽃구경 다닐 때마다 인간 네비가 됐다.",
-            "우리는 조카가 있어서 주차를 하고 나와 분수대 쪽으로 나왔다.",
-            "분수를 앞에 두고 볼 때 왼편으로 걸어가면 바로 핑크빛 겹벚꽃을 만날 수 있다.",
-          ],
-        },
-      ],
-    },
-    {
-      option: 2,
-      goodList: [
-        {
-          id: "SE-8d9613c4-de90-4f58-ac2f-e944a918f834",
-          data: [
-            "요즘 꽃구경 다닐 때마다 인간 네비가 됐다.",
-            "우리는 조카가 있어서 주차를 하고 나와 분수대 쪽으로 나왔다.",
-            "분수를 앞에 두고 볼 때 왼편으로 걸어가면 바로 핑크빛 겹벚꽃을 만날 수 있다.",
-          ],
-        },
-        {
-          id: "SE-e569d924-0bb3-4da4-95fa-62e24b1c25f5",
-          data: [
-            "조금 놀랐던 건 작년 빼고 매해 방문했는데, 더 풍성했던 걸로 기억하는데 원래 찍던 나무는 꽃이 거의 없고 다른 장소에 한 그루 정도 낮게 있었다.",
-          ],
-        },
-      ],
-      badList: [
-        {
-          id: "SE-b785602a-1c29-406b-9794-2d375bda5854",
-          data: [
-            "큰 겹벚꽃 나무는 있는데 사진 찍을 만큼 낮으면서 풍성한 나무가 많이 사라진 느낌이었다.",
-            "내가 늦게 방문해서 겹벚꽃이 진 걸까 아니면 그냥 피지 못한 걸까 궁금했다.",
-          ],
-        },
-        {
-          id: "SE-d1b962d4-7b7b-4b30-b1d4-9b4eed855a9f",
-          data: [
-            "겹벚꽃 앞에 피크닉 중이셨지만 사진 찍기엔 어려움이 없었다.",
-            "이미 다른 사람들이 줄 서서 사진을 찍고 있었다.",
-          ],
-        },
-      ],
-    },
-  ],
-};
+var selectedBadOption = [1, 5];
+var tmpData = [
+  {
+    option: 1,
+    goodList: [
+      {
+        id: "SE-600b5534-5478-40eb-93f6-66704272a14d",
+        data: ["겹벚꽃 보러,"],
+      },
+      {
+        id: "SE-e7e63fcf-f41c-439a-b75d-a67fdba06c27",
+        data: [
+          "3월 말부터 4월 초에 제주여행을 다녀왔다.",
+          "제주 여행 내내 비가 와서 제대로 벚꽃을 보지 못했는데, 서울에 오니 이미 벚꽃 엔딩이다.",
+        ],
+      },
+    ],
+    badList: [
+      {
+        id: "SE-0dd3e82e-a5c4-4d0f-b623-eb87cc6fcfee",
+        data: [
+          "정말 아쉬웠다.",
+          "벚꽃을 이렇게 보내다니.",
+          "그래서 겹벚꽃 개화를 기다렸다.",
+          '그러다 막냇동생이 "언니 어린이대공원에 겹벚꽃 만개했대"',
+          "해서 알아보니 벌써 활짝 폈다.",
+        ],
+      },
+      {
+        id: "SE-6ff4b4f4-68cb-49cf-b59d-e265e69aaa18",
+        data: [
+          "급하게 날짜를 잡고 함께 다녀왔다.",
+          "겹벚꽃 소식을 알려준 막내는 약속이 있어 못 가고 첫째 동생이랑 조카와 함께 다녀왔다.",
+        ],
+      },
+      {
+        id: "SE-8d9613c4-de90-4f58-ac2f-e944a918f834",
+        data: [
+          "요즘 꽃구경 다닐 때마다 인간 네비가 됐다.",
+          "우리는 조카가 있어서 주차를 하고 나와 분수대 쪽으로 나왔다.",
+          "분수를 앞에 두고 볼 때 왼편으로 걸어가면 바로 핑크빛 겹벚꽃을 만날 수 있다.",
+        ],
+      },
+    ],
+  },
+  {
+    option: 2,
+    goodList: [
+      {
+        id: "SE-8d9613c4-de90-4f58-ac2f-e944a918f834",
+        data: [
+          "요즘 꽃구경 다닐 때마다 인간 네비가 됐다.",
+          "우리는 조카가 있어서 주차를 하고 나와 분수대 쪽으로 나왔다.",
+          "분수를 앞에 두고 볼 때 왼편으로 걸어가면 바로 핑크빛 겹벚꽃을 만날 수 있다.",
+        ],
+      },
+      {
+        id: "SE-e569d924-0bb3-4da4-95fa-62e24b1c25f5",
+        data: [
+          "조금 놀랐던 건 작년 빼고 매해 방문했는데, 더 풍성했던 걸로 기억하는데 원래 찍던 나무는 꽃이 거의 없고 다른 장소에 한 그루 정도 낮게 있었다.",
+        ],
+      },
+    ],
+    badList: [
+      {
+        id: "SE-b785602a-1c29-406b-9794-2d375bda5854",
+        data: [
+          "큰 겹벚꽃 나무는 있는데 사진 찍을 만큼 낮으면서 풍성한 나무가 많이 사라진 느낌이었다.",
+          "내가 늦게 방문해서 겹벚꽃이 진 걸까 아니면 그냥 피지 못한 걸까 궁금했다.",
+        ],
+      },
+      {
+        id: "SE-d1b962d4-7b7b-4b30-b1d4-9b4eed855a9f",
+        data: [
+          "겹벚꽃 앞에 피크닉 중이셨지만 사진 찍기엔 어려움이 없었다.",
+          "이미 다른 사람들이 줄 서서 사진을 찍고 있었다.",
+        ],
+      },
+    ],
+  },
+];
 
 // Data를 Id-Option별로 정제
 function processData(tmpData) {
   let result = {};
 
-  tmpData.adDetection.forEach((node) => {
+  tmpData.forEach((node) => {
     if (selectedGoodOption.includes(node.option)) {
       node.goodList.forEach((data) => {
         if (!result[data.id]) {
@@ -144,13 +142,16 @@ function processData(tmpData) {
 }
 
 var finalResult = [];
+var crawlResults = [];
 
 var checkInterval = setInterval(function () {
   var iframeDoc = iframe.contentWindow.document;
   var iframeElements = iframeDoc.getElementsByClassName("se-main-container");
+
   if (iframeElements.length > 0) {
     clearInterval(checkInterval);
 
+    // 모달 시작
     function showModal(id, event) {
       let modal = iframeDoc.getElementById("hover-modal");
 
@@ -230,46 +231,100 @@ var checkInterval = setInterval(function () {
       modal.style.top = `${rect.top + scrollY - modal.offsetHeight - 10}px`; // 위치 조정
       modal.style.left = `${rect.left + scrollX}px`;
     }
-
     function hideModal() {
       const modal = iframeDoc.getElementById("hover-modal");
       if (modal) {
         modal.style.display = "none";
       }
     }
-    // 모달 end
+    // 모달 끝
 
-    // Coloring 시작
-    finalResult = processData(tmpData);
-    console.log(finalResult);
-    Object.keys(finalResult).forEach((id) => {
-      const data = finalResult[id];
-      const element = document
-        .getElementById("mainFrame")
-        .contentWindow.document.getElementById(id);
-      if (element) {
-        console.log(id + " " + finalResult[id]);
-        element.addEventListener("mouseover", function (event) {
-          event.stopPropagation();
-          showModal(id, event);
-        });
+    // 크롤링 시작
+    var elementsArray = Array.from(iframeElements);
+    var divArray = Array.from(elementsArray[0].children);
+    divArray.forEach(function (div) {
+      var imgTags = div.getElementsByTagName("img");
+      var spanTags = div.getElementsByTagName("span");
 
-        element.addEventListener("mouseout", function (event) {
-          hideModal();
-        });
-
-        let html = element.innerHTML;
-
-        if (data.flag === 1) {
-          element.style.backgroundColor = "rgba(66, 189, 101, 0.3)"; // Green for good options
-        } else if (data.flag === 0) {
-          element.style.backgroundColor = "rgba(255, 235, 59, 0.3)"; // Yellow for neutral
-        } else {
-          element.style.backgroundColor = "rgba(241, 43, 67, 0.3)"; // Red for bad options
+      Array.from(imgTags).forEach(function (img) {
+        var dataLinkData = img.parentNode.getAttribute("data-linkdata");
+        if (dataLinkData) {
+          try {
+            var linkData = JSON.parse(dataLinkData);
+            var id = linkData.id;
+            if (id == null) return;
+            var src = linkData.src;
+            if (!src.includes("gif")) {
+              crawlResults.push({
+                type: "img",
+                data: src,
+                id: id,
+              });
+            }
+          } catch (e) {
+            console.error("JSON parsing error", e);
+          }
         }
+      });
 
-        element.innerHTML = html;
-      }
+      Array.from(spanTags).forEach(function (span) {
+        var textContent = span.textContent || span.innerText;
+        var id = span.getAttribute("id");
+        if (id == null) return;
+        crawlResults.push({
+          type: "txt",
+          data: textContent,
+          id: id,
+        });
+      });
     });
+    // 크롤링 end
+
+    // 인공지능 관련 데이터 받아오기
+    chrome.runtime.sendMessage(
+      { action: "detail", crawlResults: crawlResults },
+      function (response) {
+        var listData = response.data.adDetection;
+        var newData = {
+          option: 5,
+          goodList: listData.goodList,
+          badList: listData.badList,
+        };
+        tmpData.push(newData);
+        console.log(tmpData);
+
+        // Coloring 시작
+        finalResult = processData(tmpData);
+        console.log(finalResult);
+        Object.keys(finalResult).forEach((id) => {
+          const data = finalResult[id];
+          const element = document
+            .getElementById("mainFrame")
+            .contentWindow.document.getElementById(id);
+          if (element) {
+            element.addEventListener("mouseover", function (event) {
+              event.stopPropagation();
+              showModal(id, event);
+            });
+
+            element.addEventListener("mouseout", function (event) {
+              hideModal();
+            });
+
+            let html = element.innerHTML;
+
+            if (data.flag === 1) {
+              element.style.backgroundColor = "rgba(66, 189, 101, 0.3)"; // Green for good options
+            } else if (data.flag === 0) {
+              element.style.backgroundColor = "rgba(255, 235, 59, 0.3)"; // Yellow for neutral
+            } else {
+              element.style.backgroundColor = "rgba(241, 43, 67, 0.3)"; // Red for bad options
+            }
+
+            element.innerHTML = html;
+          }
+        });
+      }
+    );
   }
 }, 100); // Check every 100ms
