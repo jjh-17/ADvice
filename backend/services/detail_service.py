@@ -1,30 +1,52 @@
 from functools import reduce
+from kss import split_sentences
+import asyncio
 
 from models.detail_request import DetailRequest
-from internals.detail_evaluation import AdEvaluation
+from internals.detail_evaluation import DetailEvaluation
 
 
 class DetailService:
     def __init__(self):
-        self.__detail_evaluation = AdEvaluation()
+        self.__detail_evaluation = DetailEvaluation()
 
     async def evaluate(self, data: DetailRequest):
-        data = [
+        # tag 데이터
+        tag = [
             {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
             for tag in data.script
         ]
-        return {"adDetection": await self.evaluate_ad(data)}
 
-    async def evaluate_ad(self, data):
-        text = list(filter(lambda tag: tag["type"] == "txt", data))
+        # text 태그 추출
+        text = list(filter(lambda item: item["type"] == "txt", tag))
 
-        if len(text) < 1:
-            return []
+        paragraphs = self.__make_paragraph(text)
+        sentences = self.__make_sentences(paragraphs)
 
-        paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x["data"], text)))
-        sentence, result = self.__detail_evaluation.paragraph_ad(paragraph)
+        keys = ["adDetection", "emotionCount"]
+        tasks = [self.evaluate_ad(text, sentences), self.evaluate_emotion(sentences)]
+        results = await asyncio.gather(*tasks)
 
-        return self.seperate_sentences(sentence, result, text)
+        return dict(zip(keys, results))
+
+    async def evaluate_emotion(self, text):
+        result = await self.__detail_evaluation.evaluate_emotion_count(text)
+        return result
+
+    async def evaluate_ad(self, text, sentences):
+        result = await self.__detail_evaluation.evaluate_ad(sentences)
+        return self.seperate_sentences(sentences, result, text)
+
+    def __make_paragraph(self, data):
+        if len(data) < 1:
+            return ""
+
+        paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x["data"], data)))
+        return paragraph
+
+    def __make_sentences(self, paragraph: str):
+        sentences = split_sentences(paragraph)
+        return sentences
 
     def seperate_sentences(self, sentence, result, text):
         # 1. 문장 저장
