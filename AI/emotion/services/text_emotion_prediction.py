@@ -106,9 +106,9 @@ class TextEmotionPrediction:
             pos_list.append(pos_queue.get()[1])
 
         return {
-            "negList": neg_list,
-            "neuList": neu_list,
-            "posList": pos_list
+            "negative": neg_list,
+            "neutral": neu_list,
+            "positive": pos_list
         }
 
     #  가장 높은 확률의 감정값 반환

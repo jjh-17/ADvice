@@ -1,4 +1,3 @@
-from functools import reduce
 from typing import List
 
 from internals.emotion_prediction import EmoPrediction
@@ -15,7 +14,11 @@ class EmotionPredictionService:
             text.replace("\u200B", "")
             for text in data
         ]
-        return {"emoPrediction": await self.predict_cnt_emo(texts)}
+
+        keys = ["negative", "neutral", "positive"]
+        results = await self.predict_cnt_emo(texts)
+
+        return dict(zip(keys, results))
 
     # 데이터 전처리 이후 요약 예측 수행
     async def predict_summary(self, data: List[str]):
@@ -23,24 +26,23 @@ class EmotionPredictionService:
             text.replace("\u200B", "")
             for text in data
         ]
-        return {"emoSummary": await self.predict_summary_emo(texts)}
+
+        return await self.predict_summary_emo(texts)
 
     # 문자열 개수가 1 이상인 경우 감정 예측 수행
-    async def predict_cnt_emo(self, texts):
+    async def predict_cnt_emo(self, texts: List[str]):
         if len(texts) < 1:
             return [0, 0, 0]
 
-        paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x, texts)))
-        result = self.__emotion_prediction.cnt_emo(paragraph)
+        result = self.__emotion_prediction.cnt_emo(texts)
         return result
 
     # 문자열 개수가 1 이상인 경우 요약 예측 수행
-    async def predict_summary_emo(self, texts):
+    async def predict_summary_emo(self, texts: List[str]):
         if len(texts) < 1:
             return {
-                "negList": [], "neuList": [], "posList": []
+                "negative": [], "neutral": [], "positive": []
             }
 
-        paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x, texts)))
-        result = self.__emotion_prediction.summarize_emo(paragraph)
+        result = self.__emotion_prediction.summarize_emo(texts)
         return result
