@@ -1,5 +1,6 @@
 from functools import reduce
 from kss import split_sentences
+import asyncio
 
 from models.detail_request import DetailRequest
 from internals.detail_evaluation import DetailEvaluation
@@ -22,12 +23,18 @@ class DetailService:
         paragraphs = self.__make_paragraph(text)
         sentences = self.__make_sentences(paragraphs)
 
-        return {
-            "adDetection": await self.evaluate_ad(text, sentences),
-        }
+        keys = ["adDetection", "emotionCount"]
+        tasks = [self.evaluate_ad(text, sentences), self.evaluate_emotion(sentences)]
+        results = await asyncio.gather(*tasks)
+
+        return dict(zip(keys, results))
+
+    async def evaluate_emotion(self, text):
+        result = await self.__detail_evaluation.evaluate_emotion_count(text)
+        return result
 
     async def evaluate_ad(self, text, sentences):
-        result = self.__detail_evaluation.paragraph_ad(sentences)
+        result = await self.__detail_evaluation.evaluate_ad(sentences)
         return self.seperate_sentences(sentences, result, text)
 
     def __make_paragraph(self, data):
