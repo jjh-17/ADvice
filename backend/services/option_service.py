@@ -1,11 +1,13 @@
 from models.full_request import FullRequest
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
-from kss import split_sentences
 from services.text_ad_detection import TextAdDetection
 
-class OptionService:
+from kss import split_sentences
+import asyncio
 
+
+class OptionService:
     def __init__(self):
         self.cafeScrap = NaverCafeScrapper()
         self.blogScrap = NaverBlogScrapper()
@@ -16,17 +18,19 @@ class OptionService:
         self.keyword = None
 
     async def option_service(self, data: FullRequest):
-        response = {"scoreList": []}
         self.goodOption = data.goodOption
         self.badOption = data.badOption
         self.keyword = data.keyword
-        for i in data.urlList:
-            score = await self.url_score(i)
-            response["scoreList"].append(
-                {"url": i, "score": score}
-            )
 
-        return response
+        tasks = [self.url_score(url) for url in data.urlList]
+        results = await asyncio.gather(*tasks)
+
+        return {
+            "scoreList": [
+                {"url": url, "score": score}
+                for url, score in zip(data.urlList, results)
+            ]
+        }
 
     async def url_score(self, url: str):
         # url 스크랩
@@ -35,8 +39,12 @@ class OptionService:
         await self.split_string(text)
         sentence_count = len(self.list)
 
-        goodScore = 0
-        badScore = 0
+        good_score = 0
+        bad_score = 0
+
+        # good : True, bad : False
+        # TODO: 이거 판단을 왜 여기서 하는지?
+        score_options = []
 
         for i in self.goodOption:
             score = 0
@@ -50,8 +58,8 @@ class OptionService:
                 score = (await self.option_four(self.keyword) / sentence_count) * 100
             if i == 5:
                 score = (await self.option_five() / sentence_count) * 100
-            print("goodOption", i, "점수는", score)
-            goodScore = goodScore + score
+
+            good_score = good_score + score
 
         score = 0
         for i in self.badOption:
@@ -65,13 +73,13 @@ class OptionService:
                 score = (await self.option_four(self.keyword) / sentence_count) * 100
             if i == 5:
                 score = (await self.option_five() / sentence_count) * 100
-            print("badOption", i, "점수는", score)
-            badScore = badScore + score
 
-        return (goodScore/len(self.goodOption)) - (badScore/len(self.badOption))
+            bad_score = bad_score + score
+
+        return (good_score / len(self.goodOption)) - (bad_score / len(self.badOption))
 
     def url_scrap(self, url: str):
-        text=""
+        text = ""
         if "cafe" in url:  # 카페 게시글인 경우
             self.soup = self.cafeScrap.scrape_naver_cafe_init(url)
             text = self.cafeScrap.scrape_naver_cafe_text(self.soup)
@@ -93,7 +101,9 @@ class OptionService:
         soup = self.soup_get_main_container()
 
         # 사진 여부
-        if soup.find("div", attrs={"class": "se-imageStrip"}) or soup.find("div", attrs={"class": "se-image"}):
+        if soup.find("div", attrs={"class": "se-imageStrip"}) or soup.find(
+            "div", attrs={"class": "se-image"}
+        ):
             cnt = cnt + 1
         # 영상 여부
         if soup.find("div", attrs={"class": "se-video"}):
@@ -106,6 +116,7 @@ class OptionService:
             cnt = cnt + 1
 
         return cnt
+
     async def option_two(self):
         flag = 0
         blockUrlList = [
@@ -119,13 +130,14 @@ class OptionService:
         div_oglink_tags = soup.find_all("div", attrs={"class": "se-oglink"})
 
         for div_tag in div_oglink_tags:
-            url = div_tag.find("a").get('href')
+            url = div_tag.find("a").get("href")
             for i in blockUrlList:
                 if i in url:
                     flag = 1
 
         # 1이면 블랙리스트 링크 존재
         return flag
+
     async def option_three(self):
         flag = 0
         if self.soup.find("div", attrs={"class": "not_sponsored_summary_wrap"}):
@@ -138,7 +150,7 @@ class OptionService:
         cnt = 0
         for i in self.list:
             if keyword in i:
-                cnt = cnt+1
+                cnt = cnt + 1
 
         return cnt
 
@@ -148,5 +160,5 @@ class OptionService:
         ad_result = detector.predict(self.list)
         for i in range(len(self.list)):
             if ad_result[i] == 1:
-                cnt = cnt+1
+                cnt = cnt + 1
         return cnt
