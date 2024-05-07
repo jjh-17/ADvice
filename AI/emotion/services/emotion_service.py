@@ -1,6 +1,6 @@
 from functools import reduce
+from typing import List
 
-from models.emotion_request import EmotionRequest
 from internals.emotion_prediction import EmoPrediction
 
 
@@ -10,18 +10,18 @@ class EmotionPredictionService:
         self.__emotion_prediction = EmoPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
-    async def predict_cnt(self, data: EmotionRequest):
+    async def predict_cnt(self, data: List[str]):
         texts = [
             text.replace("\u200B", "")
-            for text in data.script
+            for text in data
         ]
         return {"emoPrediction": await self.predict_cnt_emo(texts)}
 
     # 데이터 전처리 이후 요약 예측 수행
-    async def predict_summary(self, data: EmotionRequest):
+    async def predict_summary(self, data: List[str]):
         texts = [
             text.replace("\u200B", "")
-            for text in data.script
+            for text in data
         ]
         return {"emoSummary": await self.predict_summary_emo(texts)}
 
