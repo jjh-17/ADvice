@@ -1,9 +1,16 @@
 function sleep(sec) {
+
   return new Promise((resolve) => setTimeout(resolve, sec));
 }
 
+let goodOption = [];
+let badOption = [];
+let keyword = "튀소";
+let cnt = 0;
 let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
 const url = window.location.href;
+
+
 if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   (async () => {
     await sleep(100);
@@ -75,7 +82,7 @@ window.onclick = function (event) {
   }
 };
 
-function updateTopList(){
+function updateTopList() {
   // topList에 있는 각 URL에 대해서만 title과 description 추가
   topList.forEach((item) => {
     // .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap
@@ -83,12 +90,18 @@ function updateTopList(){
     if (linkElement) {
       const titleText = linkElement
         .closest(".view_wrap, .desktop_mode")
-        .querySelector(".title_area, .fds-comps-right-image-text-title, .fds-comps-right-image-text-title-wrap")
-        .textContent.trim().slice(0, 19);
+        .querySelector(
+          ".title_area, .fds-comps-right-image-text-title, .fds-comps-right-image-text-title-wrap"
+        )
+        .textContent.trim()
+        .slice(0, 19);
       const descriptionText = linkElement
         .closest(".view_wrap, .desktop_mode")
-        .querySelector(".dsc_area, .fds-comps-right-image-text-content, .fds-comps-right-image-text-content-wrap")
-        .textContent.trim().slice(0, 30);
+        .querySelector(
+          ".dsc_area, .fds-comps-right-image-text-content, .fds-comps-right-image-text-content-wrap"
+        )
+        .textContent.trim()
+        .slice(0, 30);
       console.log(titleText + " " + descriptionText);
       item.title = titleText;
       item.desc = descriptionText;
@@ -124,7 +137,8 @@ function setting(position) {
   );
   let urlList = [];
   let level = [];
-  const maxLevel = 5;
+  const maxLevel = 100;
+  const minLevel = 0;
 
   Array.from(userInfoElements).forEach((element, index) => {
     saveURL(element);
@@ -134,41 +148,79 @@ function setting(position) {
   console.log("urlList", urlList);
   console.log(level);
 
-  // background.js로 메시지 보내기
-  chrome.runtime.sendMessage(
-    { action: "searchAPI", urlList: urlList },
-    function (response) {
-      console.log("API 호출 결과 받음:", response);
-      const sortLevel = [];
-      Object.keys(response.data).forEach((url, index) => {
-        console.log(url);
-        const urlIndex = urlList.indexOf(url);
-        if (urlIndex !== -1) {
-          const curLevel = { url: url, level: response.data[url] };
-          sortLevel.push(curLevel);
-          level[urlIndex] = response.data[url]; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
-          console.log(level[urlIndex]);
-        }
-      });
+  const APIsend = () => {
+    console.log("APIsend", cnt);
+    if (cnt == 2) {
+      // background.js로 메시지 보내기
+      chrome.runtime.sendMessage(
+        {
+          action: "searchAPI",
+          urlList: urlList,
+          goodOption: goodOption,
+          badOption: badOption,
+          keyword : keyword
+        },
+        function (response) {
+          console.log("API 호출 결과 받음:", response);
+          const sortLevel = [];
+          Object.keys(response.data.scoreList).forEach((index) => {
+            console.log(response.data.scoreList[index].url);
+            const urlIndex = urlList.indexOf(response.data.scoreList[index].url);
+            if (urlIndex !== -1) {
+              const curLevel = { url: response.data.scoreList[index].url, level: response.data.scoreList[urlIndex].score };
+              sortLevel.push(curLevel);
+              level[urlIndex] = response.data.scoreList[urlIndex].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
+              console.log(level[urlIndex]);
+            }
+          });
 
-      sortLevel.sort((a, b) => b.level - a.level);
-      topList = sortLevel.slice(0, 5);
-      updateTopList();
+          sortLevel.sort((a, b) => b.level - a.level);
+          topList = sortLevel.slice(0, 5);
+          updateTopList();
 
-      console.log(level);
+          console.log(level);
 
-      Array.from(userInfoElements).forEach((element, index) => {
-        console.log("ui setting", element);
-        if(element.querySelector(`.view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap`).href.includes("post.naver.com")){
-          return;
+          Array.from(userInfoElements).forEach((element, index) => {
+            console.log("ui setting", element);
+            if (
+              element
+                .querySelector(
+                  `.view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap`
+                )
+                .href.includes("post.naver.com")
+            ) {
+              return;
+            }
+            if (element.classList.contains("view_wrap")) {
+              position = "tab";
+            }
+            setUI(element, index);
+          });
         }
-        if(element.classList.contains("view_wrap")){
-          position = "tab";
-        }
-        setUI(element, index);
-      });
+      );
     }
-  );
+  };
+
+  chrome.storage.sync.get(["goodOption"], (result) => {
+    if (result.goodOption) {
+      goodOption = Object.values(result.goodOption).map(
+        (option) => option.index
+      );
+      console.log("goodOption : ", goodOption);
+    }
+    cnt++;
+    APIsend()
+  });
+  
+  chrome.storage.sync.get(["badOption"], (result) => {
+    if (result.badOption) {
+      badOption = Object.values(result.badOption).map((option) => option.index);
+      console.log("badOption : ", badOption);
+    }
+    cnt++;
+    APIsend()
+  });
+
 
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
@@ -184,7 +236,8 @@ function setting(position) {
     );
     links.forEach((link) => {
       // console.log(link.href);
-      if (link.href != undefined && !link.href.includes("post.naver.com")) { // post 글 제외
+      if (link.href != undefined && !link.href.includes("post.naver.com")) {
+        // post 글 제외
         urlList.push(link.href);
       }
     });
@@ -201,29 +254,21 @@ function setting(position) {
     console.log(index);
     console.log("before", userInfoElements.parentNode);
     const levelValue = level[index];
-    const percentage = (levelValue / maxLevel) * 100; // 최대 단계에 대한 현재 단계의 백분율
+    const percentage = (levelValue / 100) * 100; // 최대 단계에 대한 현재 단계의 백분율
     console.log(index + " " + levelValue + " " + percentage);
     if (userInfoElements.length != 0) {
       console.log(userInfoElements);
       const progressBarHTML = `
-      <div class="progress" style="float : right; display : flex; padding : 1% 2%; border-radius : 15px 15px; border: 1px solid lightgray;
-      box-shadow: 1px 1px 2px lightgray; width : ${
-        position == "all" ? "25%" : "20%"
-      }; margin-top : ${position == "all" ? "0%" : "-1%"}">
-        <div style="width : 30%; white-space : nowrap; font-size : 13px; text-align : right; margin-right : 10%">유용도</div>
-        <div class="progress-container" style="width:70%; position : relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
-          ${[...Array(maxLevel - 1)]
-            .map(
-              (_, i) => `
-          <div class="progress-divider" style="position: absolute; left: ${
-            (i + 1) * (100 / maxLevel)
-          }%; width: 1px; height: 100%; background-color: #fff;"></div>
-        `
-            )
-            .join("")}
-        <div class="progress-bar" style="width: ${percentage}%; background-color: #007bff; height: 100%;"></div>
+      <div class="progress" style="float: right; display: flex; padding: 1% 2%; border-radius: 15px 15px; border: 1px solid lightgray;
+      box-shadow: 1px 1px 2px lightgray; width: ${position === "all" ? "25%" : "20%"}; margin-top: ${position === "all" ? "0%" : "-1%"}">
+      <div style="width: 30%; white-space: nowrap; font-size: 13px; text-align: right; margin-right: 10%">유용도</div>
+      <div class="progress-container" style="width:70%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
+          ${[...Array(maxLevel - 1)].map((_, i) => `
+              <div class="progress-divider" style="position: absolute; left: ${(i + 1) * (100)}%; width: 1px; height: 100%; background-color: #fff;"></div>
+          `).join("")}
+          <div class="progress-bar" style="width: ${levelValue}%; background-color: #03C75A; height: 100%;"></div>
       </div>
-    <div>
+  </div>
     `;
       if (position == "all") {
         userInfoElements[0].insertAdjacentHTML("beforebegin", progressBarHTML);

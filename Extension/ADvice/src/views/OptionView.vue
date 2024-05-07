@@ -1,13 +1,13 @@
 <template>
   <div class="grid grid-cols-3 h-screen w-screen">
-    <div class="text-lime-500 col-span-1">
+    <div class="text-white col-span-1 bg-theme-green bg-opacity-60">
       ADvice
     </div>
-    <div class="flex flex-col items-center justify-start col-span-2">
-      <div>
-        커스텀 옵션
+    <div class="flex flex-col items-center justify-start col-span-2 bg-gray-100">
+      <div class="text-lg font-semibold shadow-sm rounded-full bg-theme-green bg-opacity-65 px-3 py-5">
+        유용한 글의 기준을 직접 커스텀해보세요 ! 👀
       </div>
-      <div class="h-2/3 w-2/3 border mt-4 relative flex justify-center items-center">
+      <div class="h-2/3 w-2/3 mt-4 relative flex justify-center items-center border border-theme-green">
         <VueDraggableNext class="dropArea w-1/2 h-full border-r" @drop="drop('good', $event)">
           Good Option
           <div v-for="(item, index) in goodOptions" :key="index">
@@ -25,7 +25,7 @@
           </div>
         </VueDraggableNext>
       </div>
-      <h3 class="mb-4 font-semibold text-gray-900 dark:text-white">옵션 목록</h3>
+      <div class="mb-4 mt-2 font-semibold text-gray-900 dark:text-white shadow-sm rounded-full bg-theme-green bg-opacity-65 px-3 py-5">옵션 목록</div>
       <v-container fluid class="scroll h-1/2">
         <VueDraggableNext class="dragArea list-group w-full" @drop="drop('list', $event)">
         <div
