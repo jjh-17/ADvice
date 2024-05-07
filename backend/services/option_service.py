@@ -11,55 +11,66 @@ class OptionService:
         self.blogScrap = NaverBlogScrapper()
         self.list = []
         self.soup = None
+        self.goodOption = None
+        self.badOption = None
+        self.keyword = None
 
-    def option_service(self, data: FullRequest):
+    async def option_service(self, data: FullRequest):
         response = {"scoreList": []}
-
+        self.goodOption = data.goodOption
+        self.badOption = data.badOption
+        self.keyword = data.keyword
         for i in data.urlList:
-            # url 스크랩
-            text = self.url_scrap(i)
-            # 문장으로 나누기
-            self.split_string(text)
-            sentence_count = len(self.list)
-
-            goodScore = 0
-            badScore = 0
-
-            for i in data.goodOption:
-                score = 0
-                if i == 1:
-                    score = self.option_one() * 25
-                if i == 2:
-                    score = self.option_two() * 100
-                if i == 3:
-                    score = self.option_three() * 100
-                if i == 4:
-                    score = (self.option_four(data.keyword) / sentence_count) * 100
-                if i == 5:
-                    score = (self.option_five() / sentence_count) * 100
-                print("goodOption", i, "점수는", score)
-                goodScore = goodScore + score
-
-            score = 0
-            for i in data.badOption:
-                if i == 1:
-                    score = self.option_one() * 25
-                if i == 2:
-                    score = self.option_two() * 100
-                if i == 3:
-                    score = self.option_three() * 100
-                if i == 4:
-                    score = (self.option_four(data.keyword) / sentence_count) * 100
-                if i == 5:
-                    score = (self.option_five() / sentence_count) * 100
-                print("badOption", i, "점수는", score)
-                badScore = badScore + score
-
-            response["scoreList"].append((goodScore-badScore)/(len(data.goodOption)+len(data.badOption)))
+            score = await self.url_score(i)
+            response["scoreList"].append(
+                {"url": i, "score": score}
+            )
 
         return response
 
-    def url_scrap(self, url: str):
+    async def url_score(self, url: str):
+        # url 스크랩
+        text = await self.url_scrap(url)
+        # 문장으로 나누기
+        await self.split_string(text)
+        sentence_count = len(self.list)
+
+        goodScore = 0
+        badScore = 0
+
+        for i in self.goodOption:
+            score = 0
+            if i == 1:
+                score = await self.option_one() * 25
+            if i == 2:
+                score = await self.option_two() * 100
+            if i == 3:
+                score = await self.option_three() * 100
+            if i == 4:
+                score = (await self.option_four(self.keyword) / sentence_count) * 100
+            if i == 5:
+                score = (await self.option_five() / sentence_count) * 100
+            print("goodOption", i, "점수는", score)
+            goodScore = goodScore + score
+
+        score = 0
+        for i in self.badOption:
+            if i == 1:
+                score = await self.option_one() * 25
+            if i == 2:
+                score = await self.option_two() * 100
+            if i == 3:
+                score = await self.option_three() * 100
+            if i == 4:
+                score = (await self.option_four(self.keyword) / sentence_count) * 100
+            if i == 5:
+                score = (await self.option_five() / sentence_count) * 100
+            print("badOption", i, "점수는", score)
+            badScore = badScore + score
+
+        return (goodScore-badScore)/(len(self.goodOption)+len(self.badOption))
+
+    async def url_scrap(self, url: str):
         text=""
         if "cafe" in url:  # 카페 게시글인 경우
             self.soup = self.cafeScrap.scrape_naver_cafe_init(url)
@@ -71,13 +82,13 @@ class OptionService:
 
         return text
 
-    def split_string(self, paragraph: str):
+    async def split_string(self, paragraph: str):
         self.list = split_sentences(paragraph)
 
     def soup_get_main_container(self):
         return self.soup.find("div", attrs={"class": "se-main-container"})
 
-    def option_one(self):
+    async def option_one(self):
         cnt = 0
         soup = self.soup_get_main_container()
 
@@ -95,7 +106,7 @@ class OptionService:
             cnt = cnt + 1
 
         return cnt
-    def option_two(self):
+    async def option_two(self):
         flag = 0
         blockUrlList = [
             "https://coupa.ng/",
@@ -115,7 +126,7 @@ class OptionService:
 
         # 1이면 블랙리스트 링크 존재
         return flag
-    def option_three(self):
+    async def option_three(self):
         flag = 0
         if self.soup.find("div", attrs={"class": "not_sponsored_summary_wrap"}):
             flag = 1
@@ -123,7 +134,7 @@ class OptionService:
         # 1이면 내돈내산 마크 존재
         return flag
 
-    def option_four(self, keyword):
+    async def option_four(self, keyword):
         cnt = 0
         for i in self.list:
             if keyword in i:
@@ -131,7 +142,7 @@ class OptionService:
 
         return cnt
 
-    def option_five(self):
+    async def option_five(self):
         cnt = 0
         detector = TextAdDetection()
         ad_result = detector.predict(self.list)

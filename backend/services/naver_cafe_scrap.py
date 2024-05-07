@@ -50,9 +50,9 @@ class NaverCafeScrapper:
         service = Service(executable_path=driver_path)
 
         # 웹드라이버 초기화
-        driver = webdriver.Chrome(service=service, options=options)
+        #driver = webdriver.Chrome(service=service, options=options)
         #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
-        #driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(options=options)
         return driver
 
     def initialize_driver(self):

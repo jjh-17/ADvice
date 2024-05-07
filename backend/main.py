@@ -39,9 +39,9 @@ async def root():
     return {"message": "Hello World"}
 
 @app.post("/full-option")
-def full_option(data: FullRequest):
+async def full_option(data: FullRequest):
     optionService = OptionService()
-    return JSONResponse(status_code=200, content=optionService.option_service(data))
+    return JSONResponse(status_code=200, content=await optionService.option_service(data))
 
 @app.get("/cafe-crawl")
 def cafe_crawl(url: str):
