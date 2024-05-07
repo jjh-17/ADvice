@@ -9,7 +9,7 @@ class OptionService:
     def __init__(self):
         self.cafeScrap = NaverCafeScrapper()
         self.blogScrap = NaverBlogScrapper()
-        self.list = []
+        self.list = None
         self.soup = None
         self.goodOption = None
         self.badOption = None
@@ -30,7 +30,7 @@ class OptionService:
 
     async def url_score(self, url: str):
         # url 스크랩
-        text = await self.url_scrap(url)
+        text = self.url_scrap(url)
         # 문장으로 나누기
         await self.split_string(text)
         sentence_count = len(self.list)
@@ -68,9 +68,9 @@ class OptionService:
             print("badOption", i, "점수는", score)
             badScore = badScore + score
 
-        return (goodScore-badScore)/(len(self.goodOption)+len(self.badOption))
+        return (goodScore/len(self.goodOption)) - (badScore/len(self.badOption))
 
-    async def url_scrap(self, url: str):
+    def url_scrap(self, url: str):
         text=""
         if "cafe" in url:  # 카페 게시글인 경우
             self.soup = self.cafeScrap.scrape_naver_cafe_init(url)
