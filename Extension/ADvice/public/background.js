@@ -63,12 +63,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action == "hoverAPI") {
     // 검색 전체 화면 - 링크 호버 시
     console.log(request.url);
-    fetch("http://127.0.0.1:8000/hover_urls", {
-      method: "POST",
+    const apiURL = new URL("http://k10a403.p.ssafy.io:8000/summary");
+    apiURL.search = new URLSearchParams({
+      url : request.url
+    }).toString();
+    fetch(apiURL, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: request.url }),
     })
       .then((response) => response.json())
       .then((data) => sendResponse({ success: true, data: data }))
@@ -104,7 +107,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     topList = request.topList;
   } else if (request.action === "loadTopList") {
     sendResponse({ topList: topList });
-    return true;
   }
   return true; // Keep the messaging channel open for the response
 });
