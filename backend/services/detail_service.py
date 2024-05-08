@@ -3,12 +3,14 @@ from kss import split_sentences
 import asyncio
 
 from models.detail_request import DetailRequest
-from internals.detail_evaluation import DetailEvaluation
+from internals.ad_evaluation import AdEvaluation
+from internals.emotion_evaluation import EmotionEvaluation
 
 
 class DetailService:
     def __init__(self):
-        self.__detail_evaluation = DetailEvaluation()
+        self._ad_evaluation = AdEvaluation()
+        self._emotion_evaluation = EmotionEvaluation()
 
     async def evaluate(self, data: DetailRequest):
         # tag 데이터
@@ -30,11 +32,11 @@ class DetailService:
         return dict(zip(keys, results))
 
     async def evaluate_emotion(self, text):
-        result = await self.__detail_evaluation.evaluate_emotion_count(text)
+        result = await self._emotion_evaluation.get_emotion_count(text)
         return result
 
     async def evaluate_ad(self, text, sentences):
-        result = await self.__detail_evaluation.evaluate_ad(sentences)
+        result = await self._ad_evaluation.evaluate_ad(sentences)
         return self.seperate_sentences(sentences, result, text)
 
     def __make_paragraph(self, data):
