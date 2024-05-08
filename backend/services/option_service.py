@@ -1,10 +1,11 @@
+from kss import split_sentences
+import asyncio
+
 from models.full_request import FullRequest
+from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from services.text_ad_detection import TextAdDetection
-
-from kss import split_sentences
-import asyncio
 
 
 class OptionService:
@@ -16,6 +17,13 @@ class OptionService:
         self.goodOption = None
         self.badOption = None
         self.keyword = None
+        self._options = [
+            self.calc_types_information,
+            self.calc_bad_url,
+            self.calc_not_sponsored_mark,
+            self.calc_contains_keyword,
+            self.calc_ad_detection,
+        ]
 
     async def option_service(self, data: FullRequest):
         self.goodOption = data.goodOption
@@ -37,46 +45,45 @@ class OptionService:
         text = self.url_scrap(url)
         # 문장으로 나누기
         await self.split_string(text)
-        sentence_count = len(self.list)
 
-        good_score = 0
-        bad_score = 0
+        # good option과 bad option 순서 맞춤
+        good_tasks = []
+        for option in self.goodOption:
+            self._check_option_range(option)
+            good_tasks.append(self._options[option - 1]())
 
-        # good : True, bad : False
-        # TODO: 이거 판단을 왜 여기서 하는지?
-        score_options = []
+        bad_tasks = []
+        for option in self.badOption:
+            self._check_option_range(option)
+            bad_tasks.append(self._options[option - 1]())
 
-        for i in self.goodOption:
-            score = 0
-            if i == 1:
-                score = await self.option_one() * 25
-            if i == 2:
-                score = await self.option_two() * 100
-            if i == 3:
-                score = await self.option_three() * 100
-            if i == 4:
-                score = (await self.option_four(self.keyword) / sentence_count) * 100
-            if i == 5:
-                score = (await self.option_five() / sentence_count) * 100
+        # good option과 bad option을 한번에 await
+        result = await asyncio.gather(*(good_tasks + bad_tasks))
 
-            good_score = good_score + score
+        # 결과를 각 옵션 길이에 따라 슬라이싱해서 분배
+        good_score, bad_score = 0, 0
+        if len(self.goodOption) > 0:
+            good_score += sum(result[: len(self.goodOption)]) / len(self.goodOption)
 
-        score = 0
-        for i in self.badOption:
-            if i == 1:
-                score = await self.option_one() * 25
-            if i == 2:
-                score = await self.option_two() * 100
-            if i == 3:
-                score = await self.option_three() * 100
-            if i == 4:
-                score = (await self.option_four(self.keyword) / sentence_count) * 100
-            if i == 5:
-                score = (await self.option_five() / sentence_count) * 100
+        if len(self.badOption) > 0:
+            bad_score += sum(result[len(self.goodOption) :]) / len(self.goodOption)
 
-            bad_score = bad_score + score
+        return good_score - bad_score
 
-        return (good_score / len(self.goodOption)) - (bad_score / len(self.badOption))
+    async def calc_types_information(self):
+        return await self.count_types_information() * 25
+
+    async def calc_bad_url(self):
+        return await self.has_bad_url() * 100
+
+    async def calc_not_sponsored_mark(self):
+        return await self.has_not_sponsored_mark() * 100
+
+    async def calc_contains_keyword(self):
+        return (await self.contains_keyword(self.keyword) / len(self.list)) * 100
+
+    async def calc_ad_detection(self):
+        return (await self.ad_detection() / len(self.list)) * 100
 
     def url_scrap(self, url: str):
         text = ""
@@ -96,7 +103,7 @@ class OptionService:
     def soup_get_main_container(self):
         return self.soup.find("div", attrs={"class": "se-main-container"})
 
-    async def option_one(self):
+    async def count_types_information(self):
         cnt = 0
         soup = self.soup_get_main_container()
 
@@ -117,7 +124,7 @@ class OptionService:
 
         return cnt
 
-    async def option_two(self):
+    async def has_bad_url(self):
         flag = 0
         blockUrlList = [
             "https://coupa.ng/",
@@ -138,7 +145,7 @@ class OptionService:
         # 1이면 블랙리스트 링크 존재
         return flag
 
-    async def option_three(self):
+    async def has_not_sponsored_mark(self):
         flag = 0
         if self.soup.find("div", attrs={"class": "not_sponsored_summary_wrap"}):
             flag = 1
@@ -146,7 +153,7 @@ class OptionService:
         # 1이면 내돈내산 마크 존재
         return flag
 
-    async def option_four(self, keyword):
+    async def contains_keyword(self, keyword):
         cnt = 0
         for i in self.list:
             if keyword in i:
@@ -154,7 +161,7 @@ class OptionService:
 
         return cnt
 
-    async def option_five(self):
+    async def ad_detection(self):
         cnt = 0
         detector = TextAdDetection()
         ad_result = detector.predict(self.list)
@@ -162,3 +169,7 @@ class OptionService:
             if ad_result[i] == 1:
                 cnt = cnt + 1
         return cnt
+
+    def _check_option_range(self, option):
+        if 0 >= option or option > len(self._options):
+            raise CustomException(status_code=400, message="옵션 범위를 벗어났습니다")
