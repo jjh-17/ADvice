@@ -146,6 +146,7 @@ var optionCnt = 0;
 var selectedGoodOption = [];
 var selectedBadOption = [];
 
+var optionThreeflag = false;
 function optionFour(keyword) {
   let optionFourList = [];
 
@@ -192,6 +193,16 @@ function checkOption() {
         iframeDoc.getElementsByClassName("se-main-container");
       if (iframeElements.length > 0) {
         clearInterval(checkInterval);
+
+        // 옵션3 관련 체크 코드
+        if (
+          iframeDoc.getElementsByClassName("not_sponsored_summary_wrap")
+            .length != 0
+        ) {
+          optionThreeflag = true;
+        }
+        console.log(optionThreeflag);
+
         // 모달 시작
         function showModal(id, event) {
           let modal = iframeDoc.getElementById("hover-modal");
@@ -322,51 +333,51 @@ function checkOption() {
         // 크롤링 end
 
         // 인공지능 관련 데이터 받아오기
-        chrome.runtime.sendMessage(
-          { action: "detail", crawlResults: crawlResults },
-          function (response) {
-            var listData = response.data.adDetection;
-            var newData = {
-              option: 5,
-              goodList: listData.goodList,
-              badList: listData.badList,
-            };
-            tmpData.push(newData);
-            console.log(tmpData);
+        // chrome.runtime.sendMessage(
+        //   { action: "detail", crawlResults: crawlResults },
+        //   function (response) {
+        //     var listData = response.data.adDetection;
+        //     var newData = {
+        //       option: 5,
+        //       goodList: listData.goodList,
+        //       badList: listData.badList,
+        //     };
+        //     tmpData.push(newData);
+        //     console.log(tmpData);
 
-            // Coloring 시작
-            finalResult = processData(tmpData);
-            console.log(finalResult);
-            Object.keys(finalResult).forEach((id) => {
-              const data = finalResult[id];
-              const element = document
-                .getElementById("mainFrame")
-                .contentWindow.document.getElementById(id);
-              if (element) {
-                element.addEventListener("mouseover", function (event) {
-                  event.stopPropagation();
-                  showModal(id, event);
-                });
+        //     // Coloring 시작
+        //     finalResult = processData(tmpData);
+        //     console.log(finalResult);
+        //     Object.keys(finalResult).forEach((id) => {
+        //       const data = finalResult[id];
+        //       const element = document
+        //         .getElementById("mainFrame")
+        //         .contentWindow.document.getElementById(id);
+        //       if (element) {
+        //         element.addEventListener("mouseover", function (event) {
+        //           event.stopPropagation();
+        //           showModal(id, event);
+        //         });
 
-                element.addEventListener("mouseout", function (event) {
-                  hideModal();
-                });
+        //         element.addEventListener("mouseout", function (event) {
+        //           hideModal();
+        //         });
 
-                let html = element.innerHTML;
+        //         let html = element.innerHTML;
 
-                if (data.flag === 1) {
-                  element.style.backgroundColor = "rgba(66, 189, 101, 0.3)"; // Green for good options
-                } else if (data.flag === 0) {
-                  element.style.backgroundColor = "rgba(255, 235, 59, 0.3)"; // Yellow for neutral
-                } else {
-                  element.style.backgroundColor = "rgba(241, 43, 67, 0.3)"; // Red for bad options
-                }
+        //         if (data.flag === 1) {
+        //           element.style.backgroundColor = "rgba(66, 189, 101, 0.3)"; // Green for good options
+        //         } else if (data.flag === 0) {
+        //           element.style.backgroundColor = "rgba(255, 235, 59, 0.3)"; // Yellow for neutral
+        //         } else {
+        //           element.style.backgroundColor = "rgba(241, 43, 67, 0.3)"; // Red for bad options
+        //         }
 
-                element.innerHTML = html;
-              }
-            });
-          }
-        );
+        //         element.innerHTML = html;
+        //       }
+        //     });
+        //   }
+        // );
       }
     }, 100);
   }
