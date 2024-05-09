@@ -1,5 +1,6 @@
 from kss import split_sentences
 import asyncio
+from concurrent.futures import ProcessPoolExecutor
 from typing import List, Any
 from pydantic import BaseModel
 
@@ -35,7 +36,14 @@ class OptionService:
             "keyword": data.keyword,
         }
 
-        tasks = [self.url_score(url, select) for url in data.urlList]
+        # url 갯수에 규칙이 없으므로 프로세스 수 제한
+        executor = ProcessPoolExecutor(max_workers=4)
+        loop = asyncio.get_running_loop()
+
+        tasks = [
+            loop.run_in_executor(executor, self.get_score, url, select)
+            for url in data.urlList
+        ]
         results = await asyncio.gather(*tasks)
 
         return {
@@ -44,6 +52,10 @@ class OptionService:
                 for url, score in zip(data.urlList, results)
             ]
         }
+
+    # 동기 작업을 위한 래핑 함수
+    def get_score(self, url: str, select: dict):
+        return asyncio.run(self.url_score(url, select))
 
     async def url_score(self, url: str, select: dict):
         # url 스크랩
@@ -55,15 +67,24 @@ class OptionService:
             soup=soup, sentences=sentences, keyword=select["keyword"]
         )
 
+        executor = ProcessPoolExecutor(
+            max_workers=len(select["good_option"]) + len(select["bad_option"])
+        )
+        loop = asyncio.get_running_loop()
+
         # good option과 bad option 순서 맞춤
         tasks = []
         for option in select["good_option"]:
             self._check_option_range(option)
-            tasks.append(self._options[option - 1](param))
+            tasks.append(
+                loop.run_in_executor(executor, self._options[option - 1], param)
+            )
 
         for option in select["bad_option"]:
             self._check_option_range(option)
-            tasks.append(self._options[option - 1](param))
+            tasks.append(
+                loop.run_in_executor(executor, self._options[option - 1], param)
+            )
 
         # good option과 bad option을 한번에 await
         result = await asyncio.gather(*(tasks))
@@ -80,23 +101,24 @@ class OptionService:
 
         return good_score - bad_score
 
-    async def calc_types_information(self, param: OptionParameters):
-        return await self.count_types_information(param.soup) * 25
+    def calc_types_information(self, param: OptionParameters):
+        return self.count_types_information(param.soup) * 25
 
-    async def calc_bad_url(self, param: OptionParameters):
-        return await self.has_bad_url(param.soup) * 100
+    def calc_bad_url(self, param: OptionParameters):
+        return self.has_bad_url(param.soup) * 100
 
-    async def calc_not_sponsored_mark(self, param: OptionParameters):
-        return await self.has_not_sponsored_mark(param.soup) * 100
+    def calc_not_sponsored_mark(self, param: OptionParameters):
+        return self.has_not_sponsored_mark(param.soup) * 100
 
-    async def calc_contains_keyword(self, param: OptionParameters):
+    def calc_contains_keyword(self, param: OptionParameters):
         return (
-            await self.contains_keyword(param.sentences, param.keyword)
-            / len(param.sentences)
+            self.contains_keyword(param.sentences, param.keyword) / len(param.sentences)
         ) * 100
 
-    async def calc_ad_detection(self, param: OptionParameters):
-        return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
+    def calc_ad_detection(self, param: OptionParameters):
+        return (
+            asyncio.run(self.ad_detection(param.sentences)) / len(param.sentences)
+        ) * 100
 
     def url_scrap(self, url: str):
         text = []
@@ -118,7 +140,7 @@ class OptionService:
     def soup_get_main_container(self, soup):
         return soup.find("div", attrs={"class": "se-main-container"})
 
-    async def count_types_information(self, soup):
+    def count_types_information(self, soup):
         cnt = 0
         soup = self.soup_get_main_container(soup)
 
@@ -139,7 +161,7 @@ class OptionService:
 
         return cnt
 
-    async def has_bad_url(self, soup):
+    def has_bad_url(self, soup):
         flag = 0
         blockUrlList = [
             "https://coupa.ng/",
@@ -160,7 +182,7 @@ class OptionService:
         # 1이면 블랙리스트 링크 존재
         return flag
 
-    async def has_not_sponsored_mark(self, soup):
+    def has_not_sponsored_mark(self, soup):
         flag = 0
         if soup.find("div", attrs={"class": "not_sponsored_summary_wrap"}):
             flag = 1
@@ -168,7 +190,7 @@ class OptionService:
         # 1이면 내돈내산 마크 존재
         return flag
 
-    async def contains_keyword(self, sentences, keyword):
+    def contains_keyword(self, sentences, keyword):
         cnt = 0
         for i in sentences:
             if keyword in i:
