@@ -17,10 +17,13 @@ class ImageDetectionService:
 
     def human_detection(self, image_paths: list):
         counts = humanCounter.count_objects_in_images(image_paths, 0)
-
         if len(counts) > 0:
-            print(counts)
-        return counts
+            ratio = sum(counts) / len(counts)
+            if ratio > 0.2:
+                return 0
+            else:
+                return 1
+        return -1
 
     def filter_detection(self, image_paths: list):
         results = imageAnalyzer.filter_detect(image_paths)
