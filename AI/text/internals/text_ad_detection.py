@@ -41,3 +41,6 @@ class TextAdDetection:
         logits = outputs[0]
         logits = logits.detach().cpu()
         return 1 if logits.argmax(-1) == 1 else 0
+
+
+textDetector = TextAdDetection()
