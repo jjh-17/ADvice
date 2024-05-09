@@ -1,13 +1,15 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import time
+
+from config.config import settings
+
 
 class TextAdDetection:
     def __init__(self):
-        # self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.device = torch.device('cpu')
-        self.model = AutoModelForSequenceClassification.from_pretrained("./model/KcELECTRA_ad", num_labels=2).to(self.device)
-        self.tokenizer = AutoTokenizer.from_pretrained("beomi/KcELECTRA-base")
+        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.ad_detection_model_path, num_labels=2)
+                      .to(self.device))
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
     def predict(self, texts):
         results = []
