@@ -7,8 +7,9 @@ let goodOption = [];
 let badOption = [];
 let urlList = [];
 let level = [];
-let keyword = "튀소";
+let keyword = "마라샹궈";
 let cnt = 0;
+let apiCnt = 0;
 const maxLevel = 100;
 const minLevel = 0;
 let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
@@ -180,8 +181,6 @@ const APIsend = (userInfoElements, position) => {
               }
             })
           }
-          // sortLevel.sort((a, b) => b.level - a.level);
-          // topList = sortLevel.slice(0, 5);
           console.log("topList", topList);
           updateTopList();
 
@@ -212,7 +211,21 @@ const APIsend = (userInfoElements, position) => {
         }
       );
     }
-
+    if(apiCnt == urlList.length){
+      for(let i = 0; i < urlList.length; i++){
+        
+    chrome.runtime.sendMessage(
+      { action: "hoverAPI", url: urlList[i] },
+      function (response) {
+        console.log("API 호출 결과 받음 - setting:", response);
+        modalTextList[i] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
+        <br><br>😊 : ${response.data.positive.length > 50 ? response.data.positive.substring(0, 50) + '...' : response.data.positive}<br><br> 
+        😐 : ${response.data.neutral.length > 50 ? response.data.neutral.substring(0, 50) + '...' : response.data.neutral}<br><br> 
+        🙁 : ${response.data.negative.length > 50 ? response.data.negative.substring(0, 50) + '...' : response.data.negative} `;
+      }
+    );
+      }
+    }
   }
 };
 
@@ -250,6 +263,7 @@ function setUI(node, index, position) {
     }
     userInfoElements[0].style.display = "flex";
     console.log("after", userInfoElements.parentNode);
+    apiCnt++;
   }
 
   Array.from(userInfoElements).forEach((element, index) => {
@@ -264,24 +278,6 @@ function setUI(node, index, position) {
       // 진행 상태 표시
     }
   });
-
-  // -------- 유용도 박스
-
-  // const links = node.querySelectorAll(
-  //   ".title_area a, .fds-comps-right-image-text-title, .total_tit a"
-  // );
-
-  // links.forEach((link) => {
-  //   // 호버 -> API로 링크 전송 -> 요약문 return
-  //   const handler = hoverHandler(link);
-  //   link.addEventListener("mouseover", handler);
-
-  //   link.addEventListener("mouseout", function () {
-  //     modal.style.display = "none";
-  //   });
-
-  //   link.handler = handler;
-  // });
 }
 
 function hoverHandler(link, index) {
@@ -335,6 +331,7 @@ function setting(position) {
   );
 
   links.forEach((link, index) => {
+
     // 호버 -> API로 링크 전송 -> 요약문 return
     const handler = hoverHandler(link, index);
     link.addEventListener("mouseover", handler);
@@ -444,6 +441,7 @@ function setting(position) {
   //   }
   // };
 
+  cnt = 0;
   chrome.storage.sync.get(["goodOption"], (result) => {
     if (result.goodOption) {
       goodOption = Object.values(result.goodOption).map(
@@ -463,7 +461,6 @@ function setting(position) {
     cnt++;
     APIsend(userInfoElements, position)
   });
-
 
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
