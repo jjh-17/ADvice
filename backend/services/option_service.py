@@ -1,6 +1,7 @@
 from models.full_request import FullRequest
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
+from services.naver_in_scrap import NaverInScrapper
 from kss import split_sentences
 from services.text_ad_detection import TextAdDetection
 
@@ -9,6 +10,7 @@ class OptionService:
     def __init__(self):
         self.cafeScrap = NaverCafeScrapper()
         self.blogScrap = NaverBlogScrapper()
+        self.inScrap = NaverInScrapper()
         self.list = None
         self.soup = None
         self.goodOption = None
@@ -70,8 +72,13 @@ class OptionService:
 
         return (goodScore/len(self.goodOption)) - (badScore/len(self.badOption))
 
+
     def url_scrap(self, url: str):
         text=""
+        if "in.naver.com" in url: #인플루언서 게시글인 경우
+            self.soup = self.inScrap.scrape_naver_in_init(url)
+            text = self.inScrap.scrape_naver_in_text(self.soup)
+
         if "cafe" in url:  # 카페 게시글인 경우
             self.soup = self.cafeScrap.scrape_naver_cafe_init(url)
             text = self.cafeScrap.scrape_naver_cafe_text(self.soup)
