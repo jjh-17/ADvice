@@ -1,4 +1,6 @@
-// 테스트 블로그 : https://blog.naver.com/gospel416/223425484859
+// 기본 테스트 블로그 : https://blog.naver.com/gospel416/223425484859
+// 내돈내산 옵션 테스트 블로그 : https://blog.naver.com/cuteeun10/223220966756
+// 광고유도 테스트 블로그 : https://blog.naver.com/alsrud_90/223425197896
 
 var iframe = document.getElementById("mainFrame");
 var optionName = [
@@ -161,6 +163,93 @@ function optionThree(iframeDoc) {
     });
   });
 }
+function optionTwo(iframeDoc) {
+  const blackList = [
+    "https://coupa.ng/",
+    "https://link.coupang.com/",
+    "https://api3.myrealtrip.com/",
+    "https://smartstore.naver.com",
+  ];
+  var elements = iframeDoc.querySelectorAll(".se-module-oglink");
+
+  var flag = selectedGoodOption.includes(2);
+
+  elements.forEach(function (element) {
+    console.log(element);
+    var link = element.querySelector("a").href; // 자식 요소 중 첫 번째 <a> 태그의 href 속성을 가져옵니다.
+
+    // blackList의 링크들이 포함되어 있는지 확인합니다.
+    if (
+      blackList.some(function (blacklistURL) {
+        return link.includes(blacklistURL);
+      })
+    ) {
+      // 포함되어 있다면 해당 요소의 색상을 변경합니다.
+      // 뒷 배경 색칠
+      const originalWidth = element.offsetWidth; // 원래 요소의 너비를 가져옵니다.
+      const newWidth = originalWidth + 30; // 원래 너비보다 20px 더 넓게 설정합니다.
+
+      // 배경색을 flag의 값에 따라 조정합니다.
+      const backgroundColor = flag
+        ? "rgba(66, 189, 101, 0.15)"
+        : "rgba(241, 43, 67, 0.15)"; // 초록색 또는 빨간색
+
+      // 래퍼 div를 생성하고 스타일을 설정합니다.
+      const wrapperHTML = `
+      <div class="custom-wrapper" style="width: ${newWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
+      </div>
+    `;
+
+      // 요소 뒤에 래퍼를 삽입하고 요소를 그 안으로 이동시킵니다.
+      element.insertAdjacentHTML("afterend", wrapperHTML);
+      const wrapper = element.nextElementSibling;
+      wrapper.appendChild(element);
+
+      // 모달 띄우기
+      element.addEventListener("mouseover", function (event) {
+        let modal = iframeDoc.getElementById("hover-modal");
+        if (!modal) {
+          modal = iframeDoc.createElement("div");
+          modal.id = "hover-modal";
+          modal.style.cssText =
+            "position: absolute; padding: 20px; background: white; border: 1px solid black; z-index: 1000; display: none;";
+          iframeDoc.body.appendChild(modal);
+        }
+
+        let statusMessage = "";
+        let optionResult = "";
+        if (flag) {
+          statusMessage = "선택하신 부분은 유용한 부분으로 판단됩니다 😀";
+          optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 링크나 특정 사이트로의 유도 링크가 포함</li></ul></div>`;
+        } else {
+          statusMessage = "선택하신 부분은 유해한 부분으로 판단됩니다 😕";
+          optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 링크나 특정 사이트로의 유도 링크가 포함</li></ul></div>`;
+        }
+
+        modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+        modal.style.display = "block";
+
+        const rect = event.target.getBoundingClientRect();
+        const scrollY =
+          iframeDoc.defaultView.pageYOffset ||
+          iframeDoc.documentElement.scrollTop;
+        const scrollX =
+          iframeDoc.defaultView.pageXOffset ||
+          iframeDoc.documentElement.scrollLeft;
+
+        // Adjust modal position to show above the element
+        modal.style.top = `${rect.top + scrollY - modal.offsetHeight - 10}px`; // 위치 조정
+        modal.style.left = `${rect.left + scrollX}px`;
+      });
+      element.addEventListener("mouseout", function (event) {
+        const modal = iframeDoc.getElementById("hover-modal");
+        if (modal) {
+          modal.style.display = "none";
+        }
+      });
+    }
+  });
+}
 
 chrome.storage.sync.get(["badOption"], (result) => {
   if (result.badOption) {
@@ -321,6 +410,7 @@ function checkOption() {
         // 옵션 확인
         optionFour("경주");
         optionThree(iframeDoc);
+        optionTwo(iframeDoc);
 
         // 인공지능 관련 데이터 받아오기
         chrome.runtime.sendMessage(
