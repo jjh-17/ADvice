@@ -3,7 +3,7 @@ import numpy as np
 import urllib.error
 from scipy.stats import norm
 
-from services.image_downloader import downloader
+from internals.image_downloader import downloader
 
 
 class ImageAnalyzer:

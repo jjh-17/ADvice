@@ -1,7 +1,7 @@
 import os
 from google.cloud import vision
 
-from services.image_downloader import downloader
+from internals.image_downloader import downloader
 
 
 class ImageContextExtractor:

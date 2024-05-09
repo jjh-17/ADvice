@@ -1,8 +1,8 @@
-from services.context_analyzer import contextAnalyzer
-from services.image_context_extractor import contextExtractor
-from services.image_filter_detection import imageAnalyzer
-from services.image_human_detector import humanCounter
-from services.keyword_extractor import keywordExtractor
+from internals.context_analyzer import contextAnalyzer
+from internals.image_context_extractor import contextExtractor
+from internals.image_filter_detection import imageAnalyzer
+from internals.image_human_detector import humanCounter
+from internals.keyword_extractor import keywordExtractor
 
 
 class ImageDetectionService:
