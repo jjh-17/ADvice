@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     fasttext_model_path: str
     yolo_model_path: str
     target_language_code: str
-    translation_project_path: str
+    google_application_credentials: str
 
     class Config:
         env_file = ".env"

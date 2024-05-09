@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import cv2
 import urllib.request
 import urllib.error
@@ -9,10 +11,7 @@ from models.exception.custom_exception import CustomException
 
 
 class ImageDownloader:
-    def __init__(self):
-        self.exts = None
-
-    def load_image_from_url(url):
+    def load_image_from_url(self, url: str) -> np.ndarray:
         try:
             response = urllib.request.urlopen(url)
         except urllib.error.HTTPError:
@@ -22,7 +21,10 @@ class ImageDownloader:
         image = cv2.imdecode(image, cv2.IMREAD_GRAYSCALE)
         return image
 
-    def _get_image_resolution(self, image):
+    def _get_image_resolution(self, image: np.ndarray) -> Tuple[int, int]:
         image = Image.open(BytesIO(image))
         width, height = image.size
         return width, height
+
+
+downloader = ImageDownloader()
