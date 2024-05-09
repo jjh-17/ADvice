@@ -1,5 +1,14 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
+
+onMounted(() => {
+  console.log("searchResult onMounted");
+  chrome.runtime.sendMessage({ action: "loadTopList" }, (response) => {
+    ranks.value = response.topList;
+    console.log(ranks.value);
+  });
+});
+
 const items = ref([
   { id: 1, value: "해당 문서에 걸린 링크/사진 갯수" },
   { id: 2, value: "다양한 형태 정보 포함 여부" },
@@ -16,44 +25,44 @@ watch(selected, (newValue) => {
 
 const currentRank = ref(0);
 const ranks = ref([
-  {
-    rank: 1,
-    title: "[홍대] 오브젝트 서교점 최고심 팝업스...",
-    url: "https://blog.naver.com/kus4242/223420431358",
-    author: "저는 캐릭터 중에서도 '최고심'을 엄청 좋아해요ㅎㅎ",
-    score: 100,
-  },
-  {
-    rank: 2,
-    title:
-      "홍대 소품샵 투어: 수바코, 오브젝트서교점(최고심), 유어마인드(책갈피)",
-    url: "https://blog.naver.com/dudungha22/223432930949",
-    score: 90,
-    author: "최고심이랑 콜라보를 했나봐요!! 벌써 구ㅏ여워 속마음 비밀해제",
-  },
-  {
-    rank: 3,
-    title: "최고심 팝업스토어 홍대, 속마음 비밀해제 와펜",
-    url: "https://blog.naver.com/aswqeeddrr5r/223414746493",
-    score: 80,
-    author: "이번에 롯데월드타워 잔디광장에도 등장한 최고심! 작년에는",
-  },
-  {
-    rank: 4,
-    title: "홍대ㅣ최고심 팝업 오브젝트서교 파우치 구입 후기",
-    url: "https://blog.naver.com/qpskxn41/223424509961",
-    score: 70,
-    author:
-      "오브젝트(서교점) 현명한 소비의 시작, 오브젝트 (insideobject.com) ️서울 마포구 와우산로",
-  },
-  {
-    rank: 5,
-    title: "옵젵상가X최고심 팝업 일정, 와펜 굿즈 가득한 오브젝트 서교점",
-    url: "https://blog.naver.com/woodyda/223418209479",
-    score: 60,
-    author:
-      "1년만에 돌아온 최고심 팝업스토어!!! 1년 전 오브젝트 서교점에서 최고심",
-  },
+  // {
+  //   rank: 1,
+  //   title: "[홍대] 오브젝트 서교점 최고심 팝업스...",
+  //   url: "https://blog.naver.com/kus4242/223420431358",
+  //   author: "저는 캐릭터 중에서도 '최고심'을 엄청 좋아해요ㅎㅎ",
+  //   score: 100,
+  // },
+  // {
+  //   rank: 2,
+  //   title:
+  //     "홍대 소품샵 투어: 수바코, 오브젝트서교점(최고심), 유어마인드(책갈피)",
+  //   url: "https://blog.naver.com/dudungha22/223432930949",
+  //   score: 90,
+  //   author: "최고심이랑 콜라보를 했나봐요!! 벌써 구ㅏ여워 속마음 비밀해제",
+  // },
+  // {
+  //   rank: 3,
+  //   title: "최고심 팝업스토어 홍대, 속마음 비밀해제 와펜",
+  //   url: "https://blog.naver.com/aswqeeddrr5r/223414746493",
+  //   score: 80,
+  //   author: "이번에 롯데월드타워 잔디광장에도 등장한 최고심! 작년에는",
+  // },
+  // {
+  //   rank: 4,
+  //   title: "홍대ㅣ최고심 팝업 오브젝트서교 파우치 구입 후기",
+  //   url: "https://blog.naver.com/qpskxn41/223424509961",
+  //   score: 70,
+  //   author:
+  //     "오브젝트(서교점) 현명한 소비의 시작, 오브젝트 (insideobject.com) ️서울 마포구 와우산로",
+  // },
+  // {
+  //   rank: 5,
+  //   title: "옵젵상가X최고심 팝업 일정, 와펜 굿즈 가득한 오브젝트 서교점",
+  //   url: "https://blog.naver.com/woodyda/223418209479",
+  //   score: 60,
+  //   author:
+  //     "1년만에 돌아온 최고심 팝업스토어!!! 1년 전 오브젝트 서교점에서 최고심",
+  // },
 ]);
 
 const next = () => {
@@ -63,6 +72,17 @@ const next = () => {
 const prev = () => {
   currentRank.value =
     (currentRank.value + ranks.value.length - 1) % ranks.value.length;
+};
+
+const goToPage = (link) => {
+  console.log("click : ", link);
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const currentTab = tabs[0]; // 현재 활성 탭
+    chrome.tabs.create({
+      url: link,
+      index: currentTab.index + 1, // 현재 탭의 바로 다음 위치
+    });
+  });
 };
 </script>
 
@@ -84,35 +104,26 @@ const prev = () => {
         </button>
 
         <!-- Carousel wrapper -->
-        <div class="flex-grow flex pt-4 pb-3">
+        <div class="flex-grow flex h-28 pt-4 pb-3">
           <!-- Text items -->
           <div
             v-for="(rank, index) in ranks"
             :key="index"
+            @click="goToPage(rank.url)"
             :class="{ hidden: currentRank !== index }"
           >
             <div class="text-xs mb-1">
-              <span class="font-semibold" v-if="rank.rank <= 3">
-                👑 {{ rank.rank }}위
+              <span class="font-semibold" v-if="index < 3">
+                👑 {{ index + 1 }}위
               </span>
               <!-- Crown only if rank is 3 or less -->
-              <span class="font-semibold" v-else>{{ rank.rank }}위</span>
+              <span class="font-semibold" v-else>{{ index + 1 }}위</span>
             </div>
 
             <div class="text-semi-sm font-semibold mb-1">
-              {{
-                rank.title.length > 18
-                  ? rank.title.substring(0, 18) + "..."
-                  : rank.title
-              }}
+              {{ rank.title }} ...
             </div>
-            <div class="text-xs mb-1">
-              {{
-                rank.author.length > 18
-                  ? rank.author.substring(0, 18) + "..."
-                  : rank.author
-              }}
-            </div>
+            <div class="text-xs mb-1">{{ rank.desc }} ...</div>
           </div>
         </div>
         <!-- Right control -->

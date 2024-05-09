@@ -1,4 +1,4 @@
-from kss import split_sentences
+from typing import List
 
 from services.text_emotion_prediction import TextEmotionPrediction
 
@@ -7,12 +7,10 @@ class EmoPrediction:
     def __init__(self):
         self.__detector = TextEmotionPrediction()
 
-    def cnt_emo(self, paragraph: str):
-        data = self.__split_string(paragraph)
-        emo_result = self.__detector.predict(data)
-
+    def cnt_emo(self, data: List[str]):
+        emo_result = self.__detector.predict_cnt(data)
         return emo_result
 
-    def __split_string(self, paragraph: str):
-        sentences = split_sentences(paragraph)
-        return sentences
+    def summarize_emo(self, data: List[str]):
+        summarize_result = self.__detector.predict_summary(data)
+        return summarize_result

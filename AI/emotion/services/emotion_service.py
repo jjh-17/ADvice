@@ -1,6 +1,5 @@
-from functools import reduce
+from typing import List
 
-from models.emotion_request import EmotionRequest
 from internals.emotion_prediction import EmoPrediction
 
 
@@ -10,20 +9,40 @@ class EmotionPredictionService:
         self.__emotion_prediction = EmoPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
-    async def predict(self, data: EmotionRequest):
+    async def predict_cnt(self, data: List[str]):
         texts = [
             text.replace("\u200B", "")
-            for text in data.script
+            for text in data
         ]
-        print(texts)
-        return {"emoPrediction": await self.predict_emo(texts)}
 
-    # 데이터 중 txt만 추출하여 감정 예측 수행
-    async def predict_emo(self, texts):
+        keys = ["negative", "neutral", "positive"]
+        results = await self.predict_cnt_emo(texts)
+
+        return dict(zip(keys, results))
+
+    # 데이터 전처리 이후 요약 예측 수행
+    async def predict_summary(self, data: List[str]):
+        texts = [
+            text.replace("\u200B", "")
+            for text in data
+        ]
+
+        return await self.predict_summary_emo(texts)
+
+    # 문자열 개수가 1 이상인 경우 감정 예측 수행
+    async def predict_cnt_emo(self, texts: List[str]):
         if len(texts) < 1:
             return [0, 0, 0]
 
-        paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x, texts)))
-        result = self.__emotion_prediction.cnt_emo(paragraph)
+        result = self.__emotion_prediction.cnt_emo(texts)
+        return result
 
-        return [result[0], result[1], result[2]]
+    # 문자열 개수가 1 이상인 경우 요약 예측 수행
+    async def predict_summary_emo(self, texts: List[str]):
+        if len(texts) < 1:
+            return {
+                "negative": [], "neutral": [], "positive": []
+            }
+
+        result = self.__emotion_prediction.summarize_emo(texts)
+        return result
