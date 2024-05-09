@@ -146,6 +146,26 @@ var optionCnt = 0;
 var selectedGoodOption = [];
 var selectedBadOption = [];
 
+function optionFour(keyword) {
+  let optionFourList = [];
+
+  crawlResults.forEach((item) => {
+    if (item.type === "txt" && item.data.includes(keyword)) {
+      optionFourList.push({
+        id: item.id,
+        data: item.data,
+      });
+    }
+  });
+
+  const result = {
+    option: 4,
+    goodList: optionFourList,
+    badList: optionFourList,
+  };
+  tmpData.push(result);
+}
+
 chrome.storage.sync.get(["badOption"], (result) => {
   if (result.badOption) {
     selectedBadOption = Object.values(result.badOption).map((obj) => obj.index); // "index" 값만 추출하여 배열에 추가
@@ -300,7 +320,6 @@ function checkOption() {
           });
         });
         // 크롤링 end
-        console.log(crawlResults);
 
         // 인공지능 관련 데이터 받아오기
         chrome.runtime.sendMessage(
