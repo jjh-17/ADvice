@@ -2,6 +2,7 @@ from gensim.models import FastText
 
 from config.config import settings
 
+
 class ContextAnalyzer:
     def __init__(self):
         self.model = FastText.load_fasttext_format(settings.fasttext_model_path)
