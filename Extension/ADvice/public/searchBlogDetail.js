@@ -14,8 +14,6 @@ var optionName = [
   "이모티콘 개수",
 ];
 
-var selectedGoodOption = [1];
-var selectedBadOption = [2, 5];
 var tmpData = [
   {
     option: 1,
@@ -143,6 +141,41 @@ function processData(tmpData) {
 
 var finalResult = [];
 var crawlResults = [];
+
+var optionCnt = 0;
+var selectedGoodOption = [];
+var selectedBadOption = [];
+
+chrome.storage.sync.get(["badOption"], (result) => {
+  if (result.badOption) {
+    selectedBadOption = Object.values(result.badOption).map((obj) => obj.index); // "index" 값만 추출하여 배열에 추가
+  }
+  optionCnt++;
+  checkOption();
+});
+
+chrome.storage.sync.get(["goodOption"], (result) => {
+  if (result.goodOption) {
+    selectedGoodOption = Object.values(result.goodOption).map(
+      (obj) => obj.index
+    );
+  }
+  optionCnt++;
+  checkOption();
+});
+
+function checkOption() {
+  if (optionCnt == 2) {
+    console.log("bad");
+    selectedBadOption.forEach((element) => {
+      console.log(element);
+    });
+    console.log("good");
+    selectedGoodOption.forEach((element) => {
+      console.log(element);
+    });
+  }
+}
 
 var checkInterval = setInterval(function () {
   var iframeDoc = iframe.contentWindow.document;
