@@ -8,18 +8,16 @@ from kss import split_sentences
 from bs4 import BeautifulSoup
 import os
 
-from services.text_ad_detection import TextAdDetection
 
 class NaverCafeScrapper:
-
     def __init__(self):
         self.driver = None
 
     def create_webdriver(self):
         options = webdriver.ChromeOptions()
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
         options.add_experimental_option("detach", True)
         #
         # # 속도 향상을 위한 옵션 해제
@@ -51,8 +49,8 @@ class NaverCafeScrapper:
 
         # 웹드라이버 초기화
         driver = webdriver.Chrome(service=service, options=options)
-        #driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
-        #driver = webdriver.Chrome(options=options)
+        # driver = webdriver.Chrome(service=Service(ChromeDriverManager(driver_version='124.0.6367.91').install()), options=options)
+        # driver = webdriver.Chrome(options=options)
         return driver
 
     def initialize_driver(self):
@@ -64,7 +62,7 @@ class NaverCafeScrapper:
             self.driver = None
 
     def scrape_naver_cafe_text(self, soup):
-        texts = soup.select('.se-main-container > div > div > div > div > p > span')
+        texts = soup.select(".se-main-container > div > div > div > div > p > span")
 
         result = ""
         for t in texts:
@@ -90,13 +88,13 @@ class NaverCafeScrapper:
         self.close_driver()
         soup = BeautifulSoup(self.driver.page_source, "html.parser")
 
-        data = soup.select('.se-main-container > div')
+        data = soup.select(".se-main-container > div")
         result_list = []
         key = 1
 
         for i in range(len(data)):
             cur = data[i]
-            if (cur['class'][1] == 'se-text'):
+            if cur["class"][1] == "se-text":
                 # 전체
                 # cur_list.append(key)
                 # cur_list.append("text")
@@ -111,36 +109,27 @@ class NaverCafeScrapper:
                     cur_list = []
                     cur_list.append(key)
                     cur_list.append("text")
-                    #cur_list.append(span_text.get_text())
+                    # cur_list.append(span_text.get_text())
                     list = self.split_string(span_text.get_text())
-                    ad_string=""
+                    ad_string = ""
                     for k in range(len(list)):
-                        if(list[k] in result):
-                            ad_string = ad_string+list[k]
+                        if list[k] in result:
+                            ad_string = ad_string + list[k]
                     cur_list.append(ad_string)
                     key += 1
                     result_list.append(cur_list)
-            if (cur['class'][1] == 'se-image'):
+            if cur["class"][1] == "se-image":
                 cur_list = []
                 cur_list.append(key)
                 cur_list.append("image")
-                cur_list.append(cur.div.div.div.a.img['src'])
+                cur_list.append(cur.div.div.div.a.img["src"])
                 result_list.append(cur_list)
                 key += 1
 
         return result_list
 
     def paragraph_ad(self, paragraph: str):
-        detector = TextAdDetection()
-        list = self.split_string(paragraph)
-        ad_result = detector.predict(list)
-        result = ""
-        for i in range(len(list)):
-            if ad_result[i] == 1:
-                result = result + list[i]
-            print(list[i], " ", len(list[i]), " -> ", ad_result[i])
-            #result = result+(len(list[i]) * str(ad_result[i]))
-        return result
+        return []
 
     def split_string(self, paragraph: str):
         list = split_sentences(paragraph)
