@@ -69,24 +69,15 @@ class OptionService:
             soup=soup, sentences=sentences, keyword=select["keyword"]
         )
 
-        executor = ProcessPoolExecutor(
-            max_workers=len(select["good_option"]) + len(select["bad_option"])
-        )
-        loop = asyncio.get_running_loop()
-
         # good option과 bad option 순서 맞춤
         tasks = []
         for option in select["good_option"]:
             self._check_option_range(option)
-            tasks.append(
-                loop.run_in_executor(executor, self._options[option - 1], param)
-            )
+            tasks.append(self._options[option - 1](param))
 
         for option in select["bad_option"]:
             self._check_option_range(option)
-            tasks.append(
-                loop.run_in_executor(executor, self._options[option - 1], param)
-            )
+            tasks.append(self._options[option - 1](param))
 
         # good option과 bad option을 한번에 await
         result = await asyncio.gather(*(tasks))
