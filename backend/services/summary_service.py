@@ -40,9 +40,6 @@ class SummaryService:
             "positive": positives
         }
 
-
-        return await self._emotion_evaluator.get_emotion_summary(sentences)
-
     def _crawl_text(self, url: str):
         text = []
 
