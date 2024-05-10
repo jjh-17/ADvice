@@ -13,7 +13,7 @@ class ContextAnalyzer:
             similarities = []
             for keyword in keywords:
                 similarity = self.model.wv.similarity(label, keyword)
-                if similarity > 0.45:
+                if similarity > 0.25:
                     similarities.append(1)
                 else:
                     similarities.append(0)

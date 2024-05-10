@@ -3,16 +3,28 @@ from internals.image_context_extractor import contextExtractor
 from internals.image_filter_detection import imageAnalyzer
 from internals.image_human_detector import humanCounter
 from internals.keyword_extractor import keywordExtractor
+from internals.translator import translator
 
 
 class ImageDetectionService:
     def context_analyze(self, image_paths: list, texts: list):
+        keywords = keywordExtractor.extract_keyword(texts)
+        translated = translator.translate(keywords)
+
         evaluation = []
         for image_path in image_paths:
-            keywords = keywordExtractor.extract_keyword(texts)
+            score = 0
             labels = contextExtractor.extract_label_from_image(image_path)
-            result = contextAnalyzer.analyze(keywords, labels)
-            evaluation.append(result)
+            result = contextAnalyzer.analyze(translated, labels)
+            for similarity in result:
+                score += max(similarity)
+
+            if score > 3:
+                evaluation.append(2)
+            elif score > 1:
+                evaluation.append(1)
+            else:
+                evaluation.append(0)
         return evaluation
 
     def human_detection(self, image_paths: list):
