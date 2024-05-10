@@ -10,7 +10,7 @@
         유용한 글의 기준을 직접 커스텀해보세요 ! 👀
       </div>
       <div
-        class="h-1/4 w-2/3 mt-4 relative flex justify-center items-center border border-theme-green"
+        class="h-1/4 w-11/12 mt-4 relative flex justify-center items-center border border-theme-green"
       >
         <VueDraggableNext
           class="dropArea w-1/2 h-full border-r text-center"
@@ -54,7 +54,7 @@
             style="flex-basis: 20%;"
           >
             <v-card :key="index" style="width : 100%">
-              <v-card-text class="text-sm">{{ element.name }}</v-card-text>
+              <v-card-text>{{ element.name }}</v-card-text>
             </v-card>
           </div>
         </VueDraggableNext>
