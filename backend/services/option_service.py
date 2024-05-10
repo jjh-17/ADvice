@@ -9,7 +9,6 @@ from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from services.naver_in_scrap import NaverInScrapper
-from services.text_ad_detection import TextAdDetection
 
 
 class OptionParameters(BaseModel):
@@ -194,10 +193,7 @@ class OptionService:
         return cnt
 
     async def ad_detection(self, sentences):
-        detector = TextAdDetection()
-        ad_result = detector.predict(sentences)
-
-        return ad_result.count(1)
+        return 0
 
     def _check_option_range(self, option):
         if 0 >= option or option > len(self._options):
