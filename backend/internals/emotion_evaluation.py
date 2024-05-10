@@ -1,7 +1,5 @@
 import requests
 import json
-import httpx
-import asyncio
 
 from config.config import settings
 

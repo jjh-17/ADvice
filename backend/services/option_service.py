@@ -23,8 +23,8 @@ class OptionService:
         self.blogScrap = NaverBlogScrapper()
         self.inScrap = NaverInScrapper()
         self._options = [
-            self.calc_types_information,
-            self.calc_bad_url,
+            self.calc_types_information,    #
+            self.calc_bad_url,              #
             self.calc_not_sponsored_mark,
             self.calc_contains_keyword,
             self.calc_ad_detection,
