@@ -1,22 +1,44 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 
+const goodOptions = ref([]);
+const badOptions = ref([]);
+const tooltip = ref(null);
+
 onMounted(() => {
   console.log("searchResult onMounted");
   chrome.runtime.sendMessage({ action: "loadTopList" }, (response) => {
     ranks.value = response.topList;
     console.log(ranks.value);
   });
+
+  chrome.storage.sync.get(["goodOption"], (result) => {
+    if (result.goodOption) {
+      goodOptions.value = Object.values(result.goodOption);
+      console.log("goodOptions", goodOptions.value);
+    }
+  });
+
+  chrome.storage.sync.get(["badOption"], (result) => {
+    if (result.badOption) {
+      badOptions.value = Object.values(result.badOption);
+      console.log("badOptions", badOptions.value);
+    }
+  });
 });
 
-const items = ref([
-  { id: 1, value: "해당 문서에 걸린 링크/사진 갯수" },
-  { id: 2, value: "다양한 형태 정보 포함 여부" },
-  { id: 3, value: "검색어가 문서 내에 얼마나 잦은 빈도로 발견되는 지 여부" },
-  { id: 4, value: "한쪽으로만 치우친 평가" },
-  { id: 5, value: "광고 가능성이 높은 게시글 여부" },
-]);
-
+const defaultOptions = [
+  { index: 1, name: "사진/지도 등 다양한 정보 포함" },
+  { index: 2, name: "구매 링크나 특성 사이트로 유도하는 경우" },
+  { index: 3, name: "내돈내산 인증 포함" },
+  { index: 4, name: "특정 키워드 포함" },
+  { index: 5, name: "광고 문구 포함" },
+  { index: 6, name: "장점/단점의 비율" },
+  { index: 7, name: "인위적인 사진 포함" },
+  { index: 8, name: "객관적인 정보 포함" },
+  { index: 9, name: "상세한 설명 포함" },
+  { index: 10, name: "이모티콘 포함" },
+];
 const selected = ref([]);
 
 watch(selected, (newValue) => {
@@ -24,46 +46,7 @@ watch(selected, (newValue) => {
 });
 
 const currentRank = ref(0);
-const ranks = ref([
-  // {
-  //   rank: 1,
-  //   title: "[홍대] 오브젝트 서교점 최고심 팝업스...",
-  //   url: "https://blog.naver.com/kus4242/223420431358",
-  //   author: "저는 캐릭터 중에서도 '최고심'을 엄청 좋아해요ㅎㅎ",
-  //   score: 100,
-  // },
-  // {
-  //   rank: 2,
-  //   title:
-  //     "홍대 소품샵 투어: 수바코, 오브젝트서교점(최고심), 유어마인드(책갈피)",
-  //   url: "https://blog.naver.com/dudungha22/223432930949",
-  //   score: 90,
-  //   author: "최고심이랑 콜라보를 했나봐요!! 벌써 구ㅏ여워 속마음 비밀해제",
-  // },
-  // {
-  //   rank: 3,
-  //   title: "최고심 팝업스토어 홍대, 속마음 비밀해제 와펜",
-  //   url: "https://blog.naver.com/aswqeeddrr5r/223414746493",
-  //   score: 80,
-  //   author: "이번에 롯데월드타워 잔디광장에도 등장한 최고심! 작년에는",
-  // },
-  // {
-  //   rank: 4,
-  //   title: "홍대ㅣ최고심 팝업 오브젝트서교 파우치 구입 후기",
-  //   url: "https://blog.naver.com/qpskxn41/223424509961",
-  //   score: 70,
-  //   author:
-  //     "오브젝트(서교점) 현명한 소비의 시작, 오브젝트 (insideobject.com) ️서울 마포구 와우산로",
-  // },
-  // {
-  //   rank: 5,
-  //   title: "옵젵상가X최고심 팝업 일정, 와펜 굿즈 가득한 오브젝트 서교점",
-  //   url: "https://blog.naver.com/woodyda/223418209479",
-  //   score: 60,
-  //   author:
-  //     "1년만에 돌아온 최고심 팝업스토어!!! 1년 전 오브젝트 서교점에서 최고심",
-  // },
-]);
+const ranks = ref([]);
 
 const next = () => {
   currentRank.value = (currentRank.value + 1) % ranks.value.length;
@@ -100,7 +83,7 @@ const goToPage = (link) => {
           @click="prev"
           class="z-30 flex h-full cursor-pointer items-center justify-center px-4 focus:outline-none"
         >
-          <span class="text-theme-blue text-3xl">‹</span>
+          <span class="text-theme-green text-3xl">‹</span>
         </button>
 
         <!-- Carousel wrapper -->
@@ -131,15 +114,53 @@ const goToPage = (link) => {
           @click="next"
           class="z-30 flex h-full cursor-pointer items-center justify-center px-4 focus:outline-none"
         >
-          <span class="text-theme-blue text-3xl">›</span>
+          <span class="text-theme-green text-3xl">›</span>
         </button>
       </div>
       <!-- 랭킹 캐러셀 end-->
     </div>
     <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
-    <ul
+    <div class="flex flex-wrap max-w-max justify-start items-center mt-5 mb-2 px-12">
+      <div
+        v-for="option in defaultOptions"
+        :key="option.index"
+        class="w-8 h-8 rounded-full m-1"
+        :class="{
+          'bg-theme-green': goodOptions.some((g) => g.index === option.index),
+          'bg-red-400': badOptions.some((b) => b.index === option.index),
+          'bg-gray-300':
+            !goodOptions.some((g) => g.index === option.index) &&
+            !badOptions.some((b) => b.index === option.index),
+        }"
+        @mouseover="tooltip = option.name"
+        @mouseleave="tooltip = ''"
+      >
+        <!-- Tooltip -->
+        <div v-show="tooltip === option.name" class="absolute -mt-10 text-xs w-32 text-center p-1 bg-white border rounded shadow-lg">
+          {{ option.name }}
+        </div>
+      </div>
+    </div>
+    <!-- <ul
       class="max-w-md bg-white border-t border-x border-gray-200 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
     >
+      <li
+        v-for="option in defaultOptions"
+        :key="option.index"
+        class="w-1/5 flex justify-center p-2"
+      >
+        <div
+          :class="{
+            'w-8 h-8 rounded-full': true,
+            'bg-theme-green': goodOptions.some((g) => g.index === option.index),
+            'bg-red-300': badOptions.some((b) => b.index === option.index),
+            'bg-gray-300':
+              !goodOptions.some((g) => g.index === option.index) &&
+              !badOptions.some((b) => b.index === option.index),
+          }"
+        ></div>
+      </li>
+
       <li
         v-for="item in items"
         :key="item.id"
@@ -158,6 +179,6 @@ const goToPage = (link) => {
           }}</label>
         </div>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
