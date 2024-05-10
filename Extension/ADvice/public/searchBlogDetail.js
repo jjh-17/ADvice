@@ -20,6 +20,49 @@ var optionCnt = 0;
 var selectedGoodOption = [];
 var selectedBadOption = [];
 
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  console.log(message);
+  if (message.action === "updateCheck") {
+    if (message.isChecked) {
+      setting();
+    } else {
+      unsetting();
+    }
+  }
+});
+
+function unsetting() {
+  // Text로 오는 것 Unsetting
+  Object.keys(finalResult).forEach((id) => {
+    const element = document
+      .getElementById("mainFrame")
+      .contentWindow.document.getElementById(id);
+    element.style.backgroundColor = "";
+  });
+}
+
+function setting() {
+  // Text로 오는 것 다시 Unsetting
+  Object.keys(finalResult).forEach((id) => {
+    const data = finalResult[id];
+    const element = document
+      .getElementById("mainFrame")
+      .contentWindow.document.getElementById(id);
+    if (element) {
+      let html = element.innerHTML;
+      if (data.flag === 1) {
+        element.style.backgroundColor = "rgba(66, 189, 101, 0.3)"; // Green for good options
+      } else if (data.flag === 0) {
+        element.style.backgroundColor = "rgba(255, 235, 59, 0.3)"; // Yellow for neutral
+      } else {
+        element.style.backgroundColor = "rgba(241, 43, 67, 0.3)"; // Red for bad options
+      }
+
+      element.innerHTML = html;
+    }
+  });
+}
+
 chrome.storage.sync.get(["badOption"], (result) => {
   if (result.badOption) {
     selectedBadOption = Object.values(result.badOption).map((obj) => obj.index);
