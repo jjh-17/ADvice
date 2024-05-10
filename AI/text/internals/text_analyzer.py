@@ -7,7 +7,7 @@ from config.config import settings
 class InfoDetection:
     def __init__(self):
         self.device = torch.device('cpu')
-        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.ad_detection_model_path, num_labels=2)
+        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2)
                       .to(self.device))
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
@@ -22,8 +22,11 @@ class TextAdDetection:
                       .to(self.device))
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
-    def detect(self, text):
+    def detect_texts(self, text: list) -> list:
         return evaluate_texts(text, self.tokenizer, self.device, self.model)
+
+    def detect_sentence(self, text: str) -> int:
+        return sentence_predict(text, self.tokenizer, self.device, self.model)
 
 
 def evaluate_texts(texts, tokenizer, device, model):

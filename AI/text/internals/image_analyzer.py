@@ -14,7 +14,7 @@ class ImageAdDetection:
         for image_path in image_paths:
             texts = self._read_text_from_image(image_path)
             if texts is not None:
-                flag = adDetector.sentence_predict(texts)
+                flag = adDetector.detect_sentence(texts)
                 if flag > 0:
                     return True
         return False
