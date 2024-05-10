@@ -1,18 +1,12 @@
 from functools import reduce
 from kss import split_sentences
-import asyncio
+from typing import List, Any
 
 from models.detail_request import DetailRequest
-from internals.ad_evaluation import AdEvaluation
-from internals.emotion_evaluation import EmotionEvaluation
 
 
 class DetailService:
-    def __init__(self):
-        self._ad_evaluation = AdEvaluation()
-        self._emotion_evaluation = EmotionEvaluation()
-
-    async def evaluate(self, data: DetailRequest):
+    def get_text(self, data: DetailRequest):
         # tag 데이터
         tag = [
             {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
@@ -25,21 +19,9 @@ class DetailService:
         paragraphs = self.__make_paragraph(text)
         sentences = self.__make_sentences(paragraphs)
 
-        keys = ["adDetection", "emotionCount"]
-        tasks = [self.evaluate_ad(text, sentences), self.evaluate_emotion(sentences)]
-        results = await asyncio.gather(*tasks)
+        return text, sentences
 
-        return dict(zip(keys, results))
-
-    async def evaluate_emotion(self, text):
-        result = await self._emotion_evaluation.get_emotion_count(text)
-        return result
-
-    async def evaluate_ad(self, text, sentences):
-        result = await self._ad_evaluation.evaluate_ad(sentences)
-        return self.seperate_sentences(sentences, result, text)
-
-    def __make_paragraph(self, data):
+    def __make_paragraph(self, data: List[str]):
         if len(data) < 1:
             return ""
 
@@ -50,7 +32,9 @@ class DetailService:
         sentences = split_sentences(paragraph)
         return sentences
 
-    def seperate_sentences(self, sentence, result, text):
+    def seperate_good_and_bad(
+        self, sentence: List[str], result: List[int], text: List[Any]
+    ):
         # 1. 문장 저장
         # 2. 문장 종료 시 good or bad 저장
         # 3. 태그 종료 시 각각 list에 extends
