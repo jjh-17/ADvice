@@ -4,13 +4,11 @@ import asyncio
 
 from models.detail_request import DetailRequest
 from internals.ad_evaluation import AdEvaluation
-from internals.emotion_evaluation import EmotionEvaluation
 
 
 class DetailService:
     def __init__(self):
         self._ad_evaluation = AdEvaluation()
-        self._emotion_evaluation = EmotionEvaluation()
 
     async def evaluate(self, data: DetailRequest):
         # tag 데이터
@@ -25,15 +23,11 @@ class DetailService:
         paragraphs = self.__make_paragraph(text)
         sentences = self.__make_sentences(paragraphs)
 
-        keys = ["adDetection", "emotionCount"]
-        tasks = [self.evaluate_ad(text, sentences), self.evaluate_emotion(sentences)]
+        keys = ["adDetection"]
+        tasks = [self.evaluate_ad(text, sentences)]
         results = await asyncio.gather(*tasks)
 
         return dict(zip(keys, results))
-
-    async def evaluate_emotion(self, text):
-        res = await self._emotion_evaluation.get_emotion(text)
-        return [len(res['negative']), len(res['neutral']), len(res['positive'])]
 
     async def evaluate_ad(self, text, sentences):
         result = await self._ad_evaluation.evaluate_ad(sentences)
