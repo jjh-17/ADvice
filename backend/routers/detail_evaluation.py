@@ -9,11 +9,13 @@ detail = APIRouter(prefix="/detail")
 
 @detail.post("/text-ad")
 async def detect_text_ad(data: DetailRequest):
-    return JSONResponse(status_code=200, content=ad_detect_service.detect_text_ad(data))
+    return JSONResponse(
+        status_code=200, content=await ad_detect_service.detect_text_ad(data)
+    )
 
 
 @detail.post("/image-ad")
 async def detect_image_ad(data: DetailRequest):
     return JSONResponse(
-        status_code=200, content=ad_detect_service.detect_image_ad(data)
+        status_code=200, content=await ad_detect_service.detect_image_ad(data)
     )

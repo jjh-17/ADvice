@@ -95,3 +95,6 @@ class DetailService:
                 text_row += 1
 
         return res
+
+
+detail_service = DetailService()
