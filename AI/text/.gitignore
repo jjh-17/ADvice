@@ -397,5 +397,3 @@ $RECYCLE.BIN/
 config.json
 pytorch_model.bin
 training_args.bin
-
-.env

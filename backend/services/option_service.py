@@ -8,6 +8,7 @@ from models.full_request import FullRequest
 from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
+from services.naver_in_scrap import NaverInScrapper
 from services.text_ad_detection import TextAdDetection
 
 
@@ -21,6 +22,7 @@ class OptionService:
     def __init__(self):
         self.cafeScrap = NaverCafeScrapper()
         self.blogScrap = NaverBlogScrapper()
+        self.inScrap = NaverInScrapper()
         self._options = [
             self.calc_types_information,
             self.calc_bad_url,
@@ -123,6 +125,10 @@ class OptionService:
     def url_scrap(self, url: str):
         text = []
         soup = None
+
+        if "in.naver.com" in url:  # 인플루언서 게시글인 경우
+            self.soup = self.inScrap.scrape_naver_in_init(url)
+            text = self.inScrap.scrape_naver_in_text(self.soup)
 
         if "cafe" in url:  # 카페 게시글인 경우
             soup = self.cafeScrap.scrape_naver_cafe_init(url)

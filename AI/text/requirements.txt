@@ -1,0 +1,5 @@
+fastapi==0.103.2
+starlette==0.27.0
+torch
+transformers
+uvicorn==0.22.0
