@@ -32,8 +32,8 @@ class DetailService:
         return dict(zip(keys, results))
 
     async def evaluate_emotion(self, text):
-        result = await self._emotion_evaluation.get_emotion_count(text)
-        return result
+        res = await self._emotion_evaluation.get_emotion(text)
+        return [len(res['negative']), len(res['neutral']), len(res['positive'])]
 
     async def evaluate_ad(self, text, sentences):
         result = await self._ad_evaluation.evaluate_ad(sentences)
