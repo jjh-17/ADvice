@@ -43,7 +43,7 @@ class ImageAnalyzer:
             return 4
 
     def calculate_filter_value(self, url: str) -> tuple:
-        image = downloader.load_image_from_url(url)
+        image = downloader.load_matrix_from_url(url)
         contrast = self._calculate_contrast(image)
         edge_strength = self._calculate_edge_strength(image)
         laplacian_var = self._get_laplacian_var(image)
