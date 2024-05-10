@@ -1,48 +1,41 @@
 from typing import List
-
-from internals.emotion_prediction import EmoPrediction
+from services.text_emotion_prediction import TextEmotionPrediction
+from models.exception.custom_exception import CustomException
 
 
 class EmotionPredictionService:
     # 초기화
     def __init__(self):
-        self.__emotion_prediction = EmoPrediction()
+        self.__text_emotion_prediction = TextEmotionPrediction()
 
     # 데이터 전처리 이후 감정 예측 수행
-    async def predict_cnt(self, data: List[str]):
+    async def predict_all(self, data: List[str]):
+        # 전처리
         texts = [
             text.replace("\u200B", "")
             for text in data
         ]
 
-        keys = ["negative", "neutral", "positive"]
-        results = await self.predict_cnt_emo(texts)
+        # 예측 시작
+        results = await self.__predict(texts)
 
+        # 반환
+        keys = ["negative", "neutral", "positive"]
         return dict(zip(keys, results))
 
-    # 데이터 전처리 이후 요약 예측 수행
-    async def predict_summary(self, data: List[str]):
-        texts = [
-            text.replace("\u200B", "")
-            for text in data
-        ]
-
-        return await self.predict_summary_emo(texts)
-
-    # 문자열 개수가 1 이상인 경우 감정 예측 수행
-    async def predict_cnt_emo(self, texts: List[str]):
-        if len(texts) < 1:
-            return [0, 0, 0]
-
-        result = self.__emotion_prediction.cnt_emo(texts)
-        return result
-
-    # 문자열 개수가 1 이상인 경우 요약 예측 수행
-    async def predict_summary_emo(self, texts: List[str]):
-        if len(texts) < 1:
-            return {
-                "negative": [], "neutral": [], "positive": []
-            }
-
-        result = self.__emotion_prediction.summarize_emo(texts)
-        return result
+    # 예측
+    async def __predict(self, texts):
+        pos_list, neu_list, neg_list = [], [], []
+        for text in texts:
+            result = self.__text_emotion_prediction.sentence_predict(text)
+            print(result)
+            if result[0] >= 70:
+                if result[1] == -1:
+                    neg_list.append(text)
+                elif result[1] == 0:
+                    neu_list.append(text)
+                elif result[1] == 1:
+                    pos_list.append(text)
+                else:
+                    raise CustomException(400, "잘못된 모델 설정")
+        return [neg_list, neu_list, pos_list]
