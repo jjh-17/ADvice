@@ -94,24 +94,22 @@ class OptionService:
 
         return good_score - bad_score
 
-    def calc_types_information(self, param: OptionParameters):
+    async def calc_types_information(self, param: OptionParameters):
         return self.count_types_information(param.soup) * 25
 
-    def calc_bad_url(self, param: OptionParameters):
+    async def calc_bad_url(self, param: OptionParameters):
         return self.has_bad_url(param.soup) * 100
 
-    def calc_not_sponsored_mark(self, param: OptionParameters):
+    async def calc_not_sponsored_mark(self, param: OptionParameters):
         return self.has_not_sponsored_mark(param.soup) * 100
 
-    def calc_contains_keyword(self, param: OptionParameters):
+    async def calc_contains_keyword(self, param: OptionParameters):
         return (
             self.contains_keyword(param.sentences, param.keyword) / len(param.sentences)
         ) * 100
 
-    def calc_ad_detection(self, param: OptionParameters):
-        return (
-            asyncio.run(self.ad_detection(param.sentences)) / len(param.sentences)
-        ) * 100
+    async def calc_ad_detection(self, param: OptionParameters):
+        return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
 
     def url_scrap(self, url: str):
         text = []
