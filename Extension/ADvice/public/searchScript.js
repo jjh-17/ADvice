@@ -1,5 +1,4 @@
 function sleep(sec) {
-
   return new Promise((resolve) => setTimeout(resolve, sec));
 }
 
@@ -26,7 +25,7 @@ const makeModal = (index) => {
   </div>
   `;
   document.body.insertAdjacentHTML("beforeend", modalHTML);
-}
+};
 
 if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   (async () => {
@@ -80,7 +79,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
 });
 
-
 // const modalHTML = `
 //   <div id="myModal" class="modal" style="position: absolute; display: none; z-index: 1000;">
 //     <div class="modal-content" style="word-wrap : break-word;">
@@ -128,65 +126,64 @@ function updateTopList() {
   chrome.runtime.sendMessage({ action: "saveTopList", topList: topList });
 }
 
-const APIsend = (userInfoElements, position) => {
+function sendMessagePromise(message) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(response);
+      }
+    });
+  });
+}
+
+async function APIsend(userInfoElements, position) {
   console.log("APIsend", cnt);
   if (cnt == 2) {
-    // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 -> 
+    // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 ->
     // background.js로 메시지 보내기
     let urlIndex = -1;
     const chunksize = 2;
-    for(let i = 0; i < urlList.length; i += chunksize){
+    for (let i = 0; i < urlList.length; i += chunksize) {
       const urlChunk = urlList.slice(i, i + chunksize);
-      chrome.runtime.sendMessage(
-        {
-          action: "searchAPI",
-          urlList: urlChunk,
-          goodOption: goodOption,
-          badOption: badOption,
-          keyword : keyword
-        },
-        function (response) {
-          console.log("API 호출 결과 받음:", response);
-          const sortLevel = [];
-          Object.keys(response.data.scoreList).forEach((index) => { // index -> chunkURL 안에서의 위치
-            console.log(response.data.scoreList[index].url);
-            urlIndex = urlList.indexOf(response.data.scoreList[index].url); // urlIndex -> urlList 안에서의 위치
-            console.log(urlIndex);
-            // console.log(response.data.scoreList[urlIndex].url)
-            if (urlIndex !== -1) {
-              const curLevel = { url: response.data.scoreList[index].url, level: response.data.scoreList[index].score };
-              sortLevel.push(curLevel);
-              level[urlIndex] = response.data.scoreList[index].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
-              console.log(level[urlIndex]);
+      const response = await new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(
+          {
+            action: "searchAPI",
+            urlList: urlChunk,
+            goodOption: goodOption,
+            badOption: badOption,
+            keyword: keyword,
+          },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError.message);
+            } else {
+              resolve(response);
             }
-          });
-          
-          if(topList.length < 5){
-            sortLevel.forEach((element) => {
-              topList.push(element)
-            })
-            console.log("1111", topList);
-            topList.sort((a, b) => b.level - a.level)
-            topList = topList.slice(0, 5);
-          }else{
-            sortLevel.sort((a, b) => b.level - a.level);
-            sortLevel.forEach((element) => {
-              if (element.score > topList[topList.length - 1]) {
-                // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
-                topList[topList.length - 1] = {
-                  url: element.url,
-                  level: element.score,
-                };
-                topList.sort((a, b) => b.level - a.level);
-              }
-            })
           }
-          console.log("topList", topList);
-          updateTopList();
+        );
+      });
 
-          console.log(level);
+      console.log("API 호출 결과 받음:", response);
+      const sortLevel = [];
+      Object.keys(response.data.scoreList).forEach((index) => {
+        // index -> chunkURL 안에서의 위치
+        console.log(response.data.scoreList[index].url);
+        urlIndex = urlList.indexOf(response.data.scoreList[index].url); // urlIndex -> urlList 안에서의 위치
+        console.log(urlIndex);
+        // console.log(response.data.scoreList[urlIndex].url)
+        if (urlIndex !== -1) {
+          const curLevel = {
+            url: response.data.scoreList[index].url,
+            level: response.data.scoreList[index].score,
+          };
+          sortLevel.push(curLevel);
+          level[urlIndex] = response.data.scoreList[index].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
+          console.log(level[urlIndex]);
 
-          Array.from(userInfoElements).forEach((element, index) => {
+          Array.from(userInfoElements).forEach((element) => {
             // console.log("ui setting", element);
             if (
               element
@@ -201,33 +198,85 @@ const APIsend = (userInfoElements, position) => {
               position = "tab";
             }
             // 이번에 부른 chunklist에 대해서만 setui 실행 -> url 일치 여부 확인하기
-            const curURL = element.querySelector(".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap").href
+            const curURL = element.querySelector(
+              ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
+            ).href;
             // console.log(curURL, "setUI 호출 전 확인")
-            if(urlChunk.includes(curURL)){
-              console.log("setUI 호출하는 element : ", element)
+            if (urlChunk[index] == curURL) {
+              console.log("setUI 호출하는 element : ", element);
               setUI(element, urlIndex, position);
             }
           });
         }
-      );
-    }
-    if(apiCnt == urlList.length){
-      for(let i = 0; i < urlList.length; i++){
-        
-    chrome.runtime.sendMessage(
-      { action: "hoverAPI", url: urlList[i] },
-      function (response) {
-        console.log("API 호출 결과 받음 - setting:", response);
-        modalTextList[i] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
-        <br><br>😊 : ${response.data.positive.length > 50 ? response.data.positive.substring(0, 50) + '...' : response.data.positive}<br><br> 
-        😐 : ${response.data.neutral.length > 50 ? response.data.neutral.substring(0, 50) + '...' : response.data.neutral}<br><br> 
-        🙁 : ${response.data.negative.length > 50 ? response.data.negative.substring(0, 50) + '...' : response.data.negative} `;
+      });
+
+      if (topList.length < 5) {
+        sortLevel.forEach((element) => {
+          topList.push(element);
+        });
+        console.log("1111", topList);
+        topList.sort((a, b) => b.level - a.level);
+        topList = topList.slice(0, 5);
+      } else {
+        sortLevel.sort((a, b) => b.level - a.level);
+        sortLevel.forEach((element) => {
+          if (element.score > topList[topList.length - 1]) {
+            // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
+            topList[topList.length - 1] = {
+              url: element.url,
+              level: element.score,
+            };
+            topList.sort((a, b) => b.level - a.level);
+          }
+        });
       }
-    );
+      console.log("topList", topList);
+      updateTopList();
+
+      console.log(level);
+
+      // chrome.runtime.sendMessage(
+      //   {
+      //     action: "searchAPI",
+      //     urlList: urlChunk,
+      //     goodOption: goodOption,
+      //     badOption: badOption,
+      //     keyword : keyword
+      //   },
+      //   function (response) {
+      //   }
+      // );
+    }
+    if (apiCnt == urlList.length) {
+      for (let i = 0; i < urlList.length; i++) {
+        chrome.runtime.sendMessage(
+          { action: "hoverAPI", url: urlList[i] },
+          function (response) {
+            console.log("API 호출 결과 받음 - setting:", response);
+            modalTextList[
+              i
+            ] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
+        <br><br>😊 : ${
+          response.data.positive.length > 50
+            ? response.data.positive.substring(0, 50) + "..."
+            : response.data.positive
+        }<br><br> 
+        😐 : ${
+          response.data.neutral.length > 50
+            ? response.data.neutral.substring(0, 50) + "..."
+            : response.data.neutral
+        }<br><br> 
+        🙁 : ${
+          response.data.negative.length > 50
+            ? response.data.negative.substring(0, 50) + "..."
+            : response.data.negative
+        } `;
+          }
+        );
       }
     }
   }
-};
+}
 
 function setUI(node, index, position) {
   console.log("setUI 실행");
@@ -245,15 +294,24 @@ function setUI(node, index, position) {
   if (userInfoElements.length != 0) {
     console.log(userInfoElements);
     const progressBarHTML = `
-    <div class="progress" style="float: right; display: flex; padding: 1% 2%; border-radius: 15px 15px; border: 1px solid lightgray;
-    box-shadow: 1px 1px 2px lightgray; width: ${position === "all" ? "25%" : "20%"}; margin-top: ${position === "all" ? "0%" : "-1%"}">
+    <div class="progress" id="progressBar${index}" style="float: right; display: flex; padding: 1% 2%; border-radius: 15px 15px; border: 1px solid lightgray;
+    box-shadow: 1px 1px 2px lightgray; width: ${
+      position === "all" ? "25%" : "20%"
+    }; margin-top: ${position === "all" ? "0%" : "-1%"}">
     <div style="width: 30%; white-space: nowrap; font-size: 13px; text-align: right; margin-right: 10%">유용도</div>
     <div class="progress-container" style="width:70%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
-        ${[...Array(maxLevel - 1)].map((_, i) => `
-            <div class="progress-divider" style="position: absolute; left: ${(i + 1) * (100)}%; width: 1px; height: 100%; background-color: #fff;"></div>
-        `).join("")}
+        ${[...Array(maxLevel - 1)]
+          .map(
+            (_, i) => `
+            <div class="progress-divider" style="position: absolute; left: ${
+              (i + 1) * 100
+            }%; width: 1px; height: 100%; background-color: #fff;"></div>
+        `
+          )
+          .join("")}
         <div class="progress-bar" style="width: ${levelValue}%; background-color: #03C75A; height: 100%;"></div>
     </div>
+    <div class="tooltip" id="tooltip${index}" style="display: none; position: absolute; z-index: 1000; background-color: white; border: 1px solid #ccc; padding: 5px;">${index} - ${levelValue}% 완료</div>
 </div>
   `;
     if (position == "all") {
@@ -262,6 +320,19 @@ function setUI(node, index, position) {
       userInfoElements[0].insertAdjacentHTML("afterend", progressBarHTML);
     }
     userInfoElements[0].style.display = "flex";
+    // 툴팁 위치 설정
+    const progressBar = document.getElementById(`progressBar${index}`);
+    const tooltip = document.getElementById(`tooltip${index}`);
+    const rect = progressBar.getBoundingClientRect();
+    tooltip.style.top = `${rect.top}px`;
+    tooltip.style.left = `${rect.left}px`;
+    progressBar.addEventListener("mouseenter", () => {
+      tooltip.style.display = "block";
+    });
+    progressBar.addEventListener("mouseleave", () => {
+      tooltip.style.display = "none";
+    });
+
     console.log("after", userInfoElements.parentNode);
     apiCnt++;
   }
@@ -285,25 +356,37 @@ function hoverHandler(link, index) {
     console.log("hoverHandler", link.href);
     const Indexedmodal = document.getElementById(`myModal${index}`);
     const IndexedmodalText = document.getElementById(`modalText${index}`);
-    modalTextList[0] = "<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong><br><br>😊 : 롯데시티호텔 대전점 바로 건너편에 있어서 위치가 꿀이었던 성심당 DCC점!<br><br> 😐 : 하지만 재구매(?)까지는 살짝 아쉬운 평범한 맛 ㅎ초코메론빵은 먹어봤으니 그냥 메론빵도 ...<br><br> 🙁 : 아그리고 참고로 오후에 가서 그런진 모르겠으나 김치찹쌀 주먹밥은 없어서 아쉬웠다 ㅠ";
+    modalTextList[0] =
+      "<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong><br><br>😊 : 롯데시티호텔 대전점 바로 건너편에 있어서 위치가 꿀이었던 성심당 DCC점!<br><br> 😐 : 하지만 재구매(?)까지는 살짝 아쉬운 평범한 맛 ㅎ초코메론빵은 먹어봤으니 그냥 메론빵도 ...<br><br> 🙁 : 아그리고 참고로 오후에 가서 그런진 모르겠으나 김치찹쌀 주먹밥은 없어서 아쉬웠다 ㅠ";
     // background.js로 메시지 보내기
-    if(modalTextList[index] == null || modalTextList[index] == undefined){
-      IndexedmodalText.textContent = 'ADvice가 요약 중입니다 . . . 🙏'
+    if (modalTextList[index] == null || modalTextList[index] == undefined) {
+      IndexedmodalText.textContent = "ADvice가 요약 중입니다 . . . 🙏";
       chrome.runtime.sendMessage(
         { action: "hoverAPI", url: link.href },
         function (response) {
           console.log("API 호출 결과 받음:", response);
           IndexedmodalText.innerHTML = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
-          <br><br>😊 : ${response.data.positive.length > 50 ? response.data.positive.substring(0, 50) + '...' : response.data.positive}<br><br> 
-          😐 : ${response.data.neutral.length > 50 ? response.data.neutral.substring(0, 50) + '...' : response.data.neutral}<br><br> 
-          🙁 : ${response.data.negative.length > 50 ? response.data.negative.substring(0, 50) + '...' : response.data.negative} `;
+          <br><br>😊 : ${
+            response.data.positive.length > 50
+              ? response.data.positive.substring(0, 50) + "..."
+              : response.data.positive
+          }<br><br> 
+          😐 : ${
+            response.data.neutral.length > 50
+              ? response.data.neutral.substring(0, 50) + "..."
+              : response.data.neutral
+          }<br><br> 
+          🙁 : ${
+            response.data.negative.length > 50
+              ? response.data.negative.substring(0, 50) + "..."
+              : response.data.negative
+          } `;
           modalTextList[index] = IndexedmodalText.innerHTML;
         }
       );
-    }else{
+    } else {
       IndexedmodalText.innerHTML = modalTextList[index];
     }
-
 
     const linkRect = link.getBoundingClientRect();
     Indexedmodal.style.left = `${linkRect.left + window.scrollX}px`;
@@ -314,7 +397,6 @@ function hoverHandler(link, index) {
 }
 
 function setting(position) {
-
   const userInfoElements = document.querySelectorAll(
     ".view_wrap, .fds-ugc-block-mod"
   );
@@ -325,18 +407,16 @@ function setting(position) {
     modalTextList = new Array(urlList.length);
   });
 
-
   const links = document.querySelectorAll(
     ".title_area a, .fds-comps-right-image-text-title, .total_tit a"
   );
 
   links.forEach((link, index) => {
-
     // 호버 -> API로 링크 전송 -> 요약문 return
     const handler = hoverHandler(link, index);
     link.addEventListener("mouseover", handler);
 
-    const curModal = document.getElementById(`myModal${index}`)
+    const curModal = document.getElementById(`myModal${index}`);
     console.log("curModal", curModal);
     link.addEventListener("mouseout", function () {
       curModal.style.display = "none";
@@ -347,7 +427,6 @@ function setting(position) {
 
   // ---------- hover modal 등록
 
-
   level = new Array(urlList.length);
   console.log("urlList", urlList);
   console.log(level);
@@ -355,7 +434,7 @@ function setting(position) {
   // const APIsend = () => {
   //   console.log("APIsend", cnt);
   //   if (cnt == 2) {
-  //     // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 -> 
+  //     // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 ->
   //     // background.js로 메시지 보내기
   //     let urlIndex = -1;
   //     const chunksize = 2;
@@ -384,7 +463,7 @@ function setting(position) {
   //               console.log(level[urlIndex]);
   //             }
   //           });
-            
+
   //           if(topList.length < 5){
   //             sortLevel.forEach((element) => {
   //               topList.push(element)
@@ -409,9 +488,9 @@ function setting(position) {
   //           // topList = sortLevel.slice(0, 5);
   //           console.log("topList", topList);
   //           updateTopList();
-  
+
   //           console.log(level);
-  
+
   //           Array.from(userInfoElements).forEach((element, index) => {
   //             // console.log("ui setting", element);
   //             if (
@@ -450,17 +529,24 @@ function setting(position) {
       console.log("goodOption : ", goodOption);
     }
     cnt++;
-    APIsend(userInfoElements, position)
+    APIsend(userInfoElements, position);
   });
-  
+
   chrome.storage.sync.get(["badOption"], (result) => {
     if (result.badOption) {
       badOption = Object.values(result.badOption).map((option) => option.index);
       console.log("badOption : ", badOption);
     }
     cnt++;
-    APIsend(userInfoElements, position)
+    APIsend(userInfoElements, position);
   });
+
+  chrome.storage.sync.get(["keyword"], (result) => {
+    if(result.keyword){
+      keyword = result.keyword;
+      console.log("사용자가 저장한 키워드", keyword);
+    }
+  })
 
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
@@ -483,7 +569,6 @@ function setting(position) {
     });
   }
 
-
   // ------------ 처음 검색 결과에 ui 씌우기
 
   // MutationObserver 콜백 함수 정의
@@ -503,15 +588,16 @@ function setting(position) {
               makeModal(level.length);
               const handler = hoverHandler(urlElement, level.length);
               urlElement.addEventListener("mouseover", handler);
-          
-              const curModal = document.getElementById(`myModal${level.length}`)
+
+              const curModal = document.getElementById(
+                `myModal${level.length}`
+              );
               console.log("curModal", curModal);
               urlElement.addEventListener("mouseout", function () {
                 curModal.style.display = "none";
               });
-          
-              urlElement.handler = handler;
 
+              urlElement.handler = handler;
 
               // 새로 추가된 url을 갖고 background.js로 메시지 보내기
               // urlList.push(node.querySelector(".title_area a").href);
@@ -521,13 +607,16 @@ function setting(position) {
                   urlList: [url],
                   goodOption: goodOption,
                   badOption: badOption,
-                  keyword : keyword
+                  keyword: keyword,
                 },
                 function (response) {
                   console.log("API 호출 결과 받음:", response);
                   level.push(response.data.scoreList[0].score);
                   console.log(level);
-                  if (response.data.scoreList[0].score > topList[topList.length - 1]) {
+                  if (
+                    response.data.scoreList[0].score >
+                    topList[topList.length - 1]
+                  ) {
                     // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
                     topList[topList.length - 1] = {
                       url: url,
@@ -547,7 +636,7 @@ function setting(position) {
   };
 
   const url = window.location.href;
-  if ((url.includes("tab.blog") || url.includes("tab.cafe"))) {
+  if (url.includes("tab.blog") || url.includes("tab.cafe")) {
     // MutationObserver 인스턴스 생성
     const observer = new MutationObserver(callback);
 
