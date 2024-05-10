@@ -1,7 +1,7 @@
 import torch
 import gluonnlp as nlp
 import numpy as np
-from queue import PriorityQueue
+from models.exception.custom_exception import CustomException
 from torch.utils.data import Dataset, DataLoader
 from kobert_tokenizer import KoBERTTokenizer
 from transformers import BertModel
@@ -61,23 +61,8 @@ class TextEmotionPrediction:
         self.vocab = nlp.vocab.BERTVocab.from_sentencepiece(self.tokenizer.vocab_file, padding_token='[PAD]')
         self.tok = self.tokenizer.tokenize
 
-    # 전체 글에서 부정, 중립, 긍정 글 개수 반환
-    def predict_all(self, texts):
-        pos_list, neu_list, neg_list = [], [], []
-        for text in texts:
-            result = self.__sentence_predict(text)
-            if result[1] == -1:
-                neg_list.append(text)
-            elif result[1] == 0:
-                neu_list.append(text)
-            elif result[1] == 1:
-                pos_list.append(text)
-            else:
-                raise Exception("TextEmotionPredict 잘못된 접근")
-        return [neg_list, neu_list, pos_list]
-
     #  가장 높은 확률의 감정값 반환
-    def __sentence_predict(self, sentence):
+    def sentence_predict(self, sentence):
         data = [sentence, '0']
         dataset_another = [data]
         input_dataset = BERTDataset(dataset_another, 0, 1, self.tok, self.vocab, 64, True, False)  # 토큰화한 문장
