@@ -1,10 +1,8 @@
 from google.cloud import vision
-import urllib.request
-import urllib.error
 
 from config.config import settings
+from internals.image_downloader import downloader
 from internals.text_ad_detection import textDetector
-from models.exception.custom_exception import CustomException
 
 
 class ImageAdDetection:
@@ -22,14 +20,7 @@ class ImageAdDetection:
         return False
 
     def _read_text_from_image(self, url):
-        req = urllib.request.Request(url, headers=self.headers)
-
-        try:
-            response = urllib.request.urlopen(req)
-        except urllib.error.HTTPError:
-            raise CustomException(400, "이미지 로드 중 문제가 발생했습니다")
-
-        response_image = response.read()
+        response_image = downloader.load_image_from_url(url)
         image = vision.Image(content=response_image)
 
         client = vision.ImageAnnotatorClient()
