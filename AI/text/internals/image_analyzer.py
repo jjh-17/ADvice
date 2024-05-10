@@ -2,7 +2,7 @@ from google.cloud import vision
 
 from config.config import settings
 from internals.image_downloader import downloader
-from internals.text_ad_detection import textDetector
+from internals.text_analyzer import adDetector
 
 
 class ImageAdDetection:
@@ -14,7 +14,7 @@ class ImageAdDetection:
         for image_path in image_paths:
             texts = self._read_text_from_image(image_path)
             if texts is not None:
-                flag = textDetector.sentence_predict(texts)
+                flag = adDetector.sentence_predict(texts)
                 if flag > 0:
                     return True
         return False
