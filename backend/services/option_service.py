@@ -9,6 +9,7 @@ from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from services.naver_in_scrap import NaverInScrapper
+from internals.emotion_evaluation import EmotionEvaluation
 
 
 class OptionParameters(BaseModel):
@@ -23,11 +24,16 @@ class OptionService:
         self.blogScrap = NaverBlogScrapper()
         self.inScrap = NaverInScrapper()
         self._options = [
-            self.calc_types_information,    #
-            self.calc_bad_url,              #
-            self.calc_not_sponsored_mark,
-            self.calc_contains_keyword,
-            self.calc_ad_detection,
+            self.calc_types_information,    # 사진(image)/영상(video)/링크/지도(placeMap)/ 등 다양성
+            self.calc_bad_url,              # 구매 링크나 특정 사이트로의 유도 링크가 포함되어 있는 경우
+            self.calc_not_sponsored_mark,   # 내돈내산 인증 포함
+            self.calc_contains_keyword,     # 특정 키워드 포함
+            self.calc_ad_detection,         # 광고 문구
+            self.calc_emotion_ratio,        # 장점/단점 비율
+            self.calc_artificial_img,       # 인위적인 사진
+            self.calc_obj_detection,        # 객관적인 정보 포함
+            self.calc_detail_detection,     # 상세 설명 포함
+            self.calc_emoticon_detection    # 이모티콘 포함
         ]
 
     async def option_service(self, data: FullRequest):
@@ -109,6 +115,21 @@ class OptionService:
 
     async def calc_ad_detection(self, param: OptionParameters):
         return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
+
+    async def calc_emotion_ratio(self, param: OptionParameters):
+        return await self.emotion_ratio(param.sentences)
+
+    async def calc_artificial_img(self, param: OptionParameters):
+        return 0
+
+    async def calc_obj_detection(self, param: OptionParameters):
+        return 0
+
+    async def calc_detail_detection(self, param: OptionParameters):
+        return 0
+
+    async def calc_emoticon_detection(self, param: OptionParameters):
+        return 0
 
     def url_scrap(self, url: str):
         text = []
@@ -194,6 +215,11 @@ class OptionService:
 
     async def ad_detection(self, sentences):
         return 0
+
+    async def emotion_ratio(self, sentences):
+        evaluator = EmotionEvaluation()
+        res = await evaluator.get_emotion(sentences)
+        return (res['positive'] + 0.5 * res['neutral']) / len(sentences) * 100
 
     def _check_option_range(self, option):
         if 0 >= option or option > len(self._options):
