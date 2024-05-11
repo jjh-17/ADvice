@@ -1,6 +1,5 @@
 from kss import split_sentences
 import asyncio
-from concurrent.futures import ProcessPoolExecutor
 from typing import List, Any
 from pydantic import BaseModel
 
@@ -23,8 +22,8 @@ class OptionService:
         self.blogScrap = NaverBlogScrapper()
         self.inScrap = NaverInScrapper()
         self._options = [
-            self.calc_types_information,    #
-            self.calc_bad_url,              #
+            self.calc_types_information,  #
+            self.calc_bad_url,  #
             self.calc_not_sponsored_mark,
             self.calc_contains_keyword,
             self.calc_ad_detection,
@@ -38,13 +37,14 @@ class OptionService:
         }
 
         # url 갯수에 규칙이 없으므로 프로세스 수 제한
-        executor = ProcessPoolExecutor(max_workers=4)
-        loop = asyncio.get_running_loop()
-
-        tasks = [
-            loop.run_in_executor(executor, self.get_score, url, select)
-            for url in data.urlList
-        ]
+        # executor = ProcessPoolExecutor()
+        # loop = asyncio.get_running_loop()
+        #
+        # tasks = [
+        #     loop.run_in_executor(executor, self.get_score, url, select)
+        #     for url in data.urlList
+        # ]
+        tasks = [self.get_score(url, select) for url in data.urlList]
         results = await asyncio.gather(*tasks)
 
         return {
@@ -56,7 +56,7 @@ class OptionService:
 
     # 동기 작업을 위한 래핑 함수
     def get_score(self, url: str, select: dict):
-        return asyncio.run(self.url_score(url, select))
+        return self.url_score(url, select)
 
     async def url_score(self, url: str, select: dict):
         # url 스크랩
