@@ -103,11 +103,17 @@ class OptionService:
         return self.has_not_sponsored_mark(param.soup) * 100
 
     async def calc_contains_keyword(self, param: OptionParameters):
+        if len(param.sentences) < 0:
+            return 0
+
         return (
             self.contains_keyword(param.sentences, param.keyword) / len(param.sentences)
         ) * 100
 
     async def calc_ad_detection(self, param: OptionParameters):
+        if len(param.sentences) < 0:
+            return 0
+
         return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
 
     def url_scrap(self, url: str):
