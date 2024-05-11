@@ -29,15 +29,14 @@ class EmotionPredictionService:
         for text in texts:
             result = self.__text_emotion_prediction.sentence_predict(text)
 
-            if result[0] >= 70:
-                if result[1] == -1:
-                    neg_list.append([text, result[0]])
-                elif result[1] == 0:
-                    neu_list.append([text, result[0]])
-                elif result[1] == 1:
-                    pos_list.append([text, result[0]])
-                else:
-                    raise CustomException(400, "잘못된 모델 설정")
+            if result[1] == -1:
+                neg_list.append([text, result[0]])
+            elif result[1] == 0:
+                neu_list.append([text, result[0]])
+            elif result[1] == 1:
+                pos_list.append([text, result[0]])
+            else:
+                raise CustomException(400, "잘못된 모델 설정")
 
         pos_list = [data[0] for data in sorted(pos_list, key=lambda d: d[1], reverse=True)]
         neu_list = [data[0] for data in sorted(neu_list, key=lambda d: d[1], reverse=True)]
