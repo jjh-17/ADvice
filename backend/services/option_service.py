@@ -241,10 +241,16 @@ class OptionService:
     async def ad_detection(self, sentences):
         return 0
 
+    # 글이 얼마나 중립적인지 반환
     async def emotion_ratio(self, sentences):
         evaluator = EmotionEvaluation()
         res = await evaluator.get_emotion(sentences)
-        return (len(res['positive']) + 0.5 * len(res['neutral'])) / len(sentences) * 100
+
+        p_neg = len(res['negative']) / len(sentences)
+        p_neu = len(res['neutral']) / len(sentences)
+        p_pos = len(res['positive']) / len(sentences)
+
+        return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
 
     def _check_option_range(self, option):
         if 0 >= option or option > len(self._options):
