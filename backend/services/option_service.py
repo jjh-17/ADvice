@@ -62,7 +62,7 @@ class OptionService:
         # url 스크랩
         text, soup = self.url_scrap(url)
         # 문장으로 나누기
-        sentences = split_sentences(text)
+        sentences = split_sentences(text, backend="fast")
 
         param = OptionParameters(
             soup=soup, sentences=sentences, keyword=select["keyword"]
