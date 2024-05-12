@@ -132,14 +132,8 @@ class OptionService:
         return await self.emotion_ratio(param.sentences)
 
     async def calc_artificial_img(self, param: OptionParameters):
-        detector = AdDetectService()
-        tasks = [
-            detector.call_context_detection(param.images, param.sentences),
-            detector.call_filter_detection(param.images),
-            detector.call_human_detection(param.images),
-        ]
-        results = await asyncio.gather(*tasks)
-        return 0
+        context_score, filter_score, human_score = await self.artificial_img(param.images, param.sentences)
+        return ((context_score/len(param.images)/5)*100 + (filter_score/len(param.images)/5)*100 + human_score*20)/3
 
     async def calc_info_detection(self, param: OptionParameters):
         if len(param.sentences) < 0:
@@ -264,6 +258,16 @@ class OptionService:
         p_pos = len(res['positive']) / len(sentences)
 
         return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
+
+    async def artificial_img(self, images, sentences):
+        detector = AdDetectService()
+        tasks = [
+            detector.call_context_detection(images, sentences),
+            detector.call_filter_detection(images),
+            detector.call_human_detection(images),
+        ]
+        results = await asyncio.gather(*tasks)
+        return sum(results[0]), sum(results[1]), results[2]
 
     async def info_detection(self, sentences):
         results = requests.post(
