@@ -30,9 +30,7 @@ class OptionService:
             self.calc_ad_detection,         # 광고 문구
             self.calc_emotion_ratio,        # 장점/단점 비율
             self.calc_artificial_img,       # 인위적인 사진
-            self.calc_obj_detection,        # 객관적인 정보 포함
-            self.calc_detail_detection,     # 상세 설명 포함
-            self.calc_emoticon_detection    # 이모티콘 포함
+            self.calc_obj_detection         # 객관적인 정보 포함
         ]
 
     async def option_service(self, data: FullRequest):
@@ -100,45 +98,29 @@ class OptionService:
         return good_score - bad_score
 
     async def calc_types_information(self, param: OptionParameters):
-        res = self.count_types_information(param.soup) * 25
-        print("다양성: " + str(res))
-        return res
-        # return self.count_types_information(param.soup) * 25
+        return self.count_types_information(param.soup) * 25
 
     async def calc_bad_url(self, param: OptionParameters):
-        res = self.has_bad_url(param.soup) * 100
-        print("URL: " + str(res))
-        return res
-        # return self.has_bad_url(param.soup) * 100
+        return self.has_bad_url(param.soup) * 100
 
     async def calc_not_sponsored_mark(self, param: OptionParameters):
-        res = self.has_not_sponsored_mark(param.soup) * 100
-        print("내돈내산: " + str(res))
-        return res
-        # return self.has_not_sponsored_mark(param.soup) * 100
+        return self.has_not_sponsored_mark(param.soup) * 100
 
     async def calc_contains_keyword(self, param: OptionParameters):
         if len(param.sentences) < 0:
-            print("키워드: 0")
             return 0
 
-        res = (self.contains_keyword(param.sentences, param.keyword) / len(param.sentences)) * 100
-        print("키워드: " + str(res))
-        return res
+        return (
+                self.contains_keyword(param.sentences, param.keyword) / len(param.sentences)
+        ) * 100
 
     async def calc_ad_detection(self, param: OptionParameters):
         if len(param.sentences) < 0:
             return 0
-
-        res = (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
-        print("광고: " + str(res))
-        return res
-        # return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
+        return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
 
     async def calc_emotion_ratio(self, param: OptionParameters):
-        res = await self.emotion_ratio(param.sentences)
-        print("장/단점 비율: " + str(res))
-        return res
+        return await self.emotion_ratio(param.sentences)
 
     async def calc_artificial_img(self, param: OptionParameters):
         print("인위적 이미지: 미구현")
@@ -146,14 +128,6 @@ class OptionService:
 
     async def calc_obj_detection(self, param: OptionParameters):
         print("객관적 정보: 미구현")
-        return 0
-
-    async def calc_detail_detection(self, param: OptionParameters):
-        print("상세 정보: 미구현")
-        return 0
-
-    async def calc_emoticon_detection(self, param: OptionParameters):
-        print("이모티콘: 미구현")
         return 0
 
     def url_scrap(self, url: str):
