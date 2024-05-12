@@ -8,12 +8,18 @@ from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from services.naver_in_scrap import NaverInScrapper
+from services.ad_detect_service import AdDetectService
 from internals.emotion_evaluation import EmotionEvaluation
 
+import requests
+import json
+
+from config.config import settings
 
 class OptionParameters(BaseModel):
     soup: Any
     sentences: List[str]
+    images: List[str]
     keyword: str
 
 
@@ -30,7 +36,7 @@ class OptionService:
             self.calc_ad_detection,         # 광고 문구
             self.calc_emotion_ratio,        # 장점/단점 비율
             self.calc_artificial_img,       # 인위적인 사진
-            self.calc_obj_detection         # 객관적인 정보 포함
+            self.calc_info_detection         # 객관적인 정보 포함
         ]
 
     async def option_service(self, data: FullRequest):
@@ -67,9 +73,11 @@ class OptionService:
         text, soup = self.url_scrap(url)
         # 문장으로 나누기
         sentences = split_sentences(text, backend="fast")
+        # img url
+        images = self.img_url_scrap(soup)
 
         param = OptionParameters(
-            soup=soup, sentences=sentences, keyword=select["keyword"]
+            soup=soup, sentences=sentences, images=images, keyword=select["keyword"]
         )
 
         # good option과 bad option 순서 맞춤
@@ -117,26 +125,34 @@ class OptionService:
     async def calc_ad_detection(self, param: OptionParameters):
         if len(param.sentences) < 0:
             return 0
-        return (await self.ad_detection(param.sentences) / len(param.sentences)) * 100
+
+        return await self.ad_detection(param.images, param.sentences) * 100
 
     async def calc_emotion_ratio(self, param: OptionParameters):
         return await self.emotion_ratio(param.sentences)
 
     async def calc_artificial_img(self, param: OptionParameters):
-        print("인위적 이미지: 미구현")
+        detector = AdDetectService()
+        tasks = [
+            detector.call_context_detection(param.images, param.sentences),
+            detector.call_filter_detection(param.images),
+            detector.call_human_detection(param.images),
+        ]
+        results = await asyncio.gather(*tasks)
         return 0
 
-    async def calc_obj_detection(self, param: OptionParameters):
-        print("객관적 정보: 미구현")
-        return 0
+    async def calc_info_detection(self, param: OptionParameters):
+        if len(param.sentences) < 0:
+            return 0
+        return (await self.info_detection(param.sentences) / len(param.sentences)) * 100
 
     def url_scrap(self, url: str):
         text = []
         soup = None
 
         if "in.naver.com" in url:  # 인플루언서 게시글인 경우
-            self.soup = self.inScrap.scrape_naver_in_init(url)
-            text = self.inScrap.scrape_naver_in_text(self.soup)
+            soup = self.inScrap.scrape_naver_in_init(url)
+            text = self.inScrap.scrape_naver_in_text(soup)
 
         if "cafe" in url:  # 카페 게시글인 경우
             soup = self.cafeScrap.scrape_naver_cafe_init(url)
@@ -153,6 +169,25 @@ class OptionService:
 
     def soup_get_main_container(self, soup):
         return soup.find("div", attrs={"class": "se-main-container"})
+
+    def img_url_scrap(self, soup):
+        img_url_list=[]
+        soup = self.soup_get_main_container(soup)
+
+        div_img_tags = soup.find_all("div", attrs={"class": "se-image"})
+        for div_tag in div_img_tags:
+            img_url = json.loads(div_tag.find("a").get("data-linkdata")).get('src')
+            img_url_list.append(img_url)
+
+        div_imgStrip_tags = soup.find_all("div", attrs={"class": "se-imageStrip"})
+        for div_imgStrip_tag in div_imgStrip_tags:
+            div_img_tag = div_imgStrip_tag.find_all("a")
+            for div_tag in div_img_tag:
+                img_url = json.loads(div_tag.get("data-linkdata")).get('src')
+                img_url_list.append(img_url)
+
+        return img_url_list
+
 
     def count_types_information(self, soup):
         cnt = 0
@@ -212,8 +247,12 @@ class OptionService:
 
         return cnt
 
-    async def ad_detection(self, sentences):
-        return 0
+    async def ad_detection(self, images, sentences):
+        results = requests.post(
+            url=settings.text_ad_host + "/ad-evaluate/short",
+            json={"data": sentences[-3:], "path": images[-2:]}
+        ).json()
+        return int(results)
 
     # 글이 얼마나 중립적인지 반환
     async def emotion_ratio(self, sentences):
@@ -225,6 +264,13 @@ class OptionService:
         p_pos = len(res['positive']) / len(sentences)
 
         return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
+
+    async def info_detection(self, sentences):
+        results = requests.post(
+            url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentences)
+        ).json()
+        print(results)
+        return results.count(1)
 
     def _check_option_range(self, option):
         if 0 >= option or option > len(self._options):
