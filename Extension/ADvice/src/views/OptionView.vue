@@ -8,7 +8,7 @@
       class="flex flex-col items-center justify-start col-span-2 bg-gray-100"
     >
       <!-- 상단 section -->
-      <div class="w-full">
+      <div class="w-full h-[35%]">
         <div
           class="text-lg mt-2 font-semibold shadow-sm rounded-full w-1/2 text-center ml-[25%] border-4 border-theme-green border-opacity-65 px-3 py-5"
         >
@@ -64,7 +64,7 @@
       </div>
 
       <!--하단 section-->
-      <div class="border-t-2 border-stone-300 my-10">
+      <div class="border-t-2 border-stone-300 my-10 h-[65%]">
         <div
           class="mb-4 mt-2 w-1/2 text-center ml-[25%] font-semibold text-gray-900 text-lg shadow-sm rounded-full border-4 border-theme-green border-opacity-65 px-3 py-5"
         >
@@ -81,7 +81,7 @@
               :key="index"
               style="flex-basis: 20%"
             >
-              <v-card :key="index" style="width: 100%">
+              <v-card :key="index" style="width: 100%;">
                 <v-card-text>{{ element.name }}</v-card-text>
               </v-card>
             </div>
@@ -111,6 +111,8 @@ import { VueDraggableNext } from "vue-draggable-next";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const options = ref([]);
+
 const handleBackButton = () => {
   chrome.storage.sync.get(["preURL"], (result) => {
     if (result.preURL) {
@@ -130,9 +132,7 @@ const defaultOptions = [
   { index: 5, name: "광고 문구 포함" },
   { index: 6, name: "장점/단점의 비율" },
   { index: 7, name: "인위적인 사진 포함" },
-  { index: 8, name: "객관적인 정보 포함" },
-  { index: 9, name: "상세한 설명 포함" },
-  { index: 10, name: "이모티콘 포함" },
+  { index: 8, name: "객관적인 정보 포함" }
 ];
 
 const loadData = () => {
@@ -176,12 +176,16 @@ const loadData = () => {
         }
       } // 선택된 badoption 제거
 
-      options.value = defaultOptions;
+      options.value = [...defaultOptions];
+      console.log(options.value);
+      console.log(defaultOptions);
     }
   };
 };
 
 onMounted(() => {
+  chrome.storage.sync.remove(["goodOption"])
+  chrome.storage.sync.remove(["badOption"])
   loadData();
   chrome.storage.sync.get(["preURL"], (result) => {
     if (result.preURL) {
@@ -198,7 +202,6 @@ onMounted(() => {
   window.addEventListener("pushstate", handleBackButton);
 });
 
-const options = ref([]);
 const keyword = ref("");
 const goodOptions = ref([]);
 const badOptions = ref([]);
@@ -227,7 +230,7 @@ const saveOption = () => {
 };
 
 const drop = (type, event) => {
-  const data = event.dataTransfer.getData("text");
+  const data = event.dataTransfer.getData("text").trim().replace("+", "");
   console.log("drop", data);
   console.log("type", type);
   // let index = -1;
@@ -250,6 +253,7 @@ const drop = (type, event) => {
     if (listIndex !== -1) {
       console.log(options.value[listIndex]);
       goodOptions.value.push(options.value[listIndex]);
+      console.log(goodOptions.value);
       options.value.splice(listIndex, 1);
       // options.value[listIndex].checked = 1;
     } else if (badIndex !== -1) {
@@ -276,8 +280,22 @@ const drop = (type, event) => {
   } else if (type === "list") {
     // list 영역에 drop -> good, bad 확인
     console.log("list 추가 드가자")
-    badIndex = badOptions.value.findIndex((item) => item.name === data);
-    goodIndex = goodOptions.value.findIndex((item) => item.name === data);
+    console.log(goodOptions.value)
+    console.log(JSON.parse(JSON.stringify(goodOptions.value)))
+    badIndex = badOptions.value.findIndex((item) => {
+      console.log(item + "/" + item.name + "/" + data)
+      item.name == data
+    });
+    goodIndex = goodOptions.value.findIndex((item) => item.name === data
+    // {
+    //   console.log(item)
+    //   console.log(item.name)
+    //   console.log(data)
+    //   console.log(item.name == data)
+    //   item.name == data
+    // }
+  );
+    console.log("bad : ", badIndex, "good : " , goodIndex)
     if (goodIndex !== -1) {
       console.log(goodOptions.value[goodIndex]);
       options.value.push(goodOptions.value[goodIndex]);
