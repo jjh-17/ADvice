@@ -32,6 +32,13 @@ class AdDetectService:
         score = [0 for _ in range(len(images))]
         results = await asyncio.gather(*tasks)
 
+        for idx in range(2):
+            if type(results[idx]) is not list:
+                results[idx] = [0 for _ in range(len(images))]
+
+        if type(results[-1]) is not int:
+            results[-1] = 0
+
         score = [
             curr + result1 + result2 + results[2]
             for curr, result1, result2 in zip(score, results[0], results[1])
