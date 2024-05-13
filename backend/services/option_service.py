@@ -8,7 +8,6 @@ from models.exception.custom_exception import CustomException
 from services.naver_cafe_scrap import NaverCafeScrapper
 from services.naver_blog_scrap import NaverBlogScrapper
 from services.naver_in_scrap import NaverInScrapper
-from services.ad_detect_service import AdDetectService
 from internals.emotion_evaluation import EmotionEvaluation
 
 import requests
@@ -56,10 +55,19 @@ class OptionService:
         tasks = [self.get_score(url, select) for url in data.urlList]
         results = await asyncio.gather(*tasks)
 
+        print(results)
+
+        score=[]
+        optionScore=[]
+        for i in results:
+            score.append(i[0])
+            optionScore.append(i[1:])
+
+
         return {
             "scoreList": [
-                {"url": url, "score": score}
-                for url, score in zip(data.urlList, results)
+                {"url": url, "score": result1, "optionScore": result2}
+                for url, result1, result2 in zip(data.urlList, score, optionScore)
             ]
         }
 
@@ -101,8 +109,15 @@ class OptionService:
         bad_option_length = len(select["bad_option"])
         if bad_option_length > 0:
             bad_score += sum(result[good_option_length:]) / bad_option_length
+        
+        # 각 옵션별 점수
+        optionScore = [980329 for i in range(8)]
+        for i in range(good_option_length):
+            optionScore[select["good_option"][i]] = result[i]
+        for i in range(bad_option_length):
+            optionScore[select["bad_option"][i]] = -1*result[i+good_option_length-1]
 
-        return good_score - bad_score
+        return good_score - bad_score, optionScore
 
     async def calc_types_information(self, param: OptionParameters):
         return self.count_types_information(param.soup) * 25
@@ -258,7 +273,6 @@ class OptionService:
         results = requests.post(
             url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentences)
         ).json()
-        print(results)
         return results.count(1)
 
     def _check_option_range(self, option):
