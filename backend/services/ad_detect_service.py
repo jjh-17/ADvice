@@ -67,5 +67,16 @@ class AdDetectService:
             json=images,
         ).json()
 
+    async def is_objective_info(self, data: DetailRequest):
+        text, sentence = detail_service.get_sentence(data)
+
+        results = requests.post(
+            url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentence)
+        ).json()
+
+        return detail_service.seperate_good_and_bad(
+            sentence=sentence, result=results, text=text
+        )
+
 
 ad_detect_service = AdDetectService()
