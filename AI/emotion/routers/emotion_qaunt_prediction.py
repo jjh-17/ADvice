@@ -3,16 +3,16 @@ from fastapi import APIRouter
 from typing import List
 from starlette.responses import JSONResponse
 
-from services.emotion_service import EmotionPredictionService
+from services.emotion_quant_service import EmotionQuantPredictionService
 
-emotion = APIRouter()
-emotionService = EmotionPredictionService()
+emotionQuant = APIRouter()
+emotionService = EmotionQuantPredictionService()
 
 
-@emotion.post("/emotion")
+@emotionQuant.post("/emotion-quant")
 async def emotion_prediction(data: List[str]):
     start = time.time()
     res = await emotionService.predict_all(data)
-    print('일반: ' + str(time.time() - start))
+    print('양자화: ' + str(time.time() - start))
     return JSONResponse(status_code=200, content=res)
     # return JSONResponse(status_code=200, content=await emotionService.predict_all(data))
