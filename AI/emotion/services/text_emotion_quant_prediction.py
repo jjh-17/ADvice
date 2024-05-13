@@ -69,27 +69,28 @@ class TextEmotionQuantPrediction:
 
     # 모델 초기화
     def __init_model(self):
-        model = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False).to(self.device)
-
-        # 양자화 설정을 모델에 적용
-        default_qconfig = get_default_qconfig('fbgemm')
-        for name, module in model.named_modules():
-            if isinstance(module, torch.nn.Embedding):
-                module.qconfig = float_qparams_weight_only_qconfig
-            elif isinstance(module, torch.nn.LayerNorm):
-                module.qconfig = None  # LayerNorm을 양자화에서 제외
-            else:
-                module.qconfig = default_qconfig
-
-        # 양자화 준비
-        prepare(model, inplace=True)
-        model = convert(model)
-
-        state_dict = torch.load('./model/emotion_classification_quantized_weight.pt', map_location=self.device)
-        print(state_dict.keys)
-        model.load_state_dict(state_dict)
-
-        return model
+        # model = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False).to(self.device)
+        #
+        # # 양자화 설정을 모델에 적용
+        # default_qconfig = get_default_qconfig('fbgemm')
+        # for name, module in model.named_modules():
+        #     if isinstance(module, torch.nn.Embedding):
+        #         module.qconfig = float_qparams_weight_only_qconfig
+        #     elif isinstance(module, torch.nn.LayerNorm):
+        #         module.qconfig = None  # LayerNorm을 양자화에서 제외
+        #     else:
+        #         module.qconfig = default_qconfig
+        #
+        # # 양자화 준비
+        # prepare(model, inplace=True)
+        # model = convert(model)
+        #
+        # state_dict = torch.load('./model/emotion_classification_quantized_weight.pt', map_location=self.device)
+        # print(state_dict.keys)
+        # model.load_state_dict(state_dict)
+        #
+        # return model
+        return None
 
     #  가장 높은 확률의 감정값 반환
     def sentence_predict(self, sentence):
