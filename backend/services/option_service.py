@@ -55,8 +55,6 @@ class OptionService:
         tasks = [self.get_score(url, select) for url in data.urlList]
         results = await asyncio.gather(*tasks)
 
-        print(results)
-
         score=[]
         optionScore=[]
         for i in results:
@@ -143,11 +141,15 @@ class OptionService:
         return await self.ad_detection(param.images, param.sentences) * 100
 
     async def calc_emotion_ratio(self, param: OptionParameters):
+        if len(param.sentences) < 0:
+            return 0
+
         return await self.emotion_ratio(param.sentences)
 
     async def calc_info_detection(self, param: OptionParameters):
         if len(param.sentences) < 0:
             return 0
+
         return (await self.info_detection(param.sentences) / len(param.sentences)) * 100
 
     def url_scrap(self, url: str):
