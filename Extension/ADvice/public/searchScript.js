@@ -6,7 +6,7 @@ let goodOption = [];
 let badOption = [];
 let urlList = [];
 let level = [];
-let keyword = "마라샹궈";
+let keyword = "";
 let cnt = 0;
 let apiCnt = 0;
 const maxLevel = 100;
@@ -14,6 +14,12 @@ const minLevel = 0;
 let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
 const url = window.location.href;
 let modalTextList = []; // 요약 모달 텍스트 최초 호출 후 저장
+
+const loadGIF =  '<img src="chrome-extension://nlhidkhkjlccoekicfdnlaaepcjncibn/loading.gif" style="width: 30px; height: auto;">';
+// loadGIF.src = chrome.runtime.getURL('loading.gif')
+// loadGIF.style.width = '50px';
+// loadGIF.style.height = 'auto';
+console.log("loadGIF : ", loadGIF)
 
 // ------- 호버 모달 설정 함수
 const makeModal = (index) => {
@@ -50,11 +56,25 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
       if (checkflag) {
         clearInterval(checkInterval);
         console.log("clearInterval");
-        setting("all");
+        
+        const details = document.querySelectorAll(
+          ".fds-keep-group"
+        );
+        details.forEach(element => {
+          element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+        })
+        setting("all"); 
       }
     }, 100);
   })();
 } else {
+  const details = document.querySelectorAll(
+    ".api_save_group"
+  );
+  details.forEach(element => {
+    element.insertAdjacentHTML("afterend", loadGIF);
+    console.log("load insert", element.parentNode)
+  })
   setting("tab");
 }
 
@@ -249,30 +269,76 @@ async function APIsend(userInfoElements, position) {
     }
     if (apiCnt == urlList.length) {
       for (let i = 0; i < urlList.length; i++) {
+        // 1. db에 url 저장되어 있는지 확인
         chrome.runtime.sendMessage(
-          { action: "hoverAPI", url: urlList[i] },
-          function (response) {
-            console.log("API 호출 결과 받음 - setting:", response);
-            modalTextList[
-              i
-            ] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
-        <br><br>😊 : ${
-          response.data.positive.length > 50
-            ? response.data.positive.substring(0, 50) + "..."
-            : response.data.positive
-        }<br><br> 
-        😐 : ${
-          response.data.neutral.length > 50
-            ? response.data.neutral.substring(0, 50) + "..."
-            : response.data.neutral
-        }<br><br> 
-        🙁 : ${
-          response.data.negative.length > 50
-            ? response.data.negative.substring(0, 50) + "..."
-            : response.data.negative
-        } `;
+          { action: "checkDB", url: urlList[i] },
+          (response) => {
+            if (response) {
+              // 2. 있으면 저장된 요약 값 출력
+              console.log("Data found in DB:", response);
+              modalTextList[i] = response;
+            } else {
+              // 3. 없으면 API 호출
+              console.log("Data not found in DB:", urlList[i])
+              // 데이터가 DB에 없으므로 API를 호출하고 결과를 저장
+              chrome.runtime.sendMessage(
+                {
+                  action: "hoverAPI",
+                  url: urlList[i],
+                },
+                function (response) {
+                  modalTextList[i] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
+          <br><br>😊 : ${
+            response.data.positive.length > 50
+              ? response.data.positive.substring(0, 50) + "..."
+              : response.data.positive
+          }<br><br> 
+          😐 : ${
+            response.data.neutral.length > 50
+              ? response.data.neutral.substring(0, 50) + "..."
+              : response.data.neutral
+          }<br><br> 
+          🙁 : ${
+            response.data.negative.length > 50
+              ? response.data.negative.substring(0, 50) + "..."
+              : response.data.negative
+          } `;
+          console.log("저장된 요약문 : ", modalTextList[i])
+                  chrome.runtime.sendMessage({
+                    action: "saveToDB",
+                    url: urlList[i],
+                    data: modalTextList[i],
+                  });
+                }
+              );
+            }
           }
         );
+
+        // chrome.runtime.sendMessage(
+        //   { action: "hoverAPI", url: urlList[i] },
+        //   function (response) {
+        //     console.log("API 호출 결과 받음 - setting:", response);
+        //     modalTextList[
+        //       i
+        //     ] = `<strong style='font-size : 1.1em;'>📌본문 요약 결과📌</strong>
+        // <br><br>😊 : ${
+        //   response.data.positive.length > 50
+        //     ? response.data.positive.substring(0, 50) + "..."
+        //     : response.data.positive
+        // }<br><br> 
+        // 😐 : ${
+        //   response.data.neutral.length > 50
+        //     ? response.data.neutral.substring(0, 50) + "..."
+        //     : response.data.neutral
+        // }<br><br> 
+        // 🙁 : ${
+        //   response.data.negative.length > 50
+        //     ? response.data.negative.substring(0, 50) + "..."
+        //     : response.data.negative
+        // } `;
+        //   }
+        // );
       }
     }
   }
@@ -431,95 +497,6 @@ function setting(position) {
   console.log("urlList", urlList);
   console.log(level);
 
-  // const APIsend = () => {
-  //   console.log("APIsend", cnt);
-  //   if (cnt == 2) {
-  //     // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 ->
-  //     // background.js로 메시지 보내기
-  //     let urlIndex = -1;
-  //     const chunksize = 2;
-  //     for(let i = 0; i < urlList.length; i += chunksize){
-  //       const urlChunk = urlList.slice(i, i + chunksize);
-  //       chrome.runtime.sendMessage(
-  //         {
-  //           action: "searchAPI",
-  //           urlList: urlChunk,
-  //           goodOption: goodOption,
-  //           badOption: badOption,
-  //           keyword : keyword
-  //         },
-  //         function (response) {
-  //           console.log("API 호출 결과 받음:", response);
-  //           const sortLevel = [];
-  //           Object.keys(response.data.scoreList).forEach((index) => { // index -> chunkURL 안에서의 위치
-  //             console.log(response.data.scoreList[index].url);
-  //             urlIndex = urlList.indexOf(response.data.scoreList[index].url); // urlIndex -> urlList 안에서의 위치
-  //             console.log(urlIndex);
-  //             // console.log(response.data.scoreList[urlIndex].url)
-  //             if (urlIndex !== -1) {
-  //               const curLevel = { url: response.data.scoreList[index].url, level: response.data.scoreList[index].score };
-  //               sortLevel.push(curLevel);
-  //               level[urlIndex] = response.data.scoreList[index].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
-  //               console.log(level[urlIndex]);
-  //             }
-  //           });
-
-  //           if(topList.length < 5){
-  //             sortLevel.forEach((element) => {
-  //               topList.push(element)
-  //             })
-  //             console.log("1111", topList);
-  //             topList.sort((a, b) => b.level - a.level)
-  //             topList = topList.slice(0, 5);
-  //           }else{
-  //             sortLevel.sort((a, b) => b.level - a.level);
-  //             sortLevel.forEach((element) => {
-  //               if (element.score > topList[topList.length - 1]) {
-  //                 // top 5 유용도 중 가장 낮은 유용도보다 큰 경우
-  //                 topList[topList.length - 1] = {
-  //                   url: element.url,
-  //                   level: element.score,
-  //                 };
-  //                 topList.sort((a, b) => b.level - a.level);
-  //               }
-  //             })
-  //           }
-  //           // sortLevel.sort((a, b) => b.level - a.level);
-  //           // topList = sortLevel.slice(0, 5);
-  //           console.log("topList", topList);
-  //           updateTopList();
-
-  //           console.log(level);
-
-  //           Array.from(userInfoElements).forEach((element, index) => {
-  //             // console.log("ui setting", element);
-  //             if (
-  //               element
-  //                 .querySelector(
-  //                   `.view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap`
-  //                 )
-  //                 .href.includes("post.naver.com")
-  //             ) {
-  //               return;
-  //             }
-  //             if (element.classList.contains("view_wrap")) {
-  //               position = "tab";
-  //             }
-  //             // 이번에 부른 chunklist에 대해서만 setui 실행 -> url 일치 여부 확인하기
-  //             const curURL = element.querySelector(".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap").href
-  //             // console.log(curURL, "setUI 호출 전 확인")
-  //             if(urlChunk.includes(curURL)){
-  //               console.log("setUI 호출하는 element : ", element)
-  //               setUI(element, urlIndex);
-  //             }
-  //           });
-  //         }
-  //       );
-  //     }
-
-  //   }
-  // };
-
   cnt = 0;
   chrome.storage.sync.get(["goodOption"], (result) => {
     if (result.goodOption) {
@@ -542,11 +519,11 @@ function setting(position) {
   });
 
   chrome.storage.sync.get(["keyword"], (result) => {
-    if(result.keyword){
+    if (result.keyword) {
       keyword = result.keyword;
       console.log("사용자가 저장한 키워드", keyword);
     }
-  })
+  });
 
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
@@ -560,11 +537,24 @@ function setting(position) {
     const links = node.querySelectorAll(
       ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
     );
-    links.forEach((link, index) => {
-      // console.log(link.href);
+    links.forEach((link) => {
       if (link.href != undefined && !link.href.includes("post.naver.com")) {
         // post 글 제외
         urlList.push(link.href);
+        // url 저장할때 indexed db에 저장되어 있는 값 있는지 체크
+                // 1. db에 url 저장되어 있는지 확인
+                chrome.runtime.sendMessage(
+                  { action: "checkDB", url: link.href },
+                  (response) => {
+                    if (response) {
+                      const index = urlList.findIndex((url) => url == link.href)
+                      // 2. 있으면 저장된 요약 값 출력
+                      console.log("Data found in DB:", response);
+                      console.log("index = ", index);
+                      modalTextList[index] = response;
+                    } 
+                  }
+                );
       }
     });
   }

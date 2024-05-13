@@ -3,6 +3,80 @@ options = [];
 checkflag = true;
 topList = [];
 
+// IndexedDB 설정
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open("db_summary", 1);
+    console.log("db open")
+    request.onerror = (event) => {
+      console.error("Database error: ", event.target.errorCode);
+      reject(event.target.errorCode);
+    };
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('responses')) {
+        db.createObjectStore('responses', { keyPath: 'url' });
+        console.log("object store open")
+      }
+    };
+
+    request.onsuccess = (event) => {
+      console.log("db onsuccess")
+      resolve(event.target.result);
+    };
+  });
+}
+openDB()
+
+function saveResponseToDB(url, data) {
+  openDB().then(db => {
+    const transaction = db.transaction(["responses"], "readwrite");
+    const store = transaction.objectStore("responses");
+    const request = store.put({ url: url, data: data });
+
+    request.onsuccess = () => {
+      console.log("Data saved to DB successfully.");
+    };
+
+    request.onerror = (event) => {
+      console.error("Error saving data: ", event.target.errorCode);
+    };
+
+    transaction.oncomplete = () => {
+      db.close();
+    };
+  });
+}
+
+function getResponseFromDB(url) {
+  return new Promise((resolve, reject) => {
+    openDB().then(db => {
+      const transaction = db.transaction(["responses"], "readonly");
+      const store = transaction.objectStore("responses");
+      const request = store.get(url);
+
+      request.onsuccess = (event) => {
+        if (request.result) {
+          resolve(request.result.data);
+        } else {
+          resolve(null);
+        }
+      };
+
+      request.onerror = (event) => {
+        console.error("Error fetching data: ", event.target.errorCode);
+        reject(event.target.errorCode);
+      };
+
+      transaction.oncomplete = () => {
+        db.close();
+      };
+    });
+  });
+}
+
+
 // url 확인 할 때
 chrome.webNavigation.onCommitted.addListener(function (details) {
   if (details.frameId === 0) {
@@ -110,6 +184,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     topList = request.topList;
   } else if (request.action === "loadTopList") {
     sendResponse({ topList: topList });
+  }else if (request.action === "checkDB") {
+    getResponseFromDB(request.url).then(data => {
+      sendResponse(data);
+    });
+    return true;  // 비동기 응답을 위해 true 반환
+  } else if (request.action === "saveToDB") {
+    console.log("saveToDB 호출")
+    saveResponseToDB(request.url, request.data);
   }
   return true; // Keep the messaging channel open for the response
 });

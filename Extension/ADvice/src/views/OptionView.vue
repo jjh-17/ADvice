@@ -29,7 +29,7 @@
                 <v-card-text
                   >{{ item.name }}
                   <button
-                    v-if="index == 4"
+                    v-if="item.index == 4"
                     type="button"
                     @click="toggleEdit(item)"
                     class="py-1 px-4 me-2 mx-32 text-sm font-medium absolute right-0 top-3 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
@@ -37,7 +37,7 @@
                     {{ isEditing ? "저장" : "+" }}
                   </button>
                   <input
-                    v-if="isEditing"
+                    v-if="isEditing && item.index == 4"
                     v-model="keyword"
                     type="text"
                     class="mt-2 px-2 ml-[30%] py-1 w-[40%] justify-center block border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
@@ -58,7 +58,7 @@
                 <v-card-text
                   >{{ item.name }}
                   <button
-                    v-if="index == 4"
+                    v-if="item.index == 4"
                     type="button"
                     @click="toggleEdit(item)"
                     class="py-1 px-4 me-2 mx-32 text-sm font-medium absolute right-0 top-3 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
@@ -66,7 +66,7 @@
                     {{ isEditing ? "저장" : "+" }}
                   </button>
                   <input
-                    v-if="isEditing"
+                    v-if="isEditing && item.index == 4"
                     v-model="keyword"
                     type="text"
                     class="mt-2 px-2 ml-[30%] py-1 w-[40%] justify-center block border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
