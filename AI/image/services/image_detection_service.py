@@ -9,10 +9,6 @@ from models.exception.custom_exception import CustomException
 
 class ImageDetectionService:
     def context_analyze(self, image_paths: list, texts: list):
-        if not texts:
-            raise CustomException(400, "text is empty")
-        elif not image_paths:
-            raise CustomException(400, "image_path is empty")
         keywords = keywordExtractor.extract_keyword(texts)
         translated = translator.translate(keywords)
 
@@ -22,8 +18,10 @@ class ImageDetectionService:
             labels = contextExtractor.extract_label_from_image(image_path)
             result = contextAnalyzer.analyze(translated, labels)
             for similarity in result:
+                print(similarity)
                 score += max(similarity)
 
+            print(score)
             if score > 3:
                 evaluation.append(0)
             elif score > 1:
@@ -33,8 +31,6 @@ class ImageDetectionService:
         return evaluation
 
     def human_detection(self, image_paths: list):
-        if not image_paths:
-            raise CustomException(400, "image_path is empty")
         counts = humanCounter.count_objects_in_images(image_paths, 0)
         if len(counts) > 0:
             ratio = sum(counts) / len(counts)
@@ -45,16 +41,14 @@ class ImageDetectionService:
         return -1
 
     def filter_detection(self, image_paths: list):
-        if not image_paths:
-            raise CustomException(400, "image_path is empty")
         results = imageAnalyzer.filter_detect(image_paths)
         evaluation = []
         for contrast, edge_strength, laplacian in results:
             if (contrast, edge_strength, laplacian) is not None:
                 total = contrast + edge_strength + laplacian
-                if total < 4:
+                if total < 5:
                     evaluation.append(0)
-                elif total < 8:
+                elif total < 9:
                     evaluation.append(1)
                 else:
                     evaluation.append(2)

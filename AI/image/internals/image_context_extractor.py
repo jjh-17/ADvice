@@ -5,9 +5,6 @@ from internals.image_downloader import downloader
 
 
 class ImageContextExtractor:
-    def __init__(self):
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = './model/google/sound-catalyst-421203-3bf1190b292d.json'
-
     def extract_label_from_image(self, url: str) -> list:
         response_image = downloader.load_image_from_url(url)
         image = vision.Image(content=response_image)
