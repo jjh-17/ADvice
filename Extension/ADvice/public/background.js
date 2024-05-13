@@ -126,13 +126,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         urlList: request.urlList,
         goodOption: request.goodOption,
         badOption: request.badOption,
-        keyword : request.keyword
+        keyword: request.keyword,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
         console.log("receive data", data);
-        sendResponse({ success: true, data: data })
+        sendResponse({ success: true, data: data });
       })
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
@@ -142,7 +142,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(request.url);
     const apiURL = new URL("http://k10a403.p.ssafy.io:8000/summary");
     apiURL.search = new URLSearchParams({
-      url : request.url
+      url: request.url,
     }).toString();
     fetch(apiURL, {
       method: "GET",
@@ -155,8 +155,38 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
-  } else if (request.action === "detail") {
-    fetch("http://k10a403.p.ssafy.io:8000/detail", {
+  } else if (request.action === "detail-textad") {
+    fetch("http://k10a403.p.ssafy.io:8000/detail/text-ad", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        script: request.crawlResults,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ success: true, data: data }))
+      .catch((error) =>
+        sendResponse({ success: false, error: error.toString() })
+      );
+  } else if (request.action === "detail-imagead") {
+    fetch("http://k10a403.p.ssafy.io:8000/detail/image-ad", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        script: request.crawlResults,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ success: true, data: data }))
+      .catch((error) =>
+        sendResponse({ success: false, error: error.toString() })
+      );
+  } else if (request.action === "detail-objective") {
+    fetch("http://k10a403.p.ssafy.io:8000/detail/objective-info", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

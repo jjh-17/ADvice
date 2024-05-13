@@ -10,7 +10,7 @@ class ImageAnalyzer:
     def __init__(self):
         self.contrast_mean = 60
         self.edge_strength_mean = 550
-        self.laplacian_var_mean = 350
+        self.laplacian_var_mean = 500
 
     def filter_detect(self, urls: list) -> list:
         results = []
