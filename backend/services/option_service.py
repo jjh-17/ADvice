@@ -35,7 +35,6 @@ class OptionService:
             self.calc_contains_keyword,     # 특정 키워드 포함
             self.calc_ad_detection,         # 광고 문구
             self.calc_emotion_ratio,        # 장점/단점 비율
-            self.calc_artificial_img,       # 인위적인 사진
             self.calc_info_detection         # 객관적인 정보 포함
         ]
 
@@ -130,10 +129,6 @@ class OptionService:
 
     async def calc_emotion_ratio(self, param: OptionParameters):
         return await self.emotion_ratio(param.sentences)
-
-    async def calc_artificial_img(self, param: OptionParameters):
-        context_score, filter_score, human_score = await self.artificial_img(param.images, param.sentences)
-        return ((context_score/len(param.images)/5)*100 + (filter_score/len(param.images)/5)*100 + human_score*20)/3
 
     async def calc_info_detection(self, param: OptionParameters):
         if len(param.sentences) < 0:
@@ -258,16 +253,6 @@ class OptionService:
         p_pos = len(res['positive']) / len(sentences)
 
         return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
-
-    async def artificial_img(self, images, sentences):
-        detector = AdDetectService()
-        tasks = [
-            detector.call_context_detection(images, sentences),
-            detector.call_filter_detection(images),
-            detector.call_human_detection(images),
-        ]
-        results = await asyncio.gather(*tasks)
-        return sum(results[0]), sum(results[1]), results[2]
 
     async def info_detection(self, sentences):
         results = requests.post(
