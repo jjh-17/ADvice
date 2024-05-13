@@ -370,6 +370,28 @@ function optionSeven(crawlResults, iframeDoc) {
   });
 }
 
+function optionEight() {
+  return new Promise((resolve, reject) => {
+    if (selectedGoodOption.includes(8) || selectedBadOption.includes(8)) {
+      chrome.runtime.sendMessage(
+        { action: "detail-objective", crawlResults: crawlResults },
+        function (response) {
+          var listData = response.data;
+          var newData = {
+            option: 8,
+            goodList: listData.goodList,
+            badList: listData.goodList,
+          };
+          tmpData.push(newData);
+          resolve(); // 비동기 처리가 완료된 후에 resolve를 호출
+        }
+      );
+    } else {
+      resolve(); // 조건에 맞지 않을 경우에도 resolve 호출
+    }
+  });
+}
+
 function checkOption() {
   if (optionCnt === 2) {
     var checkInterval = setInterval(function () {
@@ -421,6 +443,7 @@ function checkOption() {
         optionPromises.push(optionFour("성심당"));
         optionPromises.push(optionFive(crawlResults));
         optionPromises.push(optionSeven(crawlResults, iframeDoc));
+        optionPromises.push(optionEight(crawlResults));
 
         Promise.all(optionPromises).then(() => {
           finalResult = processData(tmpData);

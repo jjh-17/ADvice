@@ -111,6 +111,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+  } else if (request.action === "detail-objective") {
+    fetch("http://k10a403.p.ssafy.io:8000/detail/objective-info", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        script: request.crawlResults,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => sendResponse({ success: true, data: data }))
+      .catch((error) =>
+        sendResponse({ success: false, error: error.toString() })
+      );
   } else if (request.action === "saveCheck") {
     checkflag = request.isChecked;
     // 현재 활성 탭을 찾아 해당 탭의 Content Script로 메시지를 전달
