@@ -1,8 +1,9 @@
 <template>
   <div class="grid grid-cols-3 h-screen w-screen">
     <!-- 왼쪽 section -->
-    <div class="text-white col-span-1 bg-theme-green bg-opacity-60">ADvice</div>
-
+    <div class="text-theme-green col-span-1 bg-theme-ivory flex justify-center items-center">
+        <img src="@/assets/logo.png" width="300" height="200" />
+    </div>
     <!-- 오른쪽 section -->
     <div
       class="flex flex-col items-center justify-start col-span-2 bg-gray-100"
@@ -27,7 +28,21 @@
               <v-card>
                 <v-card-text
                   >{{ item.name }}
-                  <v-btn v-if="item.index === 4" class="mt-2"> + </v-btn>
+                  <button
+                    v-if="index == 4"
+                    type="button"
+                    @click="toggleEdit(item)"
+                    class="py-1 px-4 me-2 mx-32 text-sm font-medium absolute right-0 top-3 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
+                  >
+                    {{ isEditing ? "저장" : "+" }}
+                  </button>
+                  <input
+                    v-if="isEditing"
+                    v-model="keyword"
+                    type="text"
+                    class="mt-2 px-2 ml-[30%] py-1 w-[40%] justify-center block border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    placeholder="키워드를 입력해주세요"
+                  />
                 </v-card-text>
               </v-card>
             </div>
@@ -43,6 +58,7 @@
                 <v-card-text
                   >{{ item.name }}
                   <button
+                    v-if="index == 4"
                     type="button"
                     @click="toggleEdit(item)"
                     class="py-1 px-4 me-2 mx-32 text-sm font-medium absolute right-0 top-3 text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
@@ -76,13 +92,19 @@
             @drop="drop('list', $event)"
           >
             <div
-              class="list-group-item m-1 p-3 rounded-md text-center flex-grow"
+              class="list-group-item m-1 p-3 rounded-md text-center flex-grow flex"
               v-for="(element, index) in options"
               :key="index"
               style="flex-basis: 20%"
             >
-              <v-card :key="index" style="width: 100%;">
-                <v-card-text>{{ element.name }}</v-card-text>
+              <v-card
+                :key="index"
+                class="flex h-16 text-center items-center justify-center"
+                style="width: 100%"
+              >
+                <v-card-text class="text-center items-center">{{
+                  element.name
+                }}</v-card-text>
               </v-card>
             </div>
           </VueDraggableNext>
@@ -132,7 +154,7 @@ const defaultOptions = [
   { index: 5, name: "광고 문구 포함" },
   { index: 6, name: "장점/단점의 비율" },
   { index: 7, name: "인위적인 사진 포함" },
-  { index: 8, name: "객관적인 정보 포함" }
+  { index: 8, name: "객관적인 정보 포함" },
 ];
 
 const loadData = () => {
@@ -184,8 +206,8 @@ const loadData = () => {
 };
 
 onMounted(() => {
-  chrome.storage.sync.remove(["goodOption"])
-  chrome.storage.sync.remove(["badOption"])
+  // chrome.storage.sync.remove(["goodOption"])
+  // chrome.storage.sync.remove(["badOption"])
   loadData();
   chrome.storage.sync.get(["preURL"], (result) => {
     if (result.preURL) {
@@ -230,7 +252,7 @@ const saveOption = () => {
 };
 
 const drop = (type, event) => {
-  const data = event.dataTransfer.getData("text").trim().replace("+", "");
+  const data = event.dataTransfer.getData("text").replace("+", "").trim();
   console.log("drop", data);
   console.log("type", type);
   // let index = -1;
@@ -247,9 +269,9 @@ const drop = (type, event) => {
   if (type === "good") {
     // good 영역에 drop -> bad, list 확인
     // goodOptions.value.push(data);
-    console.log("good 추가 드가자")
-    listIndex = options.value.findIndex((item) => item.name === data);
-    badIndex = badOptions.value.findIndex((item) => item.name === data);
+    console.log("good 추가 드가자");
+    listIndex = options.value.findIndex((item) => item.name == data);
+    badIndex = badOptions.value.findIndex((item) => item.name == data);
     if (listIndex !== -1) {
       console.log(options.value[listIndex]);
       goodOptions.value.push(options.value[listIndex]);
@@ -264,9 +286,9 @@ const drop = (type, event) => {
   } else if (type === "bad") {
     // bad 영역에 drop -> good, list 확인
     // badOptions.value.push(data);
-    console.log("bad 추가 드가자")
-    listIndex = options.value.findIndex((item) => item.name === data);
-    goodIndex = goodOptions.value.findIndex((item) => item.name === data);
+    console.log("bad 추가 드가자");
+    listIndex = options.value.findIndex((item) => item.name == data);
+    goodIndex = goodOptions.value.findIndex((item) => item.name == data);
     if (listIndex !== -1) {
       console.log(options.value[listIndex]);
       badOptions.value.push(options.value[listIndex]);
@@ -279,23 +301,30 @@ const drop = (type, event) => {
     }
   } else if (type === "list") {
     // list 영역에 drop -> good, bad 확인
-    console.log("list 추가 드가자")
-    console.log(goodOptions.value)
-    console.log(JSON.parse(JSON.stringify(goodOptions.value)))
-    badIndex = badOptions.value.findIndex((item) => {
-      console.log(item + "/" + item.name + "/" + data)
-      item.name == data
-    });
-    goodIndex = goodOptions.value.findIndex((item) => item.name === data
-    // {
-    //   console.log(item)
-    //   console.log(item.name)
-    //   console.log(data)
-    //   console.log(item.name == data)
-    //   item.name == data
-    // }
-  );
-    console.log("bad : ", badIndex, "good : " , goodIndex)
+    console.log("list 추가 드가자");
+    console.log(goodOptions.value);
+    console.log(JSON.parse(JSON.stringify(goodOptions.value)));
+    badIndex = badOptions.value.findIndex(
+      (item) => item.name == data
+      // {
+      //   console.log(item)
+      //   console.log(item.name)
+      //   console.log(data)
+      //   console.log(item.name == data)
+      //   item.name == data
+      // }
+    );
+    goodIndex = goodOptions.value.findIndex(
+      (item) => item.name == data
+      // {
+      //   console.log(item)
+      //   console.log(item.name)
+      //   console.log(data)
+      //   console.log(item.name == data)
+      //   item.name == data
+      // }
+    );
+    console.log("bad : ", badIndex, "good : ", goodIndex);
     if (goodIndex !== -1) {
       console.log(goodOptions.value[goodIndex]);
       options.value.push(goodOptions.value[goodIndex]);

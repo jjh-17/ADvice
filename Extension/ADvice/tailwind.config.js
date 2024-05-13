@@ -11,7 +11,8 @@ export default {
       },
       colors: {
         "theme-blue": "#4379EE",
-        "theme-green" : "#03C75A"
+        "theme-green" : "#03C75A",
+        "theme-ivory" : "#fdfcf5"
       },
     },
   },
