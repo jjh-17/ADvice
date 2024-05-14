@@ -60,7 +60,7 @@ function unsetting() {
 }
 
 function setting() {
-  // Text로 오는 것 다시 Unsetting
+  // Text로 오는 것 다시 setting
   Object.keys(finalResult).forEach((id) => {
     const data = finalResult[id];
     const element = document
@@ -80,7 +80,32 @@ function setting() {
     }
   });
 
-  console.log(finalCaptureResult);
+  // 이미지로 오는 것 다시 셋팅
+  finalCaptureResult.forEach((id) => {
+    console.log(id);
+    var element = document
+      .getElementById("mainFrame")
+      .contentWindow.document.getElementById(id);
+    element.style.margin = "0";
+    element.style.padding = "0";
+
+    const originalWidth = element.offsetWidth;
+    const newWidth = originalWidth + 30;
+    const backgroundColor = selectedGoodOption.includes(3)
+      ? "rgba(66, 189, 101, 0.15)"
+      : "rgba(241, 43, 67, 0.15)";
+
+    const wrapperHTML = `
+              <div class="custom-wrapper" style="width: ${newWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
+              </div>
+            `;
+    element.insertAdjacentHTML("afterend", wrapperHTML);
+    const wrapper = element.nextElementSibling;
+    wrapper.appendChild(element);
+  });
+
+  optionTwo(document.getElementById("mainFrame").contentWindow.document);
+  optionThree(document.getElementById("mainFrame").contentWindow.document);
 }
 
 chrome.storage.sync.get(["badOption"], (result) => {
@@ -136,6 +161,7 @@ function processData(tmpData) {
 }
 
 function optionTwo(iframeDoc) {
+  //  구매 링크나 특정 사이트로의 유도 링크가 포함되어 있는 경우
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(2) || selectedBadOption.includes(2)) {
       const blackList = [
@@ -218,6 +244,7 @@ function optionTwo(iframeDoc) {
 }
 
 function optionThree(iframeDoc) {
+  // 내돈내산 인증 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(3) || selectedBadOption.includes(3)) {
       var elements = iframeDoc.querySelectorAll(
@@ -289,6 +316,7 @@ function optionThree(iframeDoc) {
 }
 
 function optionFour() {
+  // 특정 키워드 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
       chrome.storage.sync.get(["keyword"], (keyword) => {
@@ -314,12 +342,15 @@ function optionFour() {
 }
 
 function optionFive(crawlResults) {
+  //광고 문구
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(5) || selectedBadOption.includes(5)) {
       chrome.runtime.sendMessage(
         { action: "detail-textad", crawlResults: crawlResults },
         function (response) {
           var listData = response.data;
+          console.log("option five");
+          console.log(response.data);
           var newData = {
             option: 5,
             goodList: listData.goodList,
@@ -336,16 +367,19 @@ function optionFive(crawlResults) {
 }
 
 function optionSeven(crawlResults, iframeDoc) {
+  // 인위적인 사진 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(7) || selectedBadOption.includes(7)) {
       chrome.runtime.sendMessage(
         { action: "detail-imagead", crawlResults: crawlResults.slice(0, 18) },
         function (response) {
           var listData = response.data;
-          console.log(listData);
+
           listData.forEach((data) => {
             if (data.score >= 2) {
               var element = iframeDoc.getElementById(data.id);
+              console.log(data.id);
+              finalCaptureResult.push(data.id);
               element.style.margin = "0";
               element.style.padding = "0";
 
@@ -422,12 +456,15 @@ function optionSeven(crawlResults, iframeDoc) {
 }
 
 function optionEight() {
+  // 객관적인 정보(영업시간, 장소위치, 가격 포함)
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(8) || selectedBadOption.includes(8)) {
       chrome.runtime.sendMessage(
         { action: "detail-objective", crawlResults: crawlResults },
         function (response) {
           var listData = response.data;
+          console.log("option Eight");
+          console.log(response.data);
           var newData = {
             option: 8,
             goodList: listData.goodList,
@@ -497,6 +534,7 @@ function checkOption() {
         optionPromises.push(optionEight(crawlResults));
 
         Promise.all(optionPromises).then(() => {
+          console.log(tmpData);
           finalResult = processData(tmpData);
           console.log(finalResult);
           Object.keys(finalResult).forEach((id) => {
