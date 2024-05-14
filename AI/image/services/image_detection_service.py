@@ -4,7 +4,6 @@ from internals.image_filter_detection import imageAnalyzer
 from internals.image_human_detector import humanCounter
 from internals.keyword_extractor import keywordExtractor
 from internals.translator import translator
-from models.exception.custom_exception import CustomException
 
 
 class ImageDetectionService:
@@ -18,10 +17,9 @@ class ImageDetectionService:
             labels = contextExtractor.extract_label_from_image(image_path)
             result = contextAnalyzer.analyze(translated, labels)
             for similarity in result:
-                print(similarity)
                 score += max(similarity)
 
-            print(score)
+            print(image_path[-10:], " context score : ", score)
             if score > 3:
                 evaluation.append(0)
             elif score > 1:
