@@ -1,5 +1,6 @@
 from internals.image_analyzer import imageDetector
 from internals.text_analyzer import adDetector
+from models.exception.custom_exception import CustomException
 
 
 class AdService:
@@ -12,10 +13,10 @@ class AdService:
             if result == 1:
                 return True
 
-        if imageDetector.determine_ad_imageURLs(image_paths):
-            return True
-
-        return False
+        # text에 광고 글이 없다면 image에서 판단하여 결과 반환
+        if not image_paths:
+            return False
+        return imageDetector.determine_ad_imageURLs(image_paths)
 
 
 adService = AdService()

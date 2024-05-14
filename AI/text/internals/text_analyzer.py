@@ -7,7 +7,7 @@ from config.config import settings
 class InfoDetection:
     def __init__(self):
         self.device = torch.device('cpu')
-        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2)
+        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2, )
                       .to(self.device))
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
@@ -33,7 +33,6 @@ def evaluate_texts(texts, tokenizer, device, model):
     results = []
     for text in texts:
         results.append(sentence_predict(text, tokenizer, device, model))
-
     return results
 
 
@@ -52,8 +51,7 @@ def sentence_predict(sentence, tokenizer, device, model):
     with torch.no_grad():
         outputs = model(
             input_ids=tokenized_sent["input_ids"],
-            attention_mask=tokenized_sent["attention_mask"],
-            token_type_ids=tokenized_sent["token_type_ids"]
+            attention_mask=tokenized_sent["attention_mask"]
         )
 
     logits = outputs[0]
