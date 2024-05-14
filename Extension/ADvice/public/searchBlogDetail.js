@@ -164,6 +164,52 @@ function optionTwo(iframeDoc) {
           element.insertAdjacentHTML("afterend", wrapperHTML);
           const wrapper = element.nextElementSibling;
           wrapper.appendChild(element);
+
+          // 모달 띄우기
+          var flag = selectedGoodOption.includes(3);
+          element.addEventListener("mouseover", function (event) {
+            let modal = iframeDoc.getElementById("hover-modal");
+            if (!modal) {
+              modal = iframeDoc.createElement("div");
+              modal.id = "hover-modal";
+              modal.style.cssText =
+                "position: absolute; padding: 20px; background: white; border: 1px solid black; z-index: 1000; display: none;";
+              iframeDoc.body.appendChild(modal);
+            }
+
+            let statusMessage = "";
+            let optionResult = "";
+            if (flag) {
+              statusMessage = "선택하신 부분은 유용한 부분으로 판단됩니다 😀";
+              optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 특정 사이트로의 유도 링크 포함</li></ul></div>`;
+            } else {
+              statusMessage = "선택하신 부분은 유해한 부분으로 판단됩니다 😕";
+              optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 특정 사이트로의 유도 링크 포함</li></ul></div>`;
+            }
+
+            modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+            modal.style.display = "block";
+
+            const rect = event.target.getBoundingClientRect();
+            const scrollY =
+              iframeDoc.defaultView.pageYOffset ||
+              iframeDoc.documentElement.scrollTop;
+            const scrollX =
+              iframeDoc.defaultView.pageXOffset ||
+              iframeDoc.documentElement.scrollLeft;
+
+            // Adjust modal position to show above the element
+            modal.style.top = `${
+              rect.top + scrollY - modal.offsetHeight - 10
+            }px`; // 위치 조정
+            modal.style.left = `${rect.left + scrollX}px`;
+          });
+          element.addEventListener("mouseout", function (event) {
+            const modal = iframeDoc.getElementById("hover-modal");
+            if (modal) {
+              modal.style.display = "none";
+            }
+          });
         }
       });
     }
@@ -300,6 +346,8 @@ function optionSeven(crawlResults, iframeDoc) {
           listData.forEach((data) => {
             if (data.score >= 2) {
               var element = iframeDoc.getElementById(data.id);
+              element.style.margin = "0";
+              element.style.padding = "0";
 
               const originalWidth = element.offsetWidth;
               const newWidth = originalWidth + 30;

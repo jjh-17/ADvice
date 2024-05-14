@@ -274,6 +274,7 @@ function optionSeven(crawlResults, iframeDoc) {
             if (data.score >= 2) {
               var element = iframeDoc.getElementById(data.id);
               element.style.margin = "0";
+              element.style.padding = "0";
 
               const originalWidth = element.offsetWidth;
               const newWidth = originalWidth + 30;
