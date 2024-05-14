@@ -32,7 +32,10 @@ class TextAdDetection:
 def evaluate_texts(texts, tokenizer, device, model):
     results = []
     for text in texts:
-        results.append(sentence_predict(text, tokenizer, device, model))
+        result = sentence_predict(text, tokenizer, device, model)
+        print(text, " ad prediction : ", bool(result))
+        results.append(result)
+        # results.append(sentence_predict(text, tokenizer, device, model))
     return results
 
 
