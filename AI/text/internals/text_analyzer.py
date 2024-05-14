@@ -12,7 +12,7 @@ class InfoDetection:
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
     def detect(self, text):
-        return evaluate_texts(text, self.tokenizer, self.device, self.model)
+        return evaluate_texts(text, self.tokenizer, self.device, self.model, False)
 
 
 class TextAdDetection:
@@ -23,23 +23,26 @@ class TextAdDetection:
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
 
     def detect_texts(self, text: list) -> list:
-        return evaluate_texts(text, self.tokenizer, self.device, self.model)
+        return evaluate_texts(text, self.tokenizer, self.device, self.model, True)
 
     def detect_sentence(self, text: str) -> int:
-        return sentence_predict(text, self.tokenizer, self.device, self.model)
+        return sentence_predict(text, self.tokenizer, self.device, self.model, True)
 
 
-def evaluate_texts(texts, tokenizer, device, model):
+def evaluate_texts(texts, tokenizer, device, model, is_ad):
     results = []
     for text in texts:
-        result = sentence_predict(text, tokenizer, device, model)
-        print(text, " ad prediction : ", bool(result))
+        result = sentence_predict(text, tokenizer, device, model, is_ad)
+        if is_ad:
+            print(text, " ad prediction : ", bool(result))
+        else:
+            print(text, " info prediction : ", bool(result))
         results.append(result)
         # results.append(sentence_predict(text, tokenizer, device, model))
     return results
 
 
-def sentence_predict(sentence, tokenizer, device, model):
+def sentence_predict(sentence, tokenizer, device, model, is_ad):
     model.eval()
     tokenized_sent = tokenizer(
         sentence,
@@ -51,11 +54,19 @@ def sentence_predict(sentence, tokenizer, device, model):
 
     tokenized_sent.to(device)
 
-    with torch.no_grad():
-        outputs = model(
-            input_ids=tokenized_sent["input_ids"],
-            attention_mask=tokenized_sent["attention_mask"]
-        )
+    if is_ad:
+        with torch.no_grad():
+            outputs = model(
+                input_ids=tokenized_sent["input_ids"],
+                attention_mask=tokenized_sent["attention_mask"]
+            )
+    else:
+        with torch.no_grad():
+            outputs = model(
+                input_ids=tokenized_sent["input_ids"],
+                attention_mask=tokenized_sent["attention_mask"],
+                token_type_ids=tokenized_sent["token_type_ids"]
+            )
 
     logits = outputs[0]
     logits = logits.detach().cpu()
