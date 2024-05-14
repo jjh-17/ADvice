@@ -1,32 +1,34 @@
 <template>
   <div class="grid grid-cols-3 h-screen w-screen">
     <!-- 왼쪽 section -->
-    <div class="text-theme-green col-span-1 bg-theme-ivory flex justify-center items-center">
+    <div class="text-theme-green col-span-1 bg-theme-ivory flex flex-col justify-center items-center">
         <img src="@/assets/logo.png" width="300" height="200" />
+        <div class="text-lg">네이버 블로그와 카페글의 유용도를 볼 수 있어요</div>
     </div>
     <!-- 오른쪽 section -->
     <div
       class="flex flex-col items-center justify-start col-span-2 bg-gray-100"
     >
       <!-- 상단 section -->
-      <div class="w-full h-[35%]">
+      <div class="w-full h-[45%]">
         <div
-          class="text-lg mt-2 font-semibold shadow-sm rounded-full w-1/2 text-center ml-[25%] border-4 border-theme-green border-opacity-65 px-3 py-5"
+          class="text-3xl mt-10 mb-7 font-semibold text-center"
         >
           유용한 글의 기준을 직접 커스텀해보세요 ! 👀
         </div>
         <div
-          class="h-2/3 w-5/6 mt-4 relative flex ml-[10%] justify-center items-center border border-theme-green"
+          class="h-2/3 w-5/6 mt-4 relative flex ml-[10%] justify-center items-center border border-theme-ivory"
         >
           <VueDraggableNext
-            class="dropArea w-1/2 h-full border-r text-center"
+            class="dropArea w-1/2 h-full border-r text-center bg-green-100"
             @drop="drop('good', $event)"
-          >
+            style="overflow-y: auto; scrollbar-width: none;"
+          > 
             <span class="font-semibold text-lg highlight">Good Option</span>
 
             <div v-for="(item, index) in goodOptions" :key="index" class="mt-2">
-              <v-card>
-                <v-card-text
+              <v-card class="mx-4">
+                <v-card-text  
                   >{{ item.name }}
                   <button
                     v-if="index == 4"
@@ -48,13 +50,14 @@
             </div>
           </VueDraggableNext>
           <VueDraggableNext
-            class="w-1/2 h-full dropArea text-center"
+            class="w-1/2 h-full dropArea text-center bg-red-100"
             @drop="drop('bad', $event)"
+            style="overflow-y: auto; scrollbar-width: none;"
           >
             <!-- @drop="drop('bad', $event)"-->
             <span class="font-semibold text-lg highlight">Bad Option</span>
             <div v-for="(item, index) in badOptions" :key="index" class="mt-2">
-              <v-card class="flex justify-between items-center p-3">
+              <v-card class="flex justify-between items-center p-3 mx-4">
                 <v-card-text
                   >{{ item.name }}
                   <button
@@ -80,27 +83,28 @@
       </div>
 
       <!--하단 section-->
-      <div class="border-t-2 border-stone-300 my-10 h-[65%]">
+      <div class="border-t-2 border-stone-300 my-10 h-[45%]">
         <div
-          class="mb-4 mt-2 w-1/2 text-center ml-[25%] font-semibold text-gray-900 text-lg shadow-sm rounded-full border-4 border-theme-green border-opacity-65 px-3 py-5"
+          class="text-3xl mt-10 mb-3 font-semibold text-center"
         >
           옵션 목록
         </div>
         <v-container fluid class="scroll h-1/2">
           <VueDraggableNext
-            class="dragArea list-group w-full flex flex-wrap"
+            class="dragArea list-group flex flex-wrap"
             @drop="drop('list', $event)"
+            style="width:100%; height:100%"
           >
             <div
-              class="list-group-item m-1 p-3 rounded-md text-center flex-grow flex"
+              class="list-group-item m-1 p-3 rounded-md text-center"
               v-for="(element, index) in options"
               :key="index"
-              style="flex-basis: 20%"
+              style="height:100px"
             >
               <v-card
                 :key="index"
                 class="flex h-16 text-center items-center justify-center"
-                style="width: 100%"
+                style="width: 200px; height:70px" hover
               >
                 <v-card-text class="text-center items-center">{{
                   element.name
@@ -153,8 +157,7 @@ const defaultOptions = [
   { index: 4, name: "특정 키워드 포함" },
   { index: 5, name: "광고 문구 포함" },
   { index: 6, name: "장점/단점의 비율" },
-  { index: 7, name: "인위적인 사진 포함" },
-  { index: 8, name: "객관적인 정보 포함" },
+  { index: 7, name: "객관적인 정보 포함" },
 ];
 
 const loadData = () => {
@@ -344,5 +347,14 @@ const drop = (type, event) => {
 <style>
 .highlight {
   background: linear-gradient(to top, #68dd9c 30%, transparent 20%);
+}
+body {
+  font-family: 'NPSfontBold';
+}
+@font-face {
+    font-family: 'NPSfontBold';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
 }
 </style>
