@@ -58,14 +58,14 @@ def sentence_predict(sentence, tokenizer, device, model, is_ad):
         with torch.no_grad():
             outputs = model(
                 input_ids=tokenized_sent["input_ids"],
-                attention_mask=tokenized_sent["attention_mask"]
+                attention_mask=tokenized_sent["attention_mask"],
+                token_type_ids=tokenized_sent["token_type_ids"]
             )
     else:
         with torch.no_grad():
             outputs = model(
                 input_ids=tokenized_sent["input_ids"],
-                attention_mask=tokenized_sent["attention_mask"],
-                token_type_ids=tokenized_sent["token_type_ids"]
+                attention_mask=tokenized_sent["attention_mask"]
             )
 
     logits = outputs[0]
