@@ -215,25 +215,28 @@ function optionTwo(iframeDoc) {
   });
 }
 
-function optionFour(keyword) {
+function optionFour() {
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
-      let optionFourList = [];
+      chrome.storage.sync.get(["keyword"], (keyword) => {
+        let optionFourList = [];
+        crawlResults.forEach((item) => {
+          if (item.type === "txt" && item.data.includes(keyword.keyword)) {
+            optionFourList.push({ id: item.id, data: item.data });
+          }
+        });
 
-      crawlResults.forEach((item) => {
-        if (item.type === "txt" && item.data.includes(keyword)) {
-          optionFourList.push({ id: item.id, data: item.data });
-        }
+        const result = {
+          option: 4,
+          goodList: optionFourList,
+          badList: optionFourList,
+        };
+        tmpData.push(result);
+        resolve();
       });
-
-      const result = {
-        option: 4,
-        goodList: optionFourList,
-        badList: optionFourList,
-      };
-      tmpData.push(result);
+    } else {
+      resolve();
     }
-    resolve();
   });
 }
 
@@ -413,7 +416,7 @@ function checkOption() {
 
         var optionPromises = [];
         optionPromises.push(optionTwo(iframeDoc));
-        optionPromises.push(optionFour("성심당"));
+        optionPromises.push(optionFour());
         optionPromises.push(optionFive(crawlResults));
         optionPromises.push(optionSeven(crawlResults, iframeDoc));
         optionPromises.push(optionEight(crawlResults));
