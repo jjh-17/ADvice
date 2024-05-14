@@ -17,7 +17,7 @@ class EmotionPredictionService:
         ]
 
         # 예측 시작
-        results = await self.__predict(texts)
+        results = await self.__predict(texts) if texts else [[], [], []]
 
         # 반환
         keys = ["negative", "neutral", "positive"]

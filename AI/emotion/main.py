@@ -1,5 +1,4 @@
 from json import JSONDecodeError
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
@@ -7,7 +6,7 @@ from starlette.requests import Request
 
 from models.exception.custom_exception import CustomException
 from routers.emotion_prediction import emotion
-from routers.emotion_qaunt_prediction import emotionQuant
+
 
 # app 설정
 app = FastAPI()
@@ -23,7 +22,6 @@ app.add_middleware(
 
 # 라우터 추가
 app.include_router(emotion)
-app.include_router(emotionQuant)
 
 
 # Excepton 핸들러 추가
