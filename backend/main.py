@@ -1,13 +1,7 @@
-import time
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-
-import cProfile
-import io
-import pstats
 
 from models.exception.custom_exception import CustomException
 from routers.detail_evaluation import detail
@@ -27,20 +21,6 @@ app.add_middleware(
 
 app.include_router(detail)
 app.include_router(summary)
-
-
-@app.middleware("http")
-async def cprofile_middleware(request: Request, call_next):
-    profiler = cProfile.Profile()
-    profiler.enable()  # 프로파일링 시작
-    response = await call_next(request)
-    profiler.disable()  # 프로파일링 정지
-    s = io.StringIO()
-    sortby = "cumulative"  # 누적 시간으로 정렬
-    ps = pstats.Stats(profiler, stream=s).strip_dirs().sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue())  # 콘솔에 출력
-    return response
 
 
 @app.exception_handler(CustomException)
