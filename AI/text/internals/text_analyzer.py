@@ -9,7 +9,7 @@ class InfoDetection:
         self.device = torch.device('cpu')
         self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2, )
                       .to(self.device))
-        self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_kobert_tokenizer)
 
     def detect(self, text):
         return evaluate_texts(text, self.tokenizer, self.device, self.model, False)
@@ -20,7 +20,7 @@ class TextAdDetection:
         self.device = torch.device('cpu')
         self.model = (AutoModelForSequenceClassification.from_pretrained(settings.ad_detection_model_path, num_labels=2)
                       .to(self.device))
-        self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_tokenizer)
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_electra_tokenizer)
 
     def detect_texts(self, text: list) -> list:
         return evaluate_texts(text, self.tokenizer, self.device, self.model, True)
