@@ -2,6 +2,8 @@ url = "";
 options = [];
 checkflag = true;
 topList = [];
+blogScore = [];
+cafeScore = [];
 
 // IndexedDB 설정
 function openDB() {
@@ -222,6 +224,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "saveToDB") {
     console.log("saveToDB 호출")
     saveResponseToDB(request.url, request.data);
+  }else if(request.action === "toBlogDetail"){
+    console.log("blogdetail in background")
+    console.log(request.data)
+    blogScore = request.data
+    console.log("blogScore : ", blogScore)
+  }else if(request.action === "toCafeDetail"){
+    console.log("cafedetail in background")
+    console.log(request.data)
+    cafeScore = request.data
+    console.log("cafeScore : ", cafeScore)
   }
   return true; // Keep the messaging channel open for the response
 });

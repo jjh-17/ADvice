@@ -29,8 +29,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     } else {
       unsetting();
     }
+  }else if(message.action === "optionScoreBlog"){
+    console.log("optionScore")
+    console.log(message.data);
   }
 });
+
+
 
 function unsetting() {
   // Text로 오는 것 Unsetting

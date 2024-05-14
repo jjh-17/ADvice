@@ -14,6 +14,7 @@ const minLevel = 0;
 let topList = []; // 현재 화면에서 가장 유용한 게시글 top5 -> 유용도 계산하는 API 호출할때마다 갱신 -> top5중 가장 낮은 유용도보다 낮으면 update
 const url = window.location.href;
 let modalTextList = []; // 요약 모달 텍스트 최초 호출 후 저장
+let scoreList = []; // 유용도 API 최초 호출 후 저장
 
 const loadGIF =  '<img src="chrome-extension://nlhidkhkjlccoekicfdnlaaepcjncibn/loading.gif" style="width: 30px; height: auto;">';
 // loadGIF.src = chrome.runtime.getURL('loading.gif')
@@ -199,8 +200,10 @@ async function APIsend(userInfoElements, position) {
             url: response.data.scoreList[index].url,
             level: response.data.scoreList[index].score,
           };
+          console.log("scoreList:", scoreList);
           sortLevel.push(curLevel);
           level[urlIndex] = response.data.scoreList[index].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
+          scoreList[urlIndex] = response.data.scoreList[index].optionScore;
           console.log(level[urlIndex]);
 
           Array.from(userInfoElements).forEach((element) => {
@@ -417,6 +420,20 @@ function setUI(node, index, position) {
   });
 }
 
+function clickHandler(link, index){ // 유용도 점수 배열 중 index 번째 점수 보내기
+  return function () {
+    console.log("clickevent", link, ":", index)
+    console.log(link.cru)
+    const data = [{optionScore : scoreList[index], url : urlList[index]}];
+    if(link.href.includes("cafe.naver.com")){
+      chrome.runtime.sendMessage({action : "toCafeDetail", data : data})
+    }else{
+      chrome.runtime.sendMessage({action : "toBlogDetail", data : data})
+    }
+  }
+
+}
+
 function hoverHandler(link, index) {
   return function () {
     console.log("hoverHandler", link.href);
@@ -489,11 +506,17 @@ function setting(position) {
     });
 
     link.handler = handler;
+
+
+    // 클릭 -> background.js로 옵션별 점수 전송
+    const scoreHandler = clickHandler(link, index);
+    link.addEventListener("click", scoreHandler);
   });
 
   // ---------- hover modal 등록
 
   level = new Array(urlList.length);
+  scoreList = new Array(urlList.length);
   console.log("urlList", urlList);
   console.log(level);
 
