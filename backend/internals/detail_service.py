@@ -29,7 +29,7 @@ class DetailService:
         return paragraph
 
     def _make_sentences(self, paragraph: str):
-        sentences = split_sentences(paragraph)
+        sentences = split_sentences(paragraph, strip=False)
         return sentences
 
     def get_images(self, data: DetailRequest):
@@ -69,7 +69,13 @@ class DetailService:
             if sentence[sentence_row][sentence_col] == text[text_row]["data"][text_col]:
                 buffer += sentence[sentence_row][sentence_col]
                 sentence_col += 1
-            text_col += 1
+                text_col += 1
+
+            else:
+                if len(sentence[sentence_row][sentence_col].strip()) < 1:
+                    sentence_col += 1
+                else:
+                    text_col += 1
 
             # 문장이 종료된 경우 => 평가가 변경됨
             if sentence_col >= len(sentence[sentence_row]):
