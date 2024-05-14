@@ -5,7 +5,8 @@ class Settings(BaseSettings):
     ad_detection_model_path: str
     info_detection_model_path: str
     yolo_model_path: str
-    pretrained_tokenizer: str
+    pretrained_electra_tokenizer: str
+    pretrained_kobert_tokenizer: str
     user_agent: str
 
     class Config:
