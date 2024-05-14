@@ -74,6 +74,8 @@ class AdDetectService:
             url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentence)
         ).json()
 
+        # 객관적 정보가 1이므로 반대로 good_list에 들어갈 수 있도록 숫자 반전
+        results = list(map(lambda x: (x + 1) % 2, results))
         return detail_service.seperate_good_and_bad(
             sentence=sentence, result=results, text=text
         )
