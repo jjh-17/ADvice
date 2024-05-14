@@ -26,23 +26,24 @@ class TextAdDetection:
         return evaluate_texts(text, self.tokenizer, self.device, self.model, True)
 
     def detect_sentence(self, text: str) -> int:
-        return sentence_predict(text, self.tokenizer, self.device, self.model, True)
+        return KcELCETRA(text, self.tokenizer, self.device, self.model)
 
 
 def evaluate_texts(texts, tokenizer, device, model, is_ad):
     results = []
     for text in texts:
-        result = sentence_predict(text, tokenizer, device, model, is_ad)
         if is_ad:
+            result = KcELCETRA(text, tokenizer, device, model)
             print(text, " ad prediction : ", bool(result))
         else:
+            result = DistilKoBERT(text, tokenizer, device, model)
             print(text, " info prediction : ", bool(result))
         results.append(result)
         # results.append(sentence_predict(text, tokenizer, device, model))
     return results
 
 
-def sentence_predict(sentence, tokenizer, device, model, is_ad):
+def DistilKoBERT(sentence, tokenizer, device, model):
     model.eval()
     tokenized_sent = tokenizer(
         sentence,
@@ -54,19 +55,35 @@ def sentence_predict(sentence, tokenizer, device, model, is_ad):
 
     tokenized_sent.to(device)
 
-    if is_ad:
-        with torch.no_grad():
-            outputs = model(
-                input_ids=tokenized_sent["input_ids"],
-                attention_mask=tokenized_sent["attention_mask"],
-                token_type_ids=tokenized_sent["token_type_ids"]
-            )
-    else:
-        with torch.no_grad():
-            outputs = model(
-                input_ids=tokenized_sent["input_ids"],
-                attention_mask=tokenized_sent["attention_mask"]
-            )
+    with torch.no_grad():
+        outputs = model(
+            input_ids=tokenized_sent["input_ids"],
+            attention_mask=tokenized_sent["attention_mask"]
+        )
+
+    logits = outputs[0]
+    logits = logits.detach().cpu()
+    return 1 if logits.argmax(-1) == 1 else 0
+
+
+def KcELCETRA(sentence, tokenizer, device, model):
+    model.eval()
+    tokenized_sent = tokenizer(
+        sentence,
+        return_tensors="pt",
+        truncation=True,
+        add_special_tokens=True,
+        max_length=128
+    )
+
+    tokenized_sent.to(device)
+
+    with torch.no_grad():
+        outputs = model(
+            input_ids=tokenized_sent["input_ids"],
+            attention_mask=tokenized_sent["attention_mask"],
+            token_type_ids=tokenized_sent["token_type_ids"]
+        )
 
     logits = outputs[0]
     logits = logits.detach().cpu()
