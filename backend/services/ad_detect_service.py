@@ -14,7 +14,7 @@ class AdDetectService:
 
         results = []
         for paragraph in paragraphs:
-            sentences = detail_service.get_sentence(paragraph)
+            sentences = detail_service.get_sentence("".join(paragraph["data"]))
             results.append(self.call_text_ad_detection(sentences))
 
         ret = [
@@ -29,8 +29,11 @@ class AdDetectService:
             url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentences)
         ).json()
 
-    async def detect_image_ad(self, data: DetailRequest):
-        _, sentence = detail_service.get_sentence(data)
+    async def detect_image_ad(self, data):
+        paragraphs = detail_service.get_paragraphs(data)
+        text = "".join(["".join(paragraph["data"]) for paragraph in paragraphs])
+
+        sentence = detail_service.get_sentence(text)
         image_tag, images = detail_service.get_images(data)
 
         tasks = [
@@ -83,7 +86,7 @@ class AdDetectService:
 
         results = []
         for paragraph in paragraphs:
-            sentences = detail_service.get_sentence(paragraph)
+            sentences = detail_service.get_sentence("".join(paragraph["data"]))
             results.append(self.call_text_ad_detection(sentences))
 
         ret = [
