@@ -1,5 +1,4 @@
 from json import JSONDecodeError
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
