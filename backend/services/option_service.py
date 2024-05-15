@@ -34,8 +34,7 @@ class OptionService:
             self.calc_contains_keyword,     # 특정 키워드 포함
             self.calc_ad_detection,         # 광고 문구
             self.calc_emotion_ratio,        # 장점/단점 비율
-            self.calc_info_detection,       # 객관적인 정보 포함
-            self.calc_artificial_img
+            self.calc_info_detection        # 객관적인 정보 포함
         ]
 
     async def option_service(self, data: FullRequest):
@@ -110,7 +109,7 @@ class OptionService:
             bad_score += sum(result[good_option_length:]) / bad_option_length
         
         # 각 옵션별 점수
-        optionScore = [980329 for i in range(9)]
+        optionScore = [980329 for i in range(8)]
         for i in range(good_option_length):
             optionScore[select["good_option"][i]] = result[i]
         for i in range(bad_option_length):
@@ -152,9 +151,6 @@ class OptionService:
             return 0
 
         return (await self.info_detection(param.sentences) / len(param.sentences)) * 100
-
-    async def calc_artificial_img(self, param: OptionParameters):
-        return 0
 
     def url_scrap(self, url: str):
         text = []
@@ -282,5 +278,5 @@ class OptionService:
         return results.count(1)
 
     def _check_option_range(self, option):
-        if 0 >= option or option > len(self._options):
+        if 0 >= option or option > len(self._options)+1:
             raise CustomException(status_code=400, message="옵션 범위를 벗어났습니다")
