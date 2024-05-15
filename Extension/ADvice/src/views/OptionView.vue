@@ -1,19 +1,17 @@
 <template>
   <div class="grid grid-cols-3 h-screen w-screen">
     <!-- 왼쪽 section -->
-    <div class="text-theme-green col-span-1 bg-theme-ivory flex flex-col justify-center items-center">
-        <img src="@/assets/logo.png" width="300" height="200" />
-        <div class="text-lg">네이버 블로그와 카페글의 유용도를 볼 수 있어요</div>
+    <div
+      class="text-theme-green col-span-1 bg-theme-ivory flex flex-col justify-center items-center"
+    >
+      <img src="@/assets/logo.png" width="300" height="200" />
+      <div class="text-lg">네이버 블로그와 카페글의 유용도를 볼 수 있어요</div>
     </div>
     <!-- 오른쪽 section -->
-    <div
-      class="flex flex-col items-center justify-start col-span-2 bg-gray-100"
-    >
+    <div class="flex flex-col items-center justify-start col-span-2 bg-gray-100">
       <!-- 상단 section -->
       <div class="w-full h-[45%]">
-        <div
-          class="text-3xl mt-10 mb-7 font-semibold text-center"
-        >
+        <div class="text-3xl mt-10 mb-7 font-semibold text-center">
           유용한 글의 기준을 직접 커스텀해보세요 ! 👀
         </div>
         <div
@@ -22,13 +20,13 @@
           <VueDraggableNext
             class="dropArea w-1/2 h-full border-r text-center bg-green-100"
             @drop="drop('good', $event)"
-            style="overflow-y: auto; scrollbar-width: none;"
-          > 
+            style="overflow-y: auto; scrollbar-width: none"
+          >
             <span class="font-semibold text-lg highlight">Good Option</span>
 
             <div v-for="(item, index) in goodOptions" :key="index" class="mt-2">
               <v-card class="mx-4">
-                <v-card-text  
+                <v-card-text
                   >{{ item.name }}
                   <button
                     v-if="index == 4"
@@ -52,7 +50,7 @@
           <VueDraggableNext
             class="w-1/2 h-full dropArea text-center bg-red-100"
             @drop="drop('bad', $event)"
-            style="overflow-y: auto; scrollbar-width: none;"
+            style="overflow-y: auto; scrollbar-width: none"
           >
             <!-- @drop="drop('bad', $event)"-->
             <span class="font-semibold text-lg highlight">Bad Option</span>
@@ -84,31 +82,26 @@
 
       <!--하단 section-->
       <div class="border-t-2 border-stone-300 my-10 h-[45%]">
-        <div
-          class="text-3xl mt-10 mb-3 font-semibold text-center"
-        >
-          옵션 목록
-        </div>
+        <div class="text-3xl mt-10 mb-3 font-semibold text-center">옵션 목록</div>
         <v-container fluid class="scroll h-1/2">
           <VueDraggableNext
             class="dragArea list-group flex flex-wrap"
             @drop="drop('list', $event)"
-            style="width:100%; height:100%"
+            style="width: 100%; height: 100%"
           >
             <div
               class="list-group-item m-1 p-3 rounded-md text-center"
               v-for="(element, index) in options"
               :key="index"
-              style="height:100px"
+              style="height: 100px"
             >
               <v-card
                 :key="index"
                 class="flex h-16 text-center items-center justify-center"
-                style="width: 200px; height:70px" hover
+                style="width: 200px; height: 70px"
+                hover
               >
-                <v-card-text class="text-center items-center">{{
-                  element.name
-                }}</v-card-text>
+                <v-card-text class="text-center items-center">{{ element.name }}</v-card-text>
               </v-card>
             </div>
           </VueDraggableNext>
@@ -152,12 +145,13 @@ const handleBackButton = () => {
 
 const defaultOptions = [
   { index: 1, name: "사진/지도 등 다양한 정보 포함" },
-  { index: 2, name: "구매 링크나 특성 사이트로 유도하는 경우" },
+  { index: 2, name: "구매 링크나 특정 사이트로 유도하는 경우" },
   { index: 3, name: "내돈내산 인증 포함" },
   { index: 4, name: "특정 키워드 포함" },
   { index: 5, name: "광고 문구 포함" },
   { index: 6, name: "장점/단점의 비율" },
   { index: 7, name: "객관적인 정보 포함" },
+  { index: 8, name: "인위적인 사진 포함" },
 ];
 
 const loadData = () => {
@@ -183,9 +177,7 @@ const loadData = () => {
     if (dataLoaded === 2) {
       for (let i = 0; i < goodOptions.value.length; i++) {
         console.log(goodOptions.value[i]);
-        let tmp = defaultOptions.findIndex(
-          (item) => item.index === goodOptions.value[i].index
-        );
+        let tmp = defaultOptions.findIndex((item) => item.index === goodOptions.value[i].index);
         console.log(tmp);
         if (tmp != -1) {
           defaultOptions.splice(tmp, 1);
@@ -193,9 +185,7 @@ const loadData = () => {
       } // 선택된 goodoption 제거
 
       for (let i = 0; i < badOptions.value.length; i++) {
-        let tmp = defaultOptions.findIndex(
-          (item) => item.index === badOptions.value[i].index
-        );
+        let tmp = defaultOptions.findIndex((item) => item.index === badOptions.value[i].index);
         if (tmp != -1) {
           defaultOptions.splice(tmp, 1);
         }
@@ -349,12 +339,13 @@ const drop = (type, event) => {
   background: linear-gradient(to top, #68dd9c 30%, transparent 20%);
 }
 body {
-  font-family: 'NPSfontBold';
+  font-family: "NPSfontBold";
 }
 @font-face {
-    font-family: 'NPSfontBold';
-    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontBold.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
+  font-family: "NPSfontBold";
+  src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontBold.woff2")
+    format("woff2");
+  font-weight: 700;
+  font-style: normal;
 }
 </style>
