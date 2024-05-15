@@ -15,6 +15,10 @@ class AdDetectService:
         results = []
         for paragraph in paragraphs:
             sentences = detail_service.get_sentence("".join(paragraph["data"]))
+            # 공백 문단 제거
+            if type(sentences) != list or len(sentences) < 1:
+                continue
+
             results.append(self.call_text_ad_detection(sentences))
 
         ret = [
@@ -87,6 +91,10 @@ class AdDetectService:
         results = []
         for paragraph in paragraphs:
             sentences = detail_service.get_sentence("".join(paragraph["data"]))
+            # 공백 문단 제거
+            if type(sentences) != list or len(sentences) < 1:
+                continue
+
             results.append(self.call_text_ad_detection(sentences))
 
         ret = [
