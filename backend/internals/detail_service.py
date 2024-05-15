@@ -17,6 +17,10 @@ class DetailService:
         tmp = []
         paragraphs = []
         for tag in tag_data:
+            # 공백 문자로 이뤄진 태그 제거
+            if len(tag["type"]) < 0:
+                continue
+
             if tag["type"] == "img":
                 # 이미지가 연속으로 나오는 경우 처리
                 if len(tmp) > 0:
