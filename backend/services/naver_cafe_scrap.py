@@ -1,10 +1,6 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from webdriver_manager.chrome import ChromeDriverManager
 import time
-from kss import split_sentences
 from bs4 import BeautifulSoup
 import os
 
@@ -42,7 +38,7 @@ class NaverCafeScrapper:
         #
         # caps = DesiredCapabilities.CHROME
         # caps["pageLoadStrategy"] = "none"
-        print(os.getcwd())
+
         # ChromeDriver 경로 지정 및 옵션 설정
         driver_path = "/usr/local/bin/chromedriver"
         service = Service(executable_path=driver_path)
@@ -77,60 +73,3 @@ class NaverCafeScrapper:
         soup = BeautifulSoup(self.driver.page_source, "html.parser")
         self.close_driver()
         return soup
-
-    def scrape_naver_cafe(self, url: str):
-        self.initialize_driver()
-        self.driver.get(url)
-        time.sleep(1)
-        # driver.implicitly_wait(3)
-
-        self.driver.switch_to.frame("cafe_main")
-        self.close_driver()
-        soup = BeautifulSoup(self.driver.page_source, "html.parser")
-
-        data = soup.select(".se-main-container > div")
-        result_list = []
-        key = 1
-
-        for i in range(len(data)):
-            cur = data[i]
-            if cur["class"][1] == "se-text":
-                # 전체
-                # cur_list.append(key)
-                # cur_list.append("text")
-                # cur_list.append(cur.div.div.div.text.strip())
-                # list.append(cur_list)
-
-                result = self.paragraph_ad(cur.div.div.div.text.strip())
-
-                span_text_list = cur.select("span")
-                for j in range(len(span_text_list)):
-                    span_text = span_text_list[j]
-                    cur_list = []
-                    cur_list.append(key)
-                    cur_list.append("text")
-                    # cur_list.append(span_text.get_text())
-                    list = self.split_string(span_text.get_text())
-                    ad_string = ""
-                    for k in range(len(list)):
-                        if list[k] in result:
-                            ad_string = ad_string + list[k]
-                    cur_list.append(ad_string)
-                    key += 1
-                    result_list.append(cur_list)
-            if cur["class"][1] == "se-image":
-                cur_list = []
-                cur_list.append(key)
-                cur_list.append("image")
-                cur_list.append(cur.div.div.div.a.img["src"])
-                result_list.append(cur_list)
-                key += 1
-
-        return result_list
-
-    def paragraph_ad(self, paragraph: str):
-        return []
-
-    def split_string(self, paragraph: str):
-        list = split_sentences(paragraph)
-        return list

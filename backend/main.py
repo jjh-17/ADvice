@@ -43,23 +43,3 @@ async def full_option(data: FullRequest):
     return JSONResponse(
         status_code=200, content=await optionService.option_service(data)
     )
-
-
-# @app.get("/cafe-crawl")
-# def cafe_crawl(url: str):
-#     start = time.time()
-#     scraper = NaverCafeScrapper()
-#     list = scraper.scrape_naver_cafe(url)
-#
-#     print("요청 시간", time.time() - start)
-#     return JSONResponse(
-#         content=list,
-#     )
-
-# @app.get("/summarize")
-# def summarize(url: str):
-#     scraper = NaverCafeScrapper()
-#     text = scraper.scrape_naver_cafe_text(url)
-#     summary = SummaryService()
-#     result = summary.summarize(text)
-#     return {"urlSummary": result}
