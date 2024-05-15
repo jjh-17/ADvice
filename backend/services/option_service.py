@@ -34,7 +34,7 @@ class OptionService:
             self.calc_contains_keyword,     # 특정 키워드 포함
             self.calc_ad_detection,         # 광고 문구
             self.calc_emotion_ratio,        # 장점/단점 비율
-            self.calc_info_detection         # 객관적인 정보 포함
+            self.calc_info_detection        # 객관적인 정보 포함
         ]
 
     async def option_service(self, data: FullRequest):
@@ -71,6 +71,8 @@ class OptionService:
 
     # 동기 작업을 위한 래핑 함수
     def get_score(self, url: str, select: dict):
+        if 8 in select["good_option"]: select["good_option"].remove(8)
+        if 8 in select["bad_option"]: select["bad_option"].remove(8)
         return self.url_score(url, select)
 
     async def url_score(self, url: str, select: dict):
@@ -113,7 +115,7 @@ class OptionService:
         for i in range(good_option_length):
             optionScore[select["good_option"][i]] = result[i]
         for i in range(bad_option_length):
-            optionScore[select["bad_option"][i]] = -1*result[i+good_option_length-1]
+            optionScore[select["bad_option"][i]] = -1*result[i+good_option_length]
 
         return good_score - bad_score, optionScore
 
