@@ -79,8 +79,7 @@ class OptionService:
         # url 스크랩
         text, soup = self.url_scrap(url)
         # 문장으로 나누기
-        #sentences = split_sentences(text, backend="fast")
-        sentences = split_sentences(text)
+        sentences = split_sentences(text, backend="fast")
         # img url
         images = self.img_url_scrap(soup)
 
@@ -116,7 +115,7 @@ class OptionService:
         for i in range(good_option_length):
             optionScore[select["good_option"][i]] = result[i]
         for i in range(bad_option_length):
-            optionScore[select["bad_option"][i]] = -1*result[i+good_option_length-1]
+            optionScore[select["bad_option"][i]] = -1*result[i+good_option_length]
 
         return good_score - bad_score, optionScore
 
