@@ -71,13 +71,16 @@ class OptionService:
 
     # 동기 작업을 위한 래핑 함수
     def get_score(self, url: str, select: dict):
+        if 8 in select["good_option"]: select["good_option"].remove(8)
+        if 8 in select["bad_option"]: select["bad_option"].remove(8)
         return self.url_score(url, select)
 
     async def url_score(self, url: str, select: dict):
         # url 스크랩
         text, soup = self.url_scrap(url)
         # 문장으로 나누기
-        sentences = split_sentences(text, backend="fast")
+        #sentences = split_sentences(text, backend="fast")
+        sentences = split_sentences(text)
         # img url
         images = self.img_url_scrap(soup)
 
@@ -278,5 +281,5 @@ class OptionService:
         return results.count(1)
 
     def _check_option_range(self, option):
-        if 0 >= option or option > len(self._options)+1:
+        if 0 >= option or option > len(self._options):
             raise CustomException(status_code=400, message="옵션 범위를 벗어났습니다")
