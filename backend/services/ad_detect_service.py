@@ -4,20 +4,30 @@ import asyncio
 
 from config.config import settings
 from models.detail_request import DetailRequest
+from models.detail_response import DetailResponse, Score
 from internals.detail_service import detail_service
 
 
 class AdDetectService:
     async def detect_text_ad(self, data: DetailRequest):
-        text, sentence = detail_service.get_sentence(data)
+        paragraphs = detail_service.get_paragraphs(data)
 
-        results = requests.post(
-            url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentence)
+        results = []
+        for paragraph in paragraphs:
+            sentences = detail_service.get_sentence(paragraph)
+            results.append(self.call_text_ad_detection(sentences))
+
+        ret = [
+            Score(id=paragraph["id"], score=sum(result) / len(result))
+            for paragraph, result in zip(paragraphs, await asyncio.gather(*results))
+        ]
+
+        return DetailResponse(result=ret)
+
+    async def call_text_ad_detection(self, sentences):
+        return requests.post(
+            url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentences)
         ).json()
-
-        return detail_service.seperate_good_and_bad(
-            sentence=sentence, result=results, text=text
-        )
 
     async def detect_image_ad(self, data: DetailRequest):
         _, sentence = detail_service.get_sentence(data)
@@ -68,17 +78,25 @@ class AdDetectService:
         ).json()
 
     async def is_objective_info(self, data: DetailRequest):
-        text, sentence = detail_service.get_sentence(data)
+        paragraphs = detail_service.get_paragraphs(data)
+        print(paragraphs)
 
-        results = requests.post(
-            url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentence)
+        results = []
+        for paragraph in paragraphs:
+            sentences = detail_service.get_sentence(paragraph)
+            results.append(self.call_text_ad_detection(sentences))
+
+        ret = [
+            Score(id=paragraph["id"], score=sum(result) / len(result))
+            for paragraph, result in zip(paragraphs, await asyncio.gather(*results))
+        ]
+
+        return DetailResponse(result=ret)
+
+    async def call_objective_info(self, sentences):
+        return requests.post(
+            url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentences)
         ).json()
-
-        # 객관적 정보가 1이므로 반대로 good_list에 들어갈 수 있도록 숫자 반전
-        results = list(map(lambda x: (x + 1) % 2, results))
-        return detail_service.seperate_good_and_bad(
-            sentence=sentence, result=results, text=text
-        )
 
 
 ad_detect_service = AdDetectService()
