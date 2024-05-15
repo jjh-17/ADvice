@@ -10,7 +10,7 @@ detail = APIRouter(prefix="/detail")
 @detail.post("/text-ad")
 async def detect_text_ad(data: DetailRequest):
     return JSONResponse(
-        status_code=200, content=await ad_detect_service.detect_text_ad(data)
+        status_code=200, content=(await ad_detect_service.detect_text_ad(data)).dict()
     )
 
 

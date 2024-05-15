@@ -6,20 +6,39 @@ from models.detail_request import DetailRequest
 
 
 class DetailService:
-    def get_sentence(self, data: DetailRequest):
+    def get_paragraphs(self, data: DetailRequest):
         # tag 데이터
-        tag = [
+        tag_data = [
             {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
             for tag in data.script
         ]
 
-        # text 태그 추출
-        text = list(filter(lambda item: item["type"] == "txt", tag))
+        tag_id = ""
+        tmp = []
+        paragraphs = []
+        for tag in tag_data:
+            if tag["type"] == "img":
+                # 이미지가 연속으로 나오는 경우 처리
+                if len(tmp) > 0:
+                    paragraphs.append({"id": tag_id, "data": tmp})
+                    tmp = []
+                continue
 
-        paragraphs = self._make_paragraph(text)
-        sentences = self._make_sentences(paragraphs)
+            # 문단 시작
+            if len(tmp) < 1:
+                tag_id = tag["id"]
+            tmp.append(tag["data"])
 
-        return text, sentences
+        if len(tmp) > 0:
+            paragraphs.append({"id": tag_id, "data": tmp})
+
+        return paragraphs
+
+    def get_sentence(self, data):
+        paragraph = "".join(data["data"])
+        sentences = split_sentences(paragraph, strip=False)
+
+        return sentences
 
     def _make_paragraph(self, data: List[str]):
         if len(data) < 1:
@@ -27,10 +46,6 @@ class DetailService:
 
         paragraph = "".join(reduce(lambda x, y: x + y, map(lambda x: x["data"], data)))
         return paragraph
-
-    def _make_sentences(self, paragraph: str):
-        sentences = split_sentences(paragraph, strip=False)
-        return sentences
 
     def get_images(self, data: DetailRequest):
         # 이미지 태그 추출

@@ -4,20 +4,31 @@ import asyncio
 
 from config.config import settings
 from models.detail_request import DetailRequest
+from models.detail_response import DetailResponse, Score
 from internals.detail_service import detail_service
 
 
 class AdDetectService:
     async def detect_text_ad(self, data: DetailRequest):
-        text, sentence = detail_service.get_sentence(data)
+        paragraphs = detail_service.get_paragraphs(data)
+        print(paragraphs)
 
-        results = requests.post(
-            url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentence)
+        results = []
+        for paragraph in paragraphs:
+            sentences = detail_service.get_sentence(paragraph)
+            results.append(self.call_text_ad_detection(sentences))
+
+        ret = [
+            Score(id=paragraph["id"], score=sum(result) / len(result))
+            for paragraph, result in zip(paragraphs, await asyncio.gather(*results))
+        ]
+
+        return DetailResponse(result=ret)
+
+    async def call_text_ad_detection(self, sentences):
+        return requests.post(
+            url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentences)
         ).json()
-
-        return detail_service.seperate_good_and_bad(
-            sentence=sentence, result=results, text=text
-        )
 
     async def detect_image_ad(self, data: DetailRequest):
         _, sentence = detail_service.get_sentence(data)
