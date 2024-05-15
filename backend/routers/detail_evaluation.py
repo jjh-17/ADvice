@@ -24,5 +24,6 @@ async def detect_image_ad(data: DetailRequest):
 @detail.post("/objective-info")
 async def is_objective_info(data: DetailRequest):
     return JSONResponse(
-        status_code=200, content=await ad_detect_service.is_objective_info(data)
+        status_code=200,
+        content=(await ad_detect_service.is_objective_info(data)).dict(),
     )
