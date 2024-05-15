@@ -16,11 +16,12 @@ const url = window.location.href;
 let modalTextList = []; // 요약 모달 텍스트 최초 호출 후 저장
 let scoreList = []; // 유용도 API 최초 호출 후 저장
 
-const loadGIF =  '<img src="chrome-extension://nlhidkhkjlccoekicfdnlaaepcjncibn/loading.gif" style="width: 30px; height: auto;">';
-// loadGIF.src = chrome.runtime.getURL('loading.gif')
+const extensionId = chrome.runtime.id;
+// const loadGIF =  `<img src="chrome-extension://${extensionId}/loading.gif" style="float : right; display : flex; width: 30px; height: auto;">`;
+// // loadGIF.src = chrome.runtime.getURL('loading.gif')
 // loadGIF.style.width = '50px';
 // loadGIF.style.height = 'auto';
-console.log("loadGIF : ", loadGIF)
+// console.log("loadGIF : ", loadGIF)
 
 // ------- 호버 모달 설정 함수
 const makeModal = (index) => {
@@ -61,8 +62,18 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
         const details = document.querySelectorAll(
           ".fds-keep-group"
         );
-        details.forEach(element => {
-          element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+        let pass = 0;
+        details.forEach((element, index) => {
+          const links = document.querySelectorAll(
+            ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
+          );
+          if(links[index].href.includes("post.naver.com")){
+            pass++;
+          }else{
+            const loadGIF =  `<img src="chrome-extension://${extensionId}/loading.gif" id="loading${index - pass}" style="float : right; display : flex; width: 30px; height: auto;">`;
+            element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+          }
+
         })
         setting("all"); 
       }
@@ -72,9 +83,18 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   const details = document.querySelectorAll(
     ".api_save_group"
   );
-  details.forEach(element => {
-    element.insertAdjacentHTML("afterend", loadGIF);
-    console.log("load insert", element.parentNode)
+  let pass = 0;
+  details.forEach((element, index) => {
+    const links = document.querySelectorAll(
+      ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
+    );
+    if(links[index].href.includes("post.naver.com")){
+      pass++;
+    }else{
+      const loadGIF =  `<img src="chrome-extension://${extensionId}/loading.gif" id="loading${index - pass}" style="float : right; display : flex; width: 30px; height: auto;">`;
+      element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+    }
+
   })
   setting("tab");
 }
@@ -378,9 +398,11 @@ function setUI(node, index, position) {
         `
           )
           .join("")}
-        <div class="progress-bar" style="width: ${levelValue}%; background-color: #03C75A; height: 100%;"></div>
+        <div class="progress-bar" style="width: ${levelValue}%; background-color: #03C75A; height: 100%;">
+          <div style="position: absolute; width: 100%; text-align: center; line-height: 20px; color: white;">${levelValue}</div>
+        </div>
     </div>
-    <div class="tooltip" id="tooltip${index}" style="display: none; position: absolute; z-index: 1000; background-color: white; border: 1px solid #ccc; padding: 5px;">${index} - ${levelValue}% 완료</div>
+    
 </div>
   `;
     if (position == "all") {
@@ -389,18 +411,11 @@ function setUI(node, index, position) {
       userInfoElements[0].insertAdjacentHTML("afterend", progressBarHTML);
     }
     userInfoElements[0].style.display = "flex";
-    // 툴팁 위치 설정
-    const progressBar = document.getElementById(`progressBar${index}`);
-    const tooltip = document.getElementById(`tooltip${index}`);
-    const rect = progressBar.getBoundingClientRect();
-    tooltip.style.top = `${rect.top}px`;
-    tooltip.style.left = `${rect.left}px`;
-    progressBar.addEventListener("mouseenter", () => {
-      tooltip.style.display = "block";
-    });
-    progressBar.addEventListener("mouseleave", () => {
-      tooltip.style.display = "none";
-    });
+    const loadingElement = node.querySelector('[id*="loading"]')
+    // const loadingElement = node.querySelector(`#loading${index}`)
+    if(loadingElement){
+      loadingElement.remove() // 로딩 완료 후 로딩중 삭제
+    }
 
     console.log("after", userInfoElements.parentNode);
     apiCnt++;
@@ -611,6 +626,15 @@ function setting(position) {
               });
 
               urlElement.handler = handler;
+
+              let newLoading = null;
+              // 새로 추가된 요소에 loading gif insert
+              if(!url.includes("post.naver.com")){
+                const loadGIF =  `<img src="chrome-extension://${extensionId}/loading.gif" id="loading${level.length}" style="float : right; display : flex; width: 30px; height: auto;">`;
+                node.querySelector(".api_save_group").insertAdjacentHTML("afterend", loadGIF);
+                // newLoading = node.querySelector(`#loading${level.length}`)
+                // element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+              }
 
               // 새로 추가된 url을 갖고 background.js로 메시지 보내기
               // urlList.push(node.querySelector(".title_area a").href);
