@@ -1,6 +1,7 @@
 import torch
 import gluonnlp as nlp
 import numpy as np
+from models.exception.custom_exception import CustomException
 from torch.utils.data import Dataset, DataLoader
 from kobert_tokenizer import KoBERTTokenizer
 from transformers import BertModel
@@ -26,6 +27,7 @@ class BERTClassifier(torch.nn.Module):
         super(BERTClassifier, self).__init__()
         self.bert = bert
         self.dr_rate = dr_rate
+
         self.classifier = torch.nn.Linear(hidden_size, num_classes)
         if dr_rate:
             self.dropout = torch.nn.Dropout(p=dr_rate)
@@ -63,8 +65,8 @@ class TextEmotionPrediction:
     def sentence_predict(self, sentence):
         data = [sentence, '0']
         dataset_another = [data]
-        input_dataset = BERTDataset(dataset_another, 0, 1, self.tok, self.vocab, 64, True, False)  # 토큰화한 문장
-        input_dataloader = DataLoader(input_dataset, batch_size=128, num_workers=0)
+        input_dataset = BERTDataset(dataset_another, 0, 1, self.tok, self.vocab, 128, True, False)  # 토큰화한 문장
+        input_dataloader = DataLoader(input_dataset, batch_size=64, num_workers=0)
 
         self.model.eval()
 
@@ -78,6 +80,25 @@ class TextEmotionPrediction:
                 logits = np.round(self.__new_softmax(logits), 3).tolist()
         return [np.max(logits), np.argmax(logits) - 1]
 
+    #  모든 감정 확률 반환
+    def sentence_predicts(self, sentence):
+        data = [sentence, '0']
+        dataset_another = [data]
+        input_dataset = BERTDataset(dataset_another, 0, 1, self.tok, self.vocab, 128, True, False)  # 토큰화한 문장
+        input_dataloader = DataLoader(input_dataset, batch_size=64, num_workers=0)
+
+        self.model.eval()
+
+        for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(input_dataloader):
+            token_ids = token_ids.long().to(self.device)
+            segment_ids = segment_ids.long().to(self.device)
+            valid_length = valid_length
+            with torch.no_grad():
+                output = self.model(token_ids, valid_length, segment_ids)
+                logits = output[0].detach().cpu().numpy()
+                logits = np.round(self.__new_softmax(logits), 3).tolist()
+        return logits
+
     # 실수를 치역으로 한 가중치 값을 softmax함수를 사용하여 텍스트를 확률값으로 변환
     def __new_softmax(self, a):
         c = np.max(a)  # 최댓값
@@ -85,3 +106,4 @@ class TextEmotionPrediction:
         sum_exp_a = np.sum(exp_a)
         y = (exp_a / sum_exp_a) * 100
         return np.round(y, 3)
+
