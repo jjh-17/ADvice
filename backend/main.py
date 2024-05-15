@@ -19,8 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(detail)
-app.include_router(summary)
+app.include_router(detail, tags=["detail"])
+app.include_router(summary, tags=["summary"])
 
 
 @app.exception_handler(CustomException)
