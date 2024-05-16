@@ -1,14 +1,13 @@
 from internals.image_analyzer import imageDetector
 from internals.text_analyzer import adDetector
-from models.exception.custom_exception import CustomException
 
 
 class AdService:
-    def ad_evaluation(self, texts: list):
+    def ad_evaluation(self, texts: list) -> tuple[list, list]:
         return adDetector.detect_texts(texts)
 
-    def ad_evaluation_shortcut(self, texts: list, image_paths: str):
-        text_results = self.ad_evaluation(texts)
+    def ad_evaluation_shortcut(self, texts: list, image_paths: str) -> bool:
+        text_results, _ = self.ad_evaluation(texts)
         for result in text_results:
             if result == 1:
                 return True

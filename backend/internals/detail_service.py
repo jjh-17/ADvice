@@ -9,6 +9,7 @@ class DetailService:
         tag_data = [
             {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
             for tag in data.script
+            if tag.id is not None
         ]
 
         tag_id = ""

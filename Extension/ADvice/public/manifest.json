@@ -16,27 +16,54 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://search.naver.com/*"],
-      "js": ["searchScript.js"],
-      "css": ["styles.css"],
+      "matches": [
+        "*://search.naver.com/*"
+      ],
+      "js": [
+        "searchScript.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
       "run_at": "document_end"
     },
     {
-      "matches": ["*://blog.naver.com/*"],
-      "js": ["searchBlogDetail.js"],
-      "css": ["styles.css"],
+      "matches": [
+        "*://blog.naver.com/*"
+      ],
+      "js": [
+        "searchBlogDetail.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
       "run_at": "document_end"
     },
     {
-      "matches": ["*://cafe.naver.com/*"],
-      "js": ["searchCafeDetail.js"],
-      "css": ["styles.css"],
+      "matches": [
+        "*://cafe.naver.com/*"
+      ],
+      "js": [
+        "searchCafeDetail.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
       "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "index.html"
   },
-  "options_page" :
-    "option.html"
+  "options_page": "option.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "loading.gif"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }
