@@ -60,7 +60,7 @@ function unsetting() {
 }
 
 function setting() {
-  // Text로 오는 것 다시 Unsetting
+  // Text로 오는 것 다시 setting
   Object.keys(finalResult).forEach((id) => {
     const data = finalResult[id];
     const element = document
@@ -80,7 +80,32 @@ function setting() {
     }
   });
 
-  console.log(finalCaptureResult);
+  // 이미지로 오는 것 다시 셋팅
+  finalCaptureResult.forEach((id) => {
+    console.log(id);
+    var element = document
+      .getElementById("mainFrame")
+      .contentWindow.document.getElementById(id);
+    element.style.margin = "0";
+    element.style.padding = "0";
+
+    const originalWidth = element.offsetWidth;
+    const newWidth = originalWidth + 30;
+    const backgroundColor = selectedGoodOption.includes(3)
+      ? "rgba(66, 189, 101, 0.15)"
+      : "rgba(241, 43, 67, 0.15)";
+
+    const wrapperHTML = `
+              <div class="custom-wrapper" style="width: ${newWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
+              </div>
+            `;
+    element.insertAdjacentHTML("afterend", wrapperHTML);
+    const wrapper = element.nextElementSibling;
+    wrapper.appendChild(element);
+  });
+
+  optionTwo(document.getElementById("mainFrame").contentWindow.document);
+  optionThree(document.getElementById("mainFrame").contentWindow.document);
 }
 
 chrome.storage.sync.get(["badOption"], (result) => {
@@ -136,6 +161,7 @@ function processData(tmpData) {
 }
 
 function optionTwo(iframeDoc) {
+  //  구매 링크나 특정 사이트로의 유도 링크가 포함되어 있는 경우
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(2) || selectedBadOption.includes(2)) {
       const blackList = [
@@ -164,6 +190,52 @@ function optionTwo(iframeDoc) {
           element.insertAdjacentHTML("afterend", wrapperHTML);
           const wrapper = element.nextElementSibling;
           wrapper.appendChild(element);
+
+          // 모달 띄우기
+          var flag = selectedGoodOption.includes(3);
+          element.addEventListener("mouseover", function (event) {
+            let modal = iframeDoc.getElementById("hover-modal");
+            if (!modal) {
+              modal = iframeDoc.createElement("div");
+              modal.id = "hover-modal";
+              modal.style.cssText =
+                "position: absolute; padding: 20px; background: white; border: 1px solid black; z-index: 1000; display: none;";
+              iframeDoc.body.appendChild(modal);
+            }
+
+            let statusMessage = "";
+            let optionResult = "";
+            if (flag) {
+              statusMessage = "선택하신 부분은 유용한 부분으로 판단됩니다 😀";
+              optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 특정 사이트로의 유도 링크 포함</li></ul></div>`;
+            } else {
+              statusMessage = "선택하신 부분은 유해한 부분으로 판단됩니다 😕";
+              optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 특정 사이트로의 유도 링크 포함</li></ul></div>`;
+            }
+
+            modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+            modal.style.display = "block";
+
+            const rect = event.target.getBoundingClientRect();
+            const scrollY =
+              iframeDoc.defaultView.pageYOffset ||
+              iframeDoc.documentElement.scrollTop;
+            const scrollX =
+              iframeDoc.defaultView.pageXOffset ||
+              iframeDoc.documentElement.scrollLeft;
+
+            // Adjust modal position to show above the element
+            modal.style.top = `${
+              rect.top + scrollY - modal.offsetHeight - 10
+            }px`; // 위치 조정
+            modal.style.left = `${rect.left + scrollX}px`;
+          });
+          element.addEventListener("mouseout", function (event) {
+            const modal = iframeDoc.getElementById("hover-modal");
+            if (modal) {
+              modal.style.display = "none";
+            }
+          });
         }
       });
     }
@@ -172,6 +244,7 @@ function optionTwo(iframeDoc) {
 }
 
 function optionThree(iframeDoc) {
+  // 내돈내산 인증 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(3) || selectedBadOption.includes(3)) {
       var elements = iframeDoc.querySelectorAll(
@@ -242,35 +315,42 @@ function optionThree(iframeDoc) {
   });
 }
 
-function optionFour(keyword) {
+function optionFour() {
+  // 특정 키워드 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
-      let optionFourList = [];
+      chrome.storage.sync.get(["keyword"], (keyword) => {
+        let optionFourList = [];
+        crawlResults.forEach((item) => {
+          if (item.type === "txt" && item.data.includes(keyword.keyword)) {
+            optionFourList.push({ id: item.id, data: item.data });
+          }
+        });
 
-      crawlResults.forEach((item) => {
-        if (item.type === "txt" && item.data.includes(keyword)) {
-          optionFourList.push({ id: item.id, data: item.data });
-        }
+        const result = {
+          option: 4,
+          goodList: optionFourList,
+          badList: optionFourList,
+        };
+        tmpData.push(result);
+        resolve();
       });
-
-      const result = {
-        option: 4,
-        goodList: optionFourList,
-        badList: optionFourList,
-      };
-      tmpData.push(result);
+    } else {
+      resolve();
     }
-    resolve();
   });
 }
 
 function optionFive(crawlResults) {
+  //광고 문구
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(5) || selectedBadOption.includes(5)) {
       chrome.runtime.sendMessage(
         { action: "detail-textad", crawlResults: crawlResults },
         function (response) {
           var listData = response.data;
+          console.log("option five");
+          console.log(response.data);
           var newData = {
             option: 5,
             goodList: listData.goodList,
@@ -287,16 +367,21 @@ function optionFive(crawlResults) {
 }
 
 function optionSeven(crawlResults, iframeDoc) {
+  // 인위적인 사진 포함
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(7) || selectedBadOption.includes(7)) {
       chrome.runtime.sendMessage(
         { action: "detail-imagead", crawlResults: crawlResults.slice(0, 18) },
         function (response) {
           var listData = response.data;
-          console.log(listData);
+
           listData.forEach((data) => {
             if (data.score >= 2) {
               var element = iframeDoc.getElementById(data.id);
+              console.log(data.id);
+              finalCaptureResult.push(data.id);
+              element.style.margin = "0";
+              element.style.padding = "0";
 
               const originalWidth = element.offsetWidth;
               const newWidth = originalWidth + 30;
@@ -371,12 +456,15 @@ function optionSeven(crawlResults, iframeDoc) {
 }
 
 function optionEight() {
+  // 객관적인 정보(영업시간, 장소위치, 가격 포함)
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(8) || selectedBadOption.includes(8)) {
       chrome.runtime.sendMessage(
         { action: "detail-objective", crawlResults: crawlResults },
         function (response) {
           var listData = response.data;
+          console.log("option Eight");
+          console.log(response.data);
           var newData = {
             option: 8,
             goodList: listData.goodList,
@@ -440,12 +528,13 @@ function checkOption() {
         var optionPromises = [];
         optionPromises.push(optionTwo(iframeDoc));
         optionPromises.push(optionThree(iframeDoc));
-        optionPromises.push(optionFour("성심당"));
+        optionPromises.push(optionFour());
         optionPromises.push(optionFive(crawlResults));
         optionPromises.push(optionSeven(crawlResults, iframeDoc));
         optionPromises.push(optionEight(crawlResults));
 
         Promise.all(optionPromises).then(() => {
+          console.log(tmpData);
           finalResult = processData(tmpData);
           console.log(finalResult);
           Object.keys(finalResult).forEach((id) => {

@@ -73,11 +73,39 @@ watch(selected, (newValue) => {
   chrome.runtime.sendMessage({ action: "changeOption", options: newValue });
 });
 
+const goodOptions = ref([]);
+const badOptions = ref([]);
+const tooltip = ref(null);
+
+const defaultOptions = [
+  { index: 1, name: "사진/지도 등 다양한 정보 포함" },
+  { index: 2, name: "구매 링크나 특성 사이트로 유도하는 경우" },
+  { index: 3, name: "내돈내산 인증 포함" },
+  { index: 4, name: "특정 키워드 포함" },
+  { index: 5, name: "광고 문구 포함" },
+  { index: 6, name: "장점/단점의 비율" },
+  { index: 7, name: "인위적인 사진 포함" },
+  { index: 8, name: "객관적인 정보 포함" },
+  { index: 9, name: "상세한 설명 포함" },
+  { index: 10, name: "이모티콘 포함" },
+];
 onMounted(() => {
   new Chart(chartRef.value, {
     type: chartData.value.type,
     data: chartData.value.data,
     options: chartData.value.options,
+  });
+
+  chrome.storage.sync.get(["goodOption"], (result) => {
+    if (result.goodOption) {
+      goodOptions.value = Object.values(result.goodOption);
+    }
+  });
+
+  chrome.storage.sync.get(["badOption"], (result) => {
+    if (result.badOption) {
+      badOptions.value = Object.values(result.badOption);
+    }
   });
 });
 </script>
@@ -86,27 +114,31 @@ onMounted(() => {
   <div>
     <canvas ref="chartRef"></canvas>
     <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
-    <ul
-      class="max-w-md bg-white border-t border-x border-gray-200 text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+    <div
+      class="flex flex-wrap max-w-max justify-start items-center mt-5 mb-2 px-12"
     >
-      <li
-        v-for="item in items"
-        :key="item.id"
-        class="w-full border-b border-gray-200 dark:border-gray-600"
+      <div
+        v-for="option in defaultOptions"
+        :key="option.index"
+        class="w-8 h-8 rounded-full m-1"
+        :class="{
+          'bg-theme-green': goodOptions.some((g) => g.index === option.index),
+          'bg-red-400': badOptions.some((b) => b.index === option.index),
+          'bg-gray-300':
+            !goodOptions.some((g) => g.index === option.index) &&
+            !badOptions.some((b) => b.index === option.index),
+        }"
+        @mouseover="tooltip = option.name"
+        @mouseleave="tooltip = ''"
       >
-        <div class="flex items-center p-3">
-          <input
-            :id="'checkbox-' + item.id"
-            type="checkbox"
-            :value="item.id"
-            class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-500 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
-            v-model="selected"
-          />
-          <label :for="'checkbox-' + item.id" class="ml-2 text-xs">{{
-            item.value
-          }}</label>
+        <!-- Tooltip -->
+        <div
+          v-show="tooltip === option.name"
+          class="absolute -mt-10 text-xs w-32 text-center p-1 bg-white border rounded shadow-lg"
+        >
+          {{ option.name }}
         </div>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </template>
