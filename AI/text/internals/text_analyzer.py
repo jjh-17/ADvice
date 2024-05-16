@@ -7,7 +7,7 @@ from config.config import settings
 class InfoDetection:
     def __init__(self):
         self.device = torch.device('cpu')
-        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2, )
+        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.info_detection_model_path, num_labels=2)
                       .to(self.device))
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_kobert_tokenizer)
 
@@ -18,7 +18,7 @@ class InfoDetection:
 class TextAdDetection:
     def __init__(self):
         self.device = torch.device('cpu')
-        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.ad_detection_model_path, num_labels=2)
+        self.model = (AutoModelForSequenceClassification.from_pretrained(settings.ad_detection_model_path, num_labels=4)
                       .to(self.device))
         self.tokenizer = AutoTokenizer.from_pretrained(settings.pretrained_electra_tokenizer)
 
@@ -34,10 +34,10 @@ def evaluate_texts(texts, tokenizer, device, model, is_ad):
     for text in texts:
         if is_ad:
             result = KcELCETRA(text, tokenizer, device, model)
-            print(text, " ad prediction : ", bool(result))
+            print(text, " ad prediction : ", result)
         else:
             result = DistilKoBERT(text, tokenizer, device, model)
-            print(text, " info prediction : ", bool(result))
+            print(text, " info prediction : ", result)
         results.append(result)
         # results.append(sentence_predict(text, tokenizer, device, model))
     return results
@@ -63,7 +63,7 @@ def DistilKoBERT(sentence, tokenizer, device, model):
 
     logits = outputs[0]
     logits = logits.detach().cpu()
-    return 1 if logits.argmax(-1) == 1 else 0
+    return logits.argmax(-1)
 
 
 def KcELCETRA(sentence, tokenizer, device, model):
@@ -87,7 +87,7 @@ def KcELCETRA(sentence, tokenizer, device, model):
 
     logits = outputs[0]
     logits = logits.detach().cpu()
-    return 1 if logits.argmax(-1) == 1 else 0
+    return logits.argmax(-1)
 
 
 infoDetector = InfoDetection()
