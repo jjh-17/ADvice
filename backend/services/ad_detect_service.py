@@ -4,7 +4,7 @@ import asyncio
 
 from config.config import settings
 from models.detail_request import DetailRequest
-from models.detail_response import DetailResponse, Score
+from models.detail_response import Type, TypeResponse, Score, ScoreResponse
 from internals.detail_service import detail_service
 
 
@@ -15,27 +15,49 @@ class AdDetectService:
     async def detect_text_ad(self, data: DetailRequest):
         paragraphs = detail_service.get_paragraphs(data)
 
-        results = []
+        tasks = []
         for paragraph in paragraphs:
             sentences = detail_service.get_sentence("".join(paragraph["data"]))
             # 공백 문단 제거
             if type(sentences) != list or len(sentences) < 1:
                 continue
 
-            results.append(self.call_text_ad_detection(sentences))
+            tasks.append(self.call_text_ad_detection(sentences))
 
-        types, scores = await asyncio.gather(*results)
+        results = []
+        for p in await asyncio.gather(*tasks):
+            tmp = [0 for _ in range(len(self._ad_types))]
+
+            for idx in range(len(p["prediction"])):
+                tmp[idx] += p["score"][idx]
+
+            sorted_result = sorted(
+                zip(
+                    [i for i in range(len(self._ad_types))],
+                    list(map(lambda x: x / len(p["prediction"]), tmp)),
+                ),
+                key=lambda x: x[1],
+            )
+
+            results.append(sorted_result[-1])
+
         ret = [
-            Score(id=paragraph["id"], type=self._ad_types[type], score=score)
-            for paragraph, type, score in zip(paragraphs, types, scores)
+            Type(id=paragraph["id"], type=self._ad_types[result[0]])
+            for paragraph, result in zip(paragraphs, results)
+            if result[0] != 0
         ]
 
-        return DetailResponse(result=ret)
+        return TypeResponse(result=ret)
 
     async def call_text_ad_detection(self, sentences):
-        return requests.post(
+        res = requests.post(
             url=settings.text_ad_host + "/ad-evaluate", data=json.dumps(sentences)
-        ).json()
+        )
+
+        if res.status_code // 100 != 2 or not res.text:
+            return [0 for _ in range(len(sentences))]
+
+        return res.json()
 
     async def detect_image_ad(self, data):
         paragraphs = detail_service.get_paragraphs(data)
@@ -90,28 +112,43 @@ class AdDetectService:
 
     async def is_objective_info(self, data: DetailRequest):
         paragraphs = detail_service.get_paragraphs(data)
-        print(paragraphs)
 
-        results = []
+        tasks = []
         for paragraph in paragraphs:
             sentences = detail_service.get_sentence("".join(paragraph["data"]))
             # 공백 문단 제거
             if type(sentences) != list or len(sentences) < 1:
                 continue
 
-            results.append(self.call_text_ad_detection(sentences))
+            tasks.append(self.call_text_ad_detection(sentences))
+
+        results = []
+        for prediction in await asyncio.gather(*tasks):
+            score = 0
+
+            for idx in range(len(prediction["prediction"])):
+                if prediction["prediction"][idx] > 0:
+                    score += prediction["score"][idx]
+
+            results.append(score / len(prediction["prediction"]))
 
         ret = [
-            Score(id=paragraph["id"], score=sum(result) / len(result))
-            for paragraph, result in zip(paragraphs, await asyncio.gather(*results))
+            Score(id=paragraph["id"], score=score)
+            for paragraph, score in zip(paragraphs, results)
+            if score > 0
         ]
 
-        return DetailResponse(result=ret)
+        return ScoreResponse(result=ret)
 
     async def call_objective_info(self, sentences):
-        return requests.post(
+        res = requests.post(
             url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentences)
-        ).json()
+        )
+
+        if res.status_code // 100 != 2 or not res.text:
+            return [0 for _ in range(len(sentences))]
+
+        return res.json()
 
 
 ad_detect_service = AdDetectService()
