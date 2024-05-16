@@ -1,22 +1,26 @@
 import numpy as np
 import torch
+from abc import ABC, abstractmethod
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from config.config import settings
 
 
-class TextDetection:
+class TextDetection(ABC):
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+    @abstractmethod
     def detect_texts(self, text):
-        return
+        pass
 
+    @abstractmethod
     def detect_sentence(self, text):
-        return
+        pass
 
+    @abstractmethod
     def run(self, tokenized_sent, model):
-        return
+        pass
 
     def evaluate_texts(self, texts, tokenizer, device, model) -> tuple[list, list]:
         types = []
@@ -28,6 +32,7 @@ class TextDetection:
             percentages.append(percentage)
         return types, percentages
 
+    # run_model은 오버라이딩한 run 메서드가 작동됨
     def predict(self, run_model, sentence, tokenizer, device, model) -> tuple[int, float]:
         model.eval()
         tokenized_sent = tokenizer(
@@ -73,6 +78,9 @@ class InfoTextDetection(TextDetection):
 
     def detect_texts(self, text) -> tuple[list, list]:
         return super().evaluate_texts(text, self.tokenizer, self.device, self.model)
+
+    def detect_sentence(self, text: str):
+        pass
 
     def run(self, tokenized_sent, model):
         with torch.no_grad():
