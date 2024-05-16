@@ -277,7 +277,7 @@ class OptionService:
         results = requests.post(
             url=settings.text_ad_host + "/info-evaluate", data=json.dumps(sentences)
         ).json()
-        return results.count(1)
+        return results["prediction"].count(1)
 
     def _check_option_range(self, option):
         if 0 >= option or option > len(self._options):
