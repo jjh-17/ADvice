@@ -6,10 +6,8 @@ var optionName = [
   "특정 키워드 포함",
   "광고 문구",
   "장점/단점 비율",
+  "객관적인 정보 포함",
   "인위적인 사진 포함",
-  "객관적인 정보(영업시간, 장소위치, 가격 포함)",
-  "상세한 설명",
-  "이모티콘 개수",
 ];
 var tmpData = [];
 var selectedBadOption = [];
@@ -71,7 +69,6 @@ function setting() {
 
   // 이미지 컬러링 다시 셋팅
   finalCaptureResult.forEach((id) => {
-    console.log(id);
     var element = document
       .getElementById("mainFrame")
       .contentWindow.document.getElementById(id);
@@ -126,6 +123,7 @@ function processData(tmpData) {
         result[data.id].goodOption.push({
           option: node.option,
           score: data.score,
+          type: data.type,
         });
       });
     } else if (selectedBadOption.includes(node.option)) {
@@ -136,6 +134,7 @@ function processData(tmpData) {
         result[data.id].badOption.push({
           option: node.option,
           score: data.score,
+          type: data.type,
         });
       });
     }
@@ -210,63 +209,67 @@ function optionThree(iframeDoc) {
       element.insertAdjacentHTML("afterend", wrapperHTML);
       const wrapper = element.nextElementSibling;
       wrapper.appendChild(element);
+
+      let modal = iframeDoc.createElement("div");
+      var random = Math.floor(
+        Math.random() * (999999999 - 111111111 + 1) + 111111111
+      );
+      modal.id = "hover-modal " + random;
+
+      modal.style.position = "absolute";
+      modal.style.padding = "20px";
+      modal.style.background = "white";
+      modal.style.border = "1px solid black";
+      modal.style.zIndex = "1000";
+
+      var flag = selectedGoodOption.includes(3);
+      if (flag) {
+        statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
+        optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
+      } else {
+        statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
+        optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
+      }
+      //modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+
+      modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <div>
+        <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${random}').remove();">
+          <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+          </svg>
+        </div>
+        ${optionResult}
+      </div>
+    </div>`;
+
+      const rect = element.getBoundingClientRect();
+
+      // modal.style.display = "block";
+      // modal.style.top = "0px";
+      modal.style.left = "-200px";
+      // element의 부모 요소를 가져옵니다.
+      var parent = element.parentNode;
+      var nextSibling = parent.nextSibling;
+      var grandParent = parent.parentNode; // parent의 부모를 참조
+
+      if (!grandParent.className.includes("se-caption")) {
+        var div = iframeDoc.createElement("div");
+
+        div.appendChild(modal);
+        div.appendChild(parent);
+
+        // 적절한 위치에 div 삽입
+        if (nextSibling) {
+          grandParent.insertBefore(div, nextSibling);
+        } else {
+          grandParent.appendChild(div);
+        }
+      } else {
+        console.log("Operation cancelled: 'se-caption' class found.");
+      }
     });
-
-    modal = iframeDoc.createElement("div");
-    modal.id =
-      "hover-modal " +
-      Math.floor(Math.random() * (999999999 - 111111111 + 1) + 111111111);
-    modal.style.position = "absolute";
-    modal.style.padding = "20px";
-    modal.style.background = "white";
-    modal.style.border = "1px solid black";
-    modal.style.zIndex = "1000";
-    console.log(modal.id);
-    iframeDoc.body.appendChild(modal);
-
-    //   let goodOptionsList = "";
-    //   let badOptionsList = "";
-    //   if (data.goodOption && (data.flag === 1 || data.flag === 0)) {
-    //     goodOptionsList =
-    //       `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
-    //       `<li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li>` +
-    //       "</ul></div>";
-    //   }
-
-    //   if (data.badOption && (data.flag === -1 || data.flag === 0)) {
-    //     badOptionsList =
-    //       `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
-    //       `<li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li>` +
-    //       "</ul></div>";
-    //   }
-
-    //   modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    //     <div>
-    //       <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${id}').remove();">
-    //         <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
-    //         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
-    //           <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
-    //         </svg>
-    //       </div>
-    //       ${goodOptionsList}
-    //       ${badOptionsList}
-    //     </div>
-    //   </div>`;
-
-    //   const element = document
-    //     .getElementById("mainFrame")
-    //     .contentWindow.document.getElementById(id);
-    //   const rect = element.getBoundingClientRect();
-    //   const scrollY =
-    //     iframe.contentWindow.pageYOffset ||
-    //     iframe.contentWindow.document.documentElement.scrollTop;
-
-    //   // Adjust modal position
-    //   // modal의 top을 element의 top 시작 지점으로 설정하고,
-    //   // left는 윈도우의 왼쪽 가장자리에서 30px 떨어진 위치로 설정
-    //   modal.style.top = `${rect.top + scrollY}px`;
-    //   modal.style.left = `30px`; // 윈도우 왼쪽에서 30px 떨어진 위치
-    //   modal.style.display = "block";
   }
 }
 
@@ -306,7 +309,7 @@ function optionFive(crawlResults) {
             if (data.score !== 0) {
               updatedList.push({
                 id: data.id,
-                score: data.score,
+                type: data.type,
               });
             }
           });
@@ -337,8 +340,6 @@ function optionEight(crawlResults, iframeDoc) {
           listData.forEach((data) => {
             if (data.score >= 2) {
               var element = iframeDoc.getElementById(data.id);
-              console.log(data.id);
-              finalCaptureResult.push(data.id);
               element.style.margin = "0";
               element.style.padding = "0";
 
@@ -375,16 +376,17 @@ function optionSeven() {
           var listData = response.data.result;
           var updatedList = [];
           listData.forEach((data) => {
-            if (data.score !== 0) {
+            if (data.score >= 50) {
               updatedList.push({
                 id: data.id,
-                score: data.score,
+                score: parseInt(data.score),
               });
             }
           });
 
+          console.log(response.data.result);
           var newData = {
-            option: 8,
+            option: 7,
             list: updatedList,
           };
           tmpData.push(newData);
@@ -460,7 +462,7 @@ function coloring() {
     last.push(id);
 
     if (data.flag === 1) {
-      statusMessage = "해당 문단은 유용한 문단으로 판단됩니다 😀";
+      statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
       last.forEach((id) => {
         const element = document
           .getElementById("mainFrame")
@@ -470,7 +472,7 @@ function coloring() {
         element.innerHTML = html;
       });
     } else if (data.flag === 0) {
-      statusMessage = "해당 문단은 중립적인 문단으로 판단됩니다 😐";
+      statusMessage = "해당 항목은 중립적인 항목으로 판단됩니다 😐";
       last.forEach((id) => {
         const element = document
           .getElementById("mainFrame")
@@ -480,7 +482,7 @@ function coloring() {
         element.innerHTML = html;
       });
     } else {
-      statusMessage = "해당 문단은 유해한 문단으로 판단됩니다 😕";
+      statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
       last.forEach((id) => {
         const element = document
           .getElementById("mainFrame")
@@ -532,9 +534,11 @@ function coloring() {
             // option.score가 undefined가 아닐 때 "- ${option.score}% 확률" 추가
             const scoreText =
               option.score !== undefined ? ` - ${option.score}% 확률` : "";
+            const scoreType =
+              option.type !== undefined ? ` - ${option.type}` : "";
             return `<li style="margin-top: 0.3125rem;">• ${
               optionName[option.option - 1]
-            }${scoreText}</li>`;
+            }${scoreText}${scoreType}</li>`;
           })
           .join("") +
         "</ul></div>";
@@ -556,8 +560,6 @@ function coloring() {
       .getElementById("mainFrame")
       .contentWindow.document.getElementById(id);
     const rect = element.getBoundingClientRect();
-
-    console.log(rect.left);
     // modal.style.display = "block";
     // modal.style.top = "0px";
     modal.style.left = "-200px";
@@ -568,8 +570,8 @@ function coloring() {
 
     if (!grandParent.className.includes("se-caption")) {
       var div = iframeDoc.createElement("div");
-      div.appendChild(parent);
       div.appendChild(modal);
+      div.appendChild(parent);
 
       // 적절한 위치에 div 삽입
       if (nextSibling) {
@@ -662,6 +664,7 @@ function checkOption() {
 
         var optionPromises = [];
         optionPromises.push(optionFive(crawlResults));
+        optionPromises.push(optionSeven());
         optionPromises.push(optionEight(crawlResults, iframeDoc));
 
         // Text 종류 Coloring
@@ -670,6 +673,7 @@ function checkOption() {
           optionTwo(iframeDoc);
           optionThree(iframeDoc);
           optionFour();
+          console.log(tmpData);
           finalResult = processData(tmpData);
           console.log(finalResult);
           coloring();
