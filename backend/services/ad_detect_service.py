@@ -29,7 +29,12 @@ class AdDetectService:
             tmp = [0 for _ in range(len(self._ad_types))]
 
             for idx in range(len(p["prediction"])):
-                tmp[idx] += p["score"][idx]
+                if 0 > p["prediction"][idx] or p["prediction"][idx] >= len(
+                    self._ad_types
+                ):
+                    continue
+
+                tmp[p["prediction"][idx]] += p["score"][idx]
 
             sorted_result = sorted(
                 zip(
