@@ -1,6 +1,4 @@
-from functools import reduce
 from kss import split_sentences
-from typing import List, Any
 
 from models.detail_request import DetailRequest
 
@@ -18,11 +16,12 @@ class DetailService:
         paragraphs = []
         for tag in tag_data:
             # 공백 문자로 이뤄진 태그 제거
-            if len(tag["type"]) < 0:
+            if len(tag["data"]) < 0:
                 continue
 
-            if tag["type"] == "img":
-                # 이미지가 연속으로 나오는 경우 처리
+            # 텍스트 태그가 아닌 경우 문단 종료
+            if tag["type"] != "txt":
+                # 이전에 텍스트가 하나라도 있을 경우 => 문단
                 if len(tmp) > 0:
                     paragraphs.append({"id": tag_id, "data": tmp})
                     tmp = []
