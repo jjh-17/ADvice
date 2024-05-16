@@ -9,6 +9,9 @@ from internals.detail_service import detail_service
 
 
 class AdDetectService:
+    def __init__(self):
+        self._ad_types = ["광고 X", "업체 협찬이 명시된 멘트", "영업성 멘트", "과도한 상세 정보"]
+
     async def detect_text_ad(self, data: DetailRequest):
         paragraphs = detail_service.get_paragraphs(data)
 
@@ -21,9 +24,10 @@ class AdDetectService:
 
             results.append(self.call_text_ad_detection(sentences))
 
+        types, scores = await asyncio.gather(*results)
         ret = [
-            Score(id=paragraph["id"], score=sum(result) / len(result))
-            for paragraph, result in zip(paragraphs, await asyncio.gather(*results))
+            Score(id=paragraph["id"], type=self._ad_types[type], score=score)
+            for paragraph, type, score in zip(paragraphs, types, scores)
         ]
 
         return DetailResponse(result=ret)
