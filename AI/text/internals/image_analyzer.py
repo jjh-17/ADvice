@@ -3,6 +3,7 @@ from google.cloud import vision
 from config.config import settings
 from internals.image_downloader import downloader
 from internals.text_analyzer import adDetector
+from models.exception.custom_exception import CustomException
 
 
 class ImageAdDetection:
@@ -12,11 +13,14 @@ class ImageAdDetection:
 
     def determine_ad_imageURLs(self, image_paths):
         for image_path in image_paths:
-            texts = self._read_text_from_image(image_path)
-            if texts is not None:
-                flag, _ = adDetector.detect_sentence(texts)
-                if flag == 1:
-                    return True
+            try:
+                texts = self._read_text_from_image(image_path)
+                if texts is not None:
+                    flag, _ = adDetector.detect_sentence(texts)
+                    if flag == 1:
+                        return True
+            except CustomException:
+                pass
         return False
 
     def _read_text_from_image(self, url):
