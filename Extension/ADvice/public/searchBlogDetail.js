@@ -198,6 +198,63 @@ function optionTwo(iframeDoc) {
         element.insertAdjacentHTML("afterend", wrapperHTML);
         const wrapper = element.nextElementSibling;
         wrapper.appendChild(element);
+
+        let modal = iframeDoc.createElement("div");
+        var random = Math.floor(
+          Math.random() * (999999999 - 111111111 + 1) + 111111111
+        );
+        modal.id = "hover-modal " + random;
+
+        modal.style.position = "absolute";
+        modal.style.padding = "20px";
+        modal.style.background = "white";
+        modal.style.border = "1px solid black";
+        modal.style.zIndex = "1000";
+
+        var flag = selectedGoodOption.includes(3);
+        if (flag) {
+          statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
+          optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
+        } else {
+          statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
+          optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
+        }
+        //modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+
+        modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div>
+          <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${random}').remove();">
+            <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            </svg>
+          </div>
+          ${optionResult}
+        </div>
+      </div>`;
+
+        const rect = element.getBoundingClientRect();
+
+        modal.style.left = "-200px";
+        var parent = element.parentNode;
+        var nextSibling = parent.nextSibling;
+        var grandParent = parent.parentNode; // parent의 부모를 참조
+
+        if (!grandParent.className.includes("se-caption")) {
+          var div = iframeDoc.createElement("div");
+
+          div.appendChild(modal);
+          div.appendChild(parent);
+
+          // 적절한 위치에 div 삽입
+          if (nextSibling) {
+            grandParent.insertBefore(div, nextSibling);
+          } else {
+            grandParent.appendChild(div);
+          }
+        } else {
+          console.log("Operation cancelled: 'se-caption' class found.");
+        }
       }
     });
   }
@@ -261,10 +318,7 @@ function optionThree(iframeDoc) {
 
       const rect = element.getBoundingClientRect();
 
-      // modal.style.display = "block";
-      // modal.style.top = "0px";
       modal.style.left = "-200px";
-      // element의 부모 요소를 가져옵니다.
       var parent = element.parentNode;
       var nextSibling = parent.nextSibling;
       var grandParent = parent.parentNode; // parent의 부모를 참조
@@ -659,7 +713,11 @@ async function makeDiv(response, iframeDoc) {
   }
 
   // response 받기
-  if (response.score === undefined || response.score.length === 0) {
+  if (
+    response.score === undefined ||
+    response.score.length === 0 ||
+    response.score[0].cnt === undefined
+  ) {
     console.log("called");
 
     const res = await getResponse(
