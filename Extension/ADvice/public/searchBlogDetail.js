@@ -603,6 +603,207 @@ function unColoring() {
   });
 }
 
+async function makeDiv(response, iframeDoc) {
+  let keyword = "";
+  let total = 0;
+  if (response.score == undefined || response.score.length === 0) {
+    if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
+      keyword = await new Promise((resolve) => {
+        chrome.storage.sync.get(["keyword"], (result) => {
+          resolve(result.keyword);
+        });
+      });
+    }
+
+    response = await new Promise((resolve) => {
+      chrome.runtime.sendMessage(
+        {
+          action: "searchAPI",
+          urlList: [response.url],
+          goodOption: selectedGoodOption,
+          badOption: selectedBadOption,
+          keyword: keyword,
+        },
+        function (res) {
+          total = res.data.scoreList[0].cnt;
+          resolve(res.data.scoreList[0].optionScore);
+        }
+      );
+    });
+  } else {
+    response = response.score;
+    total = response.cnt;
+  }
+
+  //console.log(response[0]);
+  // 모달 요소 생성
+  const modal = iframeDoc.createElement("div");
+  modal.id = "analysis";
+  modal.style.position = "relative";
+  modal.style.padding = "20px";
+  modal.style.background = "white";
+  modal.style.border = "1px solid black";
+  modal.style.zIndex = "1000";
+  modal.innerHTML = `
+  <div style="width: 100%; text-align: center; font-size: 1rem; font-weight: bold; margin-bottom:10px; ">
+    [게시글 간단 요약]
+  </div>
+`;
+
+  response[0].forEach((element, index) => {
+    var cnt = 66;
+    element = Math.abs(element); // score 절댓값 처리
+    console.log(`Element: ${element}, Index: ${index}`);
+    if (element !== 980329) {
+      console.log(optionName[index - 1]);
+      if (index === 1) {
+        if (element === Math.abs(100)) {
+          modal.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+            <div style="flex: 0 0 50%; max-width: 50%; padding-right : 15px;">
+              <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 정보가 모두 포함되어 있습니다.
+            </div>
+            ${graph(index, element)}
+          </div>`;
+        } else if (element === Math.abs(75)) {
+          modal.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+            <div style="flex: 0 0 50%; max-width: 50%; padding-right : 15px;">
+              <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 세 가지가 포함되어 있습니다.
+            </div>
+            ${graph(index, element)}
+          </div>`;
+        } else if (element === Math.abs(50)) {
+          modal.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+            <div style="flex: 0 0 50%; max-width: 50%; padding-right : 15px;">
+              <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 두 가지가 포함되어 있습니다.
+            </div>
+            ${graph(index, element)}
+          </div>`;
+        } else if (element === Math.abs(25)) {
+          modal.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+            <div style="flex: 0 0 50%; max-width: 50%; padding-right : 15px;">
+              <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 한 가지가 포함되어 있습니다.
+            </div>
+            ${graph(index, element)}
+          </div>`;
+        } else {
+          modal.innerHTML += `
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+            <div style="flex: 0 0 50%; max-width: 50%; padding-right : 15px;">
+              <b>[Option ${index}]</b> 텍스트로만 구성된 게시글입니다.
+            </div>
+            ${graph(index, element)}
+          </div>`;
+        }
+      } else if (index === 2) {
+        if (element === Math.abs(100)) {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 구매 유도 링크가 포함되어 있습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        } else {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 구매 유도 링크가 포함되어 있지 않습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        }
+      } else if (index === 3) {
+        if (element === Math.abs(100)) {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 내돈내산 인증이 포함되어 있습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        } else {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 내돈내산 인증이 포함되어 있지 않습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        }
+      } else if (index === 4) {
+        let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
+        modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> ${keyword} 이/가 포함된 문장이 ${result}개 있습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+      } else if (index === 5) {
+        if (element === Math.abs(100)) {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 게시글에 광고 확정 키워드가 포함되어 있습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        } else {
+          modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 게시글에 광고 확정 키워드가 포함되어 있지 않습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+        }
+      } else if (index === 6) {
+        modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> 게시글의 중립도가 ${parseInt(
+          Math.abs(element)
+        )}% 입니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+      } else if (index === 7) {
+        let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
+        modal.innerHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
+              <div style="flex: 0 0 50%; max-width: 50%; padding-right : 10px;">
+                <b>[Option ${index}]</b> ${result}개의 문장이 객관적인 정보를 포함하고 있습니다.
+              </div>
+              ${graph(index, element)}
+            </div>`;
+      }
+    }
+  });
+  // 타겟 컨테이너 선택 및 모달 삽입
+  const targetContainer = document
+    .getElementById("mainFrame")
+    .contentWindow.document.getElementsByClassName("se-main-container")[0];
+
+  if (targetContainer) {
+    targetContainer.prepend(modal);
+  }
+}
+function graph(index, percentage) {
+  return `
+    <div class="progress-container" id="progressBar${index}" style="flex: 0 0 50%; max-width: 50%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
+      <div class="progress-bar" style="width: ${percentage}%; background-color: #03C75A; height: 100%;">
+        <div style="position: absolute; width: 100%; text-align: center; line-height: 20px; color: white;">${percentage.toFixed(
+          2
+        )}%</div>
+      </div>
+    </div>
+  `;
+}
+
 function checkOption() {
   if (optionCnt === 2) {
     var checkInterval = setInterval(function () {
@@ -612,71 +813,75 @@ function checkOption() {
       if (iframeElements.length > 0) {
         clearInterval(checkInterval);
 
-        var elementsArray = Array.from(iframeElements);
-        var divArray = Array.from(elementsArray[0].children);
-        divArray.forEach(function (div) {
-          var imgTags = div.getElementsByTagName("img");
-          var spanTags = div.getElementsByTagName("span");
-          var aTags = div.getElementsByTagName("a");
+        chrome.runtime.sendMessage({ action: "analysis" }, function (response) {
+          makeDiv(response, iframeDoc);
 
-          Array.from(imgTags).forEach(function (img) {
-            var dataLinkData = img.parentNode.getAttribute("data-linkdata");
-            if (dataLinkData) {
-              try {
-                var linkData = JSON.parse(dataLinkData);
-                var id = linkData.id;
-                if (id === null) return;
-                var src = linkData.src;
-                if (
-                  !src.includes("gif") &&
-                  !src.includes("https://storep-phinf.pstatic.net/")
-                ) {
-                  crawlResults.push({ type: "img", data: src, id: id });
+          var elementsArray = Array.from(iframeElements);
+          var divArray = Array.from(elementsArray[0].children);
+          divArray.forEach(function (div) {
+            var imgTags = div.getElementsByTagName("img");
+            var spanTags = div.getElementsByTagName("span");
+            var aTags = div.getElementsByTagName("a");
+
+            Array.from(imgTags).forEach(function (img) {
+              var dataLinkData = img.parentNode.getAttribute("data-linkdata");
+              if (dataLinkData) {
+                try {
+                  var linkData = JSON.parse(dataLinkData);
+                  var id = linkData.id;
+                  if (id === null) return;
+                  var src = linkData.src;
+                  if (
+                    !src.includes("gif") &&
+                    !src.includes("https://storep-phinf.pstatic.net/")
+                  ) {
+                    crawlResults.push({ type: "img", data: src, id: id });
+                  }
+                } catch (e) {
+                  console.error("JSON parsing error", e);
                 }
-              } catch (e) {
-                console.error("JSON parsing error", e);
               }
-            }
+            });
+
+            Array.from(spanTags).forEach(function (span) {
+              var textContent = span.textContent || span.innerText;
+              var id = span.getAttribute("id");
+              if (id === null) return;
+              if (textContent.charCodeAt(0) === 8203) return;
+              crawlResults.push({ type: "txt", data: textContent, id: id });
+            });
+
+            Array.from(aTags).forEach(function (a) {
+              crawlResults.push({ type: "link", data: null, id: null });
+            });
           });
 
-          Array.from(spanTags).forEach(function (span) {
-            var textContent = span.textContent || span.innerText;
-            var id = span.getAttribute("id");
-            if (id === null) return;
-            if (textContent.charCodeAt(0) === 8203) return;
-            crawlResults.push({ type: "txt", data: textContent, id: id });
+          console.log(crawlResults);
+
+          crawlTextResults = groupingTextCrawl(crawlResults);
+          console.log(crawlTextResults);
+          crawlTextResults.forEach((result) => {
+            resultMap[result.admin] = {
+              last: result.last,
+              content: result.content,
+            };
           });
 
-          Array.from(aTags).forEach(function (a) {
-            crawlResults.push({ type: "link", data: null, id: null });
+          var optionPromises = [];
+          optionPromises.push(optionFive(crawlResults));
+          optionPromises.push(optionSeven());
+          optionPromises.push(optionEight(crawlResults, iframeDoc));
+          optionPromises.push(optionFour(crawlTextResults));
+
+          // Text 종류 Coloring
+          Promise.all(optionPromises).then(() => {
+            optionThree(iframeDoc);
+            optionTwo(iframeDoc);
+            console.log(tmpData);
+            finalResult = processData(tmpData);
+            console.log(finalResult);
+            coloring();
           });
-        });
-
-        console.log(crawlResults);
-
-        crawlTextResults = groupingTextCrawl(crawlResults);
-        console.log(crawlTextResults);
-        crawlTextResults.forEach((result) => {
-          resultMap[result.admin] = {
-            last: result.last,
-            content: result.content,
-          };
-        });
-
-        var optionPromises = [];
-        optionPromises.push(optionFive(crawlResults));
-        optionPromises.push(optionSeven());
-        optionPromises.push(optionEight(crawlResults, iframeDoc));
-        optionPromises.push(optionFour(crawlTextResults));
-
-        // Text 종류 Coloring
-        Promise.all(optionPromises).then(() => {
-          optionThree(iframeDoc);
-          optionTwo(iframeDoc);
-          console.log(tmpData);
-          finalResult = processData(tmpData);
-          console.log(finalResult);
-          coloring();
         });
       }
     }, 100);
