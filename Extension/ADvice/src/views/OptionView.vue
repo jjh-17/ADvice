@@ -168,6 +168,7 @@ const loadData = () => {
   chrome.storage.sync.get(["badOption"], (result) => {
     if (result.badOption) {
       badOptions.value = Object.values(result.badOption);
+      console.log("badOption : ", badOptions.value)
     }
     dataLoaded++;
     initOptions();
@@ -175,6 +176,7 @@ const loadData = () => {
 
   const initOptions = () => {
     if (dataLoaded === 2) {
+      console.log("goodOption")
       for (let i = 0; i < goodOptions.value.length; i++) {
         console.log(goodOptions.value[i]);
         let tmp = defaultOptions.findIndex((item) => item.index === goodOptions.value[i].index);
@@ -184,6 +186,7 @@ const loadData = () => {
         }
       } // 선택된 goodoption 제거
 
+      console.log("badOption")
       for (let i = 0; i < badOptions.value.length; i++) {
         let tmp = defaultOptions.findIndex((item) => item.index === badOptions.value[i].index);
         if (tmp != -1) {
@@ -199,8 +202,6 @@ const loadData = () => {
 };
 
 onMounted(() => {
-  // chrome.storage.sync.remove(["goodOption"])
-  // chrome.storage.sync.remove(["badOption"])
   loadData();
   chrome.storage.sync.get(["preURL"], (result) => {
     if (result.preURL) {

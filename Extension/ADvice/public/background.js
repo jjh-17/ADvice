@@ -119,6 +119,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(request.urlList);
     console.log(request.goodOption);
     console.log(request.badOption);
+    console.log("keyword : ", request.keyword);
     fetch("http://k10a403.p.ssafy.io:8000/full-option", {
       method: "POST",
       headers: {
