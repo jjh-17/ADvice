@@ -18,6 +18,7 @@ var crawlTextResults = []; // input에서 text만
 var finalResult = []; // Coloring 대상 text
 var resultMap = {}; // text를 id-last로 연결하는 map
 var finalCaptureResult = [];
+const extensionId = chrome.runtime.id;
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   console.log(message);
@@ -615,7 +616,11 @@ function checkOption() {
         iframeDoc.getElementsByClassName("se-main-container");
       if (iframeElements.length > 0) {
         clearInterval(checkInterval);
-
+        const loadGIF = `<img src="chrome-extension://${extensionId}/loading.gif" id="loading"
+                style="float : right; display : flex; width: 30px; height: auto; margin : 14px 15px">`;
+        const title = iframeDoc.querySelector(".blog2_post_function")
+        title.parentNode.insertAdjacentHTML("afterend", loadGIF); // 로딩 gif 넣기
+        
         var elementsArray = Array.from(iframeElements);
         var divArray = Array.from(elementsArray[0].children);
         divArray.forEach(function (div) {
@@ -681,6 +686,11 @@ function checkOption() {
           console.log(tmpData);
           finalResult = processData(tmpData);
           console.log(finalResult);
+          const loading = iframeDoc.querySelector("#loading")
+          console.log("후론트 화이탱~~~~~~~")
+          if(loading){
+            loading.remove()
+          }
           coloring();
         });
       }

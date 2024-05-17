@@ -5,7 +5,7 @@
       class="text-theme-green col-span-1 bg-theme-ivory flex flex-col justify-center items-center"
     >
       <img src="@/assets/logo.png" width="300" height="200" />
-      <div class="text-lg">네이버 블로그와 카페글의 유용도를 볼 수 있어요</div>
+      <div class="text-lg">사용자 맞춤 게시글 필터링 도우미</div>
     </div>
     <!-- 오른쪽 section -->
     <div class="flex flex-col items-center justify-start col-span-2 bg-gray-100">

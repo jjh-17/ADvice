@@ -2,8 +2,8 @@ function sleep(sec) {
   return new Promise((resolve) => setTimeout(resolve, sec));
 }
 
-function makeLoding(position){ // loading gif insert
-  const details = document.querySelectorAll(`${position}`);
+function makeLoding(tag, position){ // loading gif insert
+  const details = document.querySelectorAll(`${tag}`);
   let pass = 0;
   details.forEach((element, index) => {
     const links = document.querySelectorAll(
@@ -15,7 +15,11 @@ function makeLoding(position){ // loading gif insert
       const loadGIF = `<img src="chrome-extension://${extensionId}/loading.gif" id="loading${
         index - pass
       }" style="float : right; display : flex; width: 30px; height: auto;">`;
-      element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+      if(position == "all"){
+        element.insertAdjacentHTML("beforebegin", loadGIF);
+      }else{
+        element.parentNode.insertAdjacentHTML("afterend", loadGIF);
+      }
     }
   });
 }
@@ -83,13 +87,13 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
       if (checkflag) {
         clearInterval(checkInterval);
         console.log("clearInterval");
-        makeLoding(".fds-keep-group");
+        makeLoding(".fds-keep-group", "all");
         setting("all");
       }
     }, 100);
   })();
 } else {
-  makeLoding(".api_save_group");        
+  makeLoding(".api_save_group", "tab");        
   setting("tab");
 }
 
@@ -246,7 +250,6 @@ async function APIsend(userInfoElements, position) {
       const links = document.querySelectorAll(
         ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
       );
-
       for(let i = 0; i < 3; i++){
         const matched = Array.from(links).find(link => link.href == topList[i].url)
         const badgeHTML = `<div style="display : block; width : 100%; margin : 4px 0;">${badge[i]}</div>`
@@ -312,7 +315,7 @@ function setUI(node, index, position) {
     const progressBarHTML = `
     <div class="progress" id="progressBar${index}" style="float: right; display: flex; padding: 1% 2%; border-radius: 15px 15px; border: 1px solid lightgray;
     box-shadow: 1px 1px 2px lightgray; width: ${
-      position === "all" ? "35%" : "30%"
+      position === "all" ? "40%" : "30%"
     }; margin-top: ${position === "all" ? "0%" : "-1%"}">
     <div style="width: 15%; white-space: nowrap; font-size: 13px; text-align: right; margin-right: 10%">유용도</div>
     <div class="progress-container" style="width: 85%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
@@ -402,10 +405,21 @@ function setUI(node, index, position) {
   });
 
   if(!node.querySelector('[class*="scoreBox"]')){ // 옵션 점수 출력박스 없을때만 insert
-    const scoreHTML = `<div class="scoreBox" style="display: block; width: 100%; margin: 16px 0; border: 1px solid #ccc; box-sizing: border-box;">
-    <div style="padding: 10px;">${goodContent ? `👍 <strong> 아래의 정보들을 찾을 수 있어요 ! </strong> <br> ${goodContent}` : ''}
-    ${badContent ? `👎 <strong> 아래의 정보들을 조심하세요 ! </strong> <br> ${badContent}` : ''}
-      </div>`;
+    const borderStyle = position === "all" ? "border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;" : "border: 1px solid #ccc;";
+    let scoreHTML = ``;
+    if(!badContent && !goodContent){
+      scoreHTML = `<div class="scoreBox" style="display: block; width: 100%; margin: 16px 0; ${borderStyle} box-sizing: border-box;">
+      <div style="padding: 10px;">😥 선택한 옵션이 해당하지 않는 글입니다.</div>
+        </div>`;
+  
+    }else{
+      scoreHTML = `<div class="scoreBox" style="display: block; width: 100%; margin: 16px 0; ${borderStyle} box-sizing: border-box;">
+      <div style="padding: 10px;">${goodContent ? `👍 <strong> 아래의 정보들을 찾을 수 있어요 ! </strong> <br> ${goodContent}` : ''}
+      ${badContent ? `👎 <strong> 아래의 정보들을 조심하세요 ! </strong> <br> ${badContent}` : ''}
+        </div>`;
+  
+    }
+    
 
     const userBox = node.querySelector(".user_box,.fds-article-simple-box");
     const userBox_inf = node.querySelector(".fds-thumb-group"); // 인플루언서 컨텐츠 전용 위치 필요

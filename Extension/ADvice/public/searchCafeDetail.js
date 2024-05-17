@@ -20,6 +20,7 @@ var finalResult = [];
 var optionCnt = 0;
 var selectedGoodOption = [];
 var selectedBadOption = [];
+const extensionId = chrome.runtime.id;
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   console.log(message);
@@ -143,6 +144,11 @@ function checkOption() {
         iframeDoc.getElementsByClassName("se-main-container");
       if (iframeElements.length > 0) {
         clearInterval(checkInterval);
+        // ----------- 아래 코드로 넣으시면 됩니다요
+        // const loadGIF = `<img src="chrome-extension://${extensionId}/loading.gif" id="loading"
+        // style="float : right; display : flex; width: 30px; height: auto; margin : 14px 15px">`;
+        // const title = iframeDoc.querySelector(".blog2_post_function")
+        // title.parentNode.insertAdjacentHTML("afterend", loadGIF); // 로딩 gif 넣기
 
         var elementsArray = Array.from(iframeElements);
         var divArray = Array.from(elementsArray[0].children);

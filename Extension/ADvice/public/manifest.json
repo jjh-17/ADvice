@@ -11,6 +11,9 @@
     "webNavigation",
     "background"
   ],
+  "icons" : {
+    "64" : "logo.png"
+  },
   "background": {
     "service_worker": "background.js"
   },
