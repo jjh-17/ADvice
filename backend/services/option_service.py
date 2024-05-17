@@ -184,17 +184,17 @@ class OptionService:
         img_url_list=[]
         soup = self.soup_get_main_container(soup)
 
-        div_img_tags = soup.find_all("div", attrs={"class": "se-image"})
-        for div_tag in div_img_tags:
-            img_url = json.loads(div_tag.find("a").get("data-linkdata")).get('src')
-            img_url_list.append(img_url)
+        all_img_tags = soup.select("div.se-image, div.se-imageStrip")
 
-        div_imgStrip_tags = soup.find_all("div", attrs={"class": "se-imageStrip"})
-        for div_imgStrip_tag in div_imgStrip_tags:
-            div_img_tag = div_imgStrip_tag.find_all("a")
-            for div_tag in div_img_tag:
-                img_url = json.loads(div_tag.get("data-linkdata")).get('src')
-                img_url_list.append(img_url)
+        for tag in all_img_tags:
+            if 'se-image' in tag.get('class', []):  # se-image 태그 처리
+                img_url = json.loads(tag.find("a").get("data-linkdata")).get('src')
+                if img_url[-3:] in ["jpg", "JPG", "png", "PNG"]: img_url_list.append(img_url)
+            elif 'se-imageStrip' in tag.get('class', []):  # se-imageStrip 태그 처리
+                a_tags = tag.find_all("a")
+                for a_tag in a_tags:
+                    img_url = json.loads(a_tag.get("data-linkdata")).get('src')
+                    if img_url[-3:] in ["jpg", "JPG", "png", "PNG"]: img_url_list.append(img_url)
 
         return img_url_list
 
