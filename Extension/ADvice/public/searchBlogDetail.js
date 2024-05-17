@@ -27,13 +27,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     } else {
       unsetting();
     }
-  }else if(message.action === "optionScoreBlog"){
-    console.log("optionScore")
-    console.log(message.data);
   }
 });
-
-
 
 function unsetting() {
   // Text로 오는 것 Unsetting
@@ -278,27 +273,28 @@ function optionThree(iframeDoc) {
   }
 }
 
-function optionFour() {
+function optionFour(crawlTextResults) {
   // 특정 키워드 포함
-  if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
-    let optionFourList = [];
-    crawlTextResults.forEach((item) => {
-      if (item.content.includes("성심당")) {
-        optionFourList.push({ id: item.admin });
-      }
-    });
-    // chrome.storage.sync.get(["keyword"], (keyword) => {
-
-    // const result = {
-    //   option: 4,
-    //   goodList: optionFourList,
-    //   badList: optionFourList,
-    // };
-    tmpData.push({
-      option: 4,
-      list: optionFourList,
-    });
-  }
+  return new Promise((resolve, reject) => {
+    if (selectedGoodOption.includes(4) || selectedBadOption.includes(4)) {
+      let optionFourList = [];
+      chrome.storage.sync.get(["keyword"], (result) => {
+        let keyword = result.keyword;
+        crawlTextResults.forEach((item) => {
+          if (item.content.includes(keyword)) {
+            optionFourList.push({ id: item.admin });
+          }
+        });
+        tmpData.push({
+          option: 4,
+          list: optionFourList,
+        });
+        resolve();
+      });
+    } else {
+      resolve();
+    }
+  });
 }
 
 function optionFive(crawlResults) {
@@ -671,13 +667,12 @@ function checkOption() {
         optionPromises.push(optionFive(crawlResults));
         optionPromises.push(optionSeven());
         optionPromises.push(optionEight(crawlResults, iframeDoc));
+        optionPromises.push(optionFour(crawlTextResults));
 
         // Text 종류 Coloring
         Promise.all(optionPromises).then(() => {
-          // 프론트에서 처리하는 것들은 상대적으로 늦게
-          optionTwo(iframeDoc);
           optionThree(iframeDoc);
-          optionFour();
+          optionTwo(iframeDoc);
           console.log(tmpData);
           finalResult = processData(tmpData);
           console.log(finalResult);
