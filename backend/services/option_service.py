@@ -55,17 +55,19 @@ class OptionService:
         tasks = [self.get_score(url, select) for url in data.urlList]
         results = await asyncio.gather(*tasks)
 
+        cnt=[]
         score=[]
         optionScore=[]
         for i in results:
-            score.append(i[0])
-            optionScore.append(i[1:])
+            cnt.append(i[0])
+            score.append(i[1])
+            optionScore.append(i[2:])
 
 
         return {
             "scoreList": [
-                {"url": url, "score": result1, "optionScore": result2}
-                for url, result1, result2 in zip(data.urlList, score, optionScore)
+                {"url": url, "cnt": result0, "score": result1, "optionScore": result2}
+                for url, result0, result1, result2 in zip(data.urlList, cnt, score, optionScore)
             ]
         }
 
@@ -117,7 +119,7 @@ class OptionService:
         for i in range(bad_option_length):
             optionScore[select["bad_option"][i]] = -1*result[i+good_option_length]
 
-        return good_score - bad_score, optionScore
+        return len(sentences), good_score - bad_score, optionScore
 
     async def calc_types_information(self, param: OptionParameters):
         return self.count_types_information(param.soup) * 25
