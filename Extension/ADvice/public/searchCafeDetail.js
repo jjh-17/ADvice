@@ -244,7 +244,7 @@ function optionTwo(iframeDoc) {
 
         const rect = element.getBoundingClientRect();
 
-        modal.style.left = "540px";
+        modal.style.left = "530px";
         var parent = element.parentNode;
         var nextSibling = parent.nextSibling;
         var grandParent = parent.parentNode; // parent의 부모를 참조
@@ -435,7 +435,7 @@ function optionEight(crawlResults, iframeDoc) {
 
                 const rect = element.getBoundingClientRect();
 
-                modal.style.left = "540px";
+                modal.style.left = "530px";
                 var parent = element.parentNode;
                 var nextSibling = parent.nextSibling;
                 var grandParent = parent.parentNode; // parent의 부모를 참조
@@ -628,7 +628,7 @@ function coloring() {
     const rect = element.getBoundingClientRect();
     // modal.style.display = "block";
     // modal.style.top = "0px";
-    modal.style.left = "510px";
+    modal.style.left = "500px";
     // element의 부모 요소를 가져옵니다.
     var parent = element.parentNode;
     var nextSibling = parent.nextSibling;
@@ -756,7 +756,7 @@ async function makeDiv(response, iframeDoc) {
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 15px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 15px;">
                 <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 정보가 모두 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -764,7 +764,7 @@ async function makeDiv(response, iframeDoc) {
         } else if (element === Math.abs(75)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 15px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 15px;">
                 <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 세 가지가 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -772,7 +772,7 @@ async function makeDiv(response, iframeDoc) {
         } else if (element === Math.abs(50)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 15px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 15px;">
                 <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 두 가지가 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -780,7 +780,7 @@ async function makeDiv(response, iframeDoc) {
         } else if (element === Math.abs(25)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 15px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 15px;">
                 <b>[Option ${index}]</b> 사진, 영상, 링크, 지도 중 한 가지가 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -788,7 +788,7 @@ async function makeDiv(response, iframeDoc) {
         } else {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 15px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 15px;">
                 <b>[Option ${index}]</b> 텍스트로만 구성된 게시글입니다.
               </div>
               ${graph(index, element)}
@@ -799,7 +799,7 @@ async function makeDiv(response, iframeDoc) {
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 구매 유도 링크가 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -807,7 +807,7 @@ async function makeDiv(response, iframeDoc) {
         } else {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 구매 유도 링크가 포함되어 있지 않습니다.
               </div>
               ${graph(index, element)}
@@ -818,7 +818,7 @@ async function makeDiv(response, iframeDoc) {
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 내돈내산 인증이 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -826,7 +826,7 @@ async function makeDiv(response, iframeDoc) {
         } else {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 내돈내산 인증이 포함되어 있지 않습니다.
               </div>
               ${graph(index, element)}
@@ -837,7 +837,7 @@ async function makeDiv(response, iframeDoc) {
         let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-            <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+            <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
               <b>[Option ${index}]</b> ${keyword} 이/가 포함된 문장이 ${result}개 있습니다.
             </div>
             ${graph(index, element)}
@@ -847,7 +847,7 @@ async function makeDiv(response, iframeDoc) {
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 게시글에 광고 확정 키워드가 포함되어 있습니다.
               </div>
               ${graph(index, element)}
@@ -855,7 +855,7 @@ async function makeDiv(response, iframeDoc) {
         } else {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-              <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+              <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
                 <b>[Option ${index}]</b> 게시글에 광고 확정 키워드가 포함되어 있지 않습니다.
               </div>
               ${graph(index, element)}
@@ -865,7 +865,7 @@ async function makeDiv(response, iframeDoc) {
         flag = true;
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-            <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+            <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
               <b>[Option ${index}]</b> 게시글의 중립도가 ${parseInt(
           Math.abs(element)
         )}% 입니다.
@@ -877,7 +877,7 @@ async function makeDiv(response, iframeDoc) {
         let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
-            <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
+            <div style="flex: 0 0 60%; max-width: 60%; padding-right: 10px;">
               <b>[Option ${index}]</b> ${result}개의 문장이 객관적인 정보를 포함하고 있습니다.
             </div>
             ${graph(index, element)}
@@ -906,7 +906,7 @@ async function makeDiv(response, iframeDoc) {
 
 function graph(index, percentage) {
   return `
-    <div class="progress-container" id="progressBar${index}" style="flex: 0 0 50%; max-width: 50%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
+    <div class="progress-container" id="progressBar${index}" style="flex: 0 0 40%; max-width: 50%; position: relative; background-color: #e0e0e0; height: 20px; border-radius: 10px; overflow: hidden;">
       <div class="progress-bar" style="width: ${percentage}%; background-color: #03C75A; height: 100%;">
         <div style="position: absolute; width: 100%; text-align: center; line-height: 20px; color: white;">${percentage.toFixed(
           2
