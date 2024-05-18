@@ -7,9 +7,12 @@ class DetailService:
     def get_paragraphs(self, data: DetailRequest):
         # tag 데이터
         tag_data = [
-            {"id": tag.id, "data": tag.data.replace("\u200B", ""), "type": tag.type}
+            {
+                "id": tag.id,
+                "data": (tag.data or "").replace("\u200B", ""),
+                "type": tag.type,
+            }
             for tag in data.script
-            if tag.id is not None
         ]
 
         tag_id = ""
