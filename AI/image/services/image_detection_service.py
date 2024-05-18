@@ -29,9 +29,15 @@ class ImageDetectionService:
         return evaluation
 
     def human_detection(self, image_paths: list):
-        counts = humanCounter.count_objects_in_images(image_paths, 0)
-        if len(counts) > 0:
-            ratio = sum(counts) / len(counts)
+        counts = 0
+        for image_path in image_paths:
+            try:
+                counts += humanCounter.count_objects_in_images([image_path], 0)[0]
+            except Exception:
+                pass
+
+        if counts > 0:
+            ratio = counts / len(image_paths)
             if ratio > 0.2:
                 return 0
             else:
