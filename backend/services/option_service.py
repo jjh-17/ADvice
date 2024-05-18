@@ -273,7 +273,7 @@ class OptionService:
         p_neu = len(res['neutral']) / len(sentences)
         p_pos = len(res['positive']) / len(sentences)
 
-        return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
+        return (p_neu + (1 - p_neu) * (1 - abs(p_neg - p_pos))) * 100
 
     async def info_detection(self, sentences):
         results = requests.post(
