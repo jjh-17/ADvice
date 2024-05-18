@@ -78,22 +78,30 @@ function setting() {
     var element = document
       .getElementById("mainFrame")
       .contentWindow.document.getElementById(id);
-    element.style.margin = "0";
-    element.style.padding = "0";
 
-    const originalWidth = element.offsetWidth;
-    const newWidth = originalWidth + 30;
-    const backgroundColor = selectedGoodOption.includes(3)
-      ? "rgba(66, 189, 101, 0.15)"
-      : "rgba(241, 43, 67, 0.15)";
+    if (element && element.firstElementChild) {
+      element.firstElementChild.style.padding = "0";
+      element.firstElementChild.style.margin = "0";
 
-    const wrapperHTML = `
-              <div class="custom-wrapper" style="width: ${newWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
-              </div>
-            `;
-    element.insertAdjacentHTML("afterend", wrapperHTML);
-    const wrapper = element.nextElementSibling;
-    wrapper.appendChild(element);
+      const originalWidth = element.offsetWidth;
+      const backgroundColor = selectedGoodOption.includes(8)
+        ? "rgba(66, 189, 101, 0.15)"
+        : "rgba(241, 43, 67, 0.15)";
+
+      const wrapperHTML = `
+        <div class="custom-wrapper" style="width: ${originalWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
+        </div>
+      `;
+      element.insertAdjacentHTML("afterend", wrapperHTML);
+      const wrapper = element.nextElementSibling;
+      wrapper.appendChild(element);
+
+      const images = wrapper.getElementsByTagName("img");
+      Array.from(images).forEach((img) => {
+        img.style.maxWidth = "100%"; // 부모 요소 너비에 맞게 이미지 크기 조정
+        img.style.height = "auto"; // 이미지의 비율을 유지하면서 높이 자동 조정
+      });
+    }
   });
 
   optionTwo(document.getElementById("mainFrame").contentWindow.document);
@@ -214,17 +222,17 @@ function optionTwo(iframeDoc) {
         var flag = selectedGoodOption.includes(3);
         if (flag) {
           statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
-          optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
+          optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
         } else {
           statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
-          optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
+          optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 구매 유도 링크 포함</li></ul></div>`;
         }
         //modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
 
         modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
         <div>
           <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${random}').remove();">
-            <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
+            <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0; font-size : 0.8rem;">${statusMessage}</p>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
               <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
             </svg>
@@ -297,17 +305,17 @@ function optionThree(iframeDoc) {
       var flag = selectedGoodOption.includes(3);
       if (flag) {
         statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
-        optionResult = `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
+        optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
       } else {
         statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
-        optionResult = `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
+        optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 내돈내산 인증 포함</li></ul></div>`;
       }
       //modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
 
       modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
       <div>
         <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${random}').remove();">
-          <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
+          <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0; font-size : 0.8rem;">${statusMessage}</p>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
           </svg>
@@ -398,43 +406,6 @@ function optionFive(crawlResults) {
   });
 }
 
-function optionEight(crawlResults, iframeDoc) {
-  // 인위적인 사진 포함
-  return new Promise((resolve, reject) => {
-    if (selectedGoodOption.includes(8) || selectedBadOption.includes(8)) {
-      chrome.runtime.sendMessage(
-        { action: "detail-imagead", crawlResults: crawlResults },
-        function (response) {
-          var listData = response.data;
-
-          listData.forEach((data) => {
-            if (data.score >= 2) {
-              var element = iframeDoc.getElementById(data.id);
-
-              const originalWidth = element.offsetWidth;
-              const newWidth = originalWidth + 30;
-              const backgroundColor = selectedGoodOption.includes(3)
-                ? "rgba(66, 189, 101, 0.15)"
-                : "rgba(241, 43, 67, 0.15)";
-
-              const wrapperHTML = `
-              <div class="custom-wrapper" style="width: ${newWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
-              </div>
-            `;
-              element.insertAdjacentHTML("afterend", wrapperHTML);
-              const wrapper = element.nextElementSibling;
-              wrapper.appendChild(element);
-            }
-          });
-          resolve(); // 비동기 처리가 완료된 후에 resolve를 호출
-        }
-      );
-    } else {
-      resolve(); // 조건에 맞지 않을 경우에도 resolve 호출
-    }
-  });
-}
-
 function optionSeven() {
   return new Promise((resolve, reject) => {
     if (selectedGoodOption.includes(7) || selectedBadOption.includes(7)) {
@@ -463,6 +434,114 @@ function optionSeven() {
       );
     } else {
       resolve();
+    }
+  });
+}
+
+function optionEight(crawlResults, iframeDoc) {
+  // 인위적인 사진 포함
+  return new Promise((resolve, reject) => {
+    if (selectedGoodOption.includes(8) || selectedBadOption.includes(8)) {
+      chrome.runtime.sendMessage(
+        { action: "detail-imagead", crawlResults: crawlResults },
+        function (response) {
+          var listData = response.data;
+
+          listData.forEach((data) => {
+            if (data.score >= 2) {
+              var element = iframeDoc.getElementById(data.id);
+              finalCaptureResult.push(data.id);
+              if (element && element.firstElementChild) {
+                element.firstElementChild.style.padding = "0";
+
+                if (element.firstElementChild.firstElementChild) {
+                  element.firstElementChild.firstElementChild.style.margin =
+                    "0";
+                }
+
+                const originalWidth = element.offsetWidth;
+                const backgroundColor = selectedGoodOption.includes(8)
+                  ? "rgba(66, 189, 101, 0.15)"
+                  : "rgba(241, 43, 67, 0.15)";
+
+                const wrapperHTML = `
+                <div class="custom-wrapper" style="width: ${originalWidth}px; background-color: ${backgroundColor}; padding: 15px; box-sizing: border-box; margin: 0 auto;">
+                </div>
+              `;
+                element.insertAdjacentHTML("afterend", wrapperHTML);
+                const wrapper = element.nextElementSibling;
+                wrapper.appendChild(element);
+
+                const images = wrapper.getElementsByTagName("img");
+                Array.from(images).forEach((img) => {
+                  img.style.maxWidth = "100%"; // 부모 요소 너비에 맞게 이미지 크기 조정
+                  img.style.height = "auto"; // 이미지의 비율을 유지하면서 높이 자동 조정
+                });
+              }
+
+              if (element) {
+                let modal = iframeDoc.createElement("div");
+                var random = Math.floor(
+                  Math.random() * (999999999 - 111111111 + 1) + 111111111
+                );
+                modal.id = "hover-modal-img" + random;
+
+                modal.style.position = "absolute";
+                modal.style.padding = "20px";
+                modal.style.background = "white";
+                modal.style.border = "1px solid black";
+                modal.style.zIndex = "1000";
+
+                var flag = selectedGoodOption.includes(3);
+                if (flag) {
+                  statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
+                  optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 인위적인 사진 포함</li></ul></div>`;
+                } else {
+                  statusMessage = "해당 항목은 유해한 항목으로 판단됩니다 😕";
+                  optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 인위적인 사진 포함</li></ul></div>`;
+                }
+                //modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;"><div><p style="text-align: center; font-weight: bold; margin-bottom: 10px;">${statusMessage}</p>${optionResult}</div></div>`;
+
+                modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div>
+          <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${random}').remove();">
+            <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0; font-size : 0.8rem;">${statusMessage}</p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
+              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+            </svg>
+          </div>
+          ${optionResult}
+        </div>
+      </div>`;
+
+                const rect = element.getBoundingClientRect();
+
+                modal.style.left = "-200px";
+                var parent = element.parentNode;
+                var nextSibling = parent.nextSibling;
+                var grandParent = parent.parentNode; // parent의 부모를 참조
+
+                if (!grandParent.className.includes("se-caption")) {
+                  var div = iframeDoc.createElement("div");
+
+                  div.appendChild(modal);
+                  div.appendChild(parent);
+
+                  // 적절한 위치에 div 삽입
+                  if (nextSibling) {
+                    grandParent.insertBefore(div, nextSibling);
+                  } else {
+                    grandParent.appendChild(div);
+                  }
+                }
+              }
+            }
+          });
+          resolve(); // 비동기 처리가 완료된 후에 resolve를 호출
+        }
+      );
+    } else {
+      resolve(); // 조건에 맞지 않을 경우에도 resolve 호출
     }
   });
 }
@@ -580,13 +659,13 @@ function coloring() {
     let badOptionsList = "";
     if (data.goodOption && (data.flag === 1 || data.flag === 0)) {
       goodOptionsList =
-        `<div style="margin-top: 1.5625rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
+        `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
         data.goodOption
           .map((option) => {
             // option.score가 undefined가 아닐 때 "- ${option.score}% 확률" 추가
             const scoreText =
               option.score !== undefined ? ` - ${option.score}% 확률` : "";
-            return `<li style="margin-top: 0.3125rem;">• ${
+            return `<li style="margin-top: 0.3125rem; font-size : 0.8rem;">• ${
               optionName[option.option - 1]
             }${scoreText}</li>`;
           })
@@ -596,7 +675,7 @@ function coloring() {
 
     if (data.badOption && (data.flag === -1 || data.flag === 0)) {
       badOptionsList =
-        `<div style="margin-top: 1.5625rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
+        `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[부정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;">` +
         data.badOption
           .map((option) => {
             // option.score가 undefined가 아닐 때 "- ${option.score}% 확률" 추가
@@ -604,7 +683,7 @@ function coloring() {
               option.score !== undefined ? ` - ${option.score}% 확률` : "";
             const scoreType =
               option.type !== undefined ? ` - ${option.type}` : "";
-            return `<li style="margin-top: 0.3125rem;">• ${
+            return `<li style="margin-top: 0.3125rem; font-size : 0.8rem;">• ${
               optionName[option.option - 1]
             }${scoreText}${scoreType}</li>`;
           })
@@ -614,7 +693,7 @@ function coloring() {
     modal.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
   <div>
     <div style="display: flex; align-items: center;" onclick="document.getElementById('hover-modal ${id}').remove();">
-      <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0;">${statusMessage}</p>
+      <p style="text-align: center; font-weight: bold; margin-bottom: 0; margin-top: 0; font-size : 0.8rem;">${statusMessage}</p>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" style="cursor: pointer; margin-left: 10px;">
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
       </svg>
@@ -718,8 +797,6 @@ async function makeDiv(response, iframeDoc) {
     response.score.length === 0 ||
     response.score[0].cnt === undefined
   ) {
-    console.log("called");
-
     const res = await getResponse(
       response.url,
       selectedGoodOption,
@@ -748,12 +825,15 @@ async function makeDiv(response, iframeDoc) {
     </div>
   `;
 
+  var flag = false;
+
   responseScore.forEach((element, index) => {
     element = Math.abs(element); // score 절댓값 처리
     console.log(`Element: ${element}, Index: ${index}`);
     if (element !== 980329) {
       console.log(optionName[index - 1]);
       if (index === 1) {
+        flag = true;
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -796,6 +876,7 @@ async function makeDiv(response, iframeDoc) {
             </div>`;
         }
       } else if (index === 2) {
+        flag = true;
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -814,6 +895,7 @@ async function makeDiv(response, iframeDoc) {
             </div>`;
         }
       } else if (index === 3) {
+        flag = true;
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -832,6 +914,7 @@ async function makeDiv(response, iframeDoc) {
             </div>`;
         }
       } else if (index === 4) {
+        flag = true;
         let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -841,6 +924,7 @@ async function makeDiv(response, iframeDoc) {
             ${graph(index, element)}
           </div>`;
       } else if (index === 5) {
+        flag = true;
         if (element === Math.abs(100)) {
           modal.innerHTML += `
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -859,6 +943,7 @@ async function makeDiv(response, iframeDoc) {
             </div>`;
         }
       } else if (index === 6) {
+        flag = true;
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
             <div style="flex: 0 0 50%; max-width: 50%; padding-right: 10px;">
@@ -869,6 +954,7 @@ async function makeDiv(response, iframeDoc) {
             ${graph(index, element)}
           </div>`;
       } else if (index === 7) {
+        flag = true;
         let result = Math.floor((parseFloat(element) * parseInt(total)) / 100);
         modal.innerHTML += `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.8rem;">
@@ -879,9 +965,16 @@ async function makeDiv(response, iframeDoc) {
           </div>`;
       }
     }
-    backupModal = modal;
   });
 
+  if (flag == false) {
+    modal.innerHTML = `
+    <div style="width: 100%; text-align: center; font-size: 1rem; font-weight: bold; margin-bottom:10px;">
+      선택한 옵션에 따른 결과가 없습니다.
+    </div>
+  `;
+  }
+  backupModal = modal;
   // 타겟 컨테이너 선택 및 모달 삽입
   const targetContainer = document
     .getElementById("mainFrame")
