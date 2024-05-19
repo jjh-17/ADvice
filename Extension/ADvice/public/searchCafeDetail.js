@@ -411,7 +411,7 @@ function optionEight(crawlResults, iframeDoc) {
                 modal.style.border = "1px solid black";
                 modal.style.zIndex = "1000";
 
-                var flag = selectedGoodOption.includes(3);
+                var flag = selectedGoodOption.includes(8);
                 if (flag) {
                   statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
                   optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 인위적인 사진 포함</li></ul></div>`;
