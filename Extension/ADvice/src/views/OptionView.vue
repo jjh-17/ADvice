@@ -107,19 +107,6 @@
           </VueDraggableNext>
         </v-container>
       </div>
-
-      <!-- <ul
-        class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        <li v-for="(option, index) in options" :key="index"
-          class="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
-          <div class="flex items-center ps-3">
-            <input id="index" type="checkbox" v-model="option.checked" @change="saveOption(index)" value=""
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-            <label for="index" class="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{
-          option.name }}</label>
-          </div>
-        </li>
-      </ul> -->
     </div>
   </div>
 </template>
@@ -230,7 +217,6 @@ const toggleEdit = () => {
     chrome.storage.sync.set({ keyword: keyword.value });
   } else {
     // 닫힘 -> 열기
-    console.log("저장된 keyword");
     chrome.storage.sync.get(["keyword"], (result) => {
       console.log(result.keyword);
     });
@@ -239,8 +225,6 @@ const toggleEdit = () => {
 };
 
 const saveOption = () => {
-  // options.value[index].checked = !options.value[index].checked;
-  // console.log(options.value[index].checked);
   chrome.storage.sync.set({ goodOption: goodOptions.value });
   chrome.storage.sync.set({ badOption: badOptions.value });
 };
@@ -249,21 +233,11 @@ const drop = (type, event) => {
   const data = event.dataTransfer.getData("text").replace("+", "").trim();
   console.log("drop", data);
   console.log("type", type);
-  // let index = -1;
-  // for(let i = 0; i < options.value.length; i++){
-  //   if(options.value[i].name === data){
-  //     index = i;
-  //   }
-  // }
   let listIndex = -1;
   let goodIndex = -1;
   let badIndex = -1;
-  // const index = options.value.findIndex(item => item.name === data);
-  // const index = options.value.indexOf(option);
   if (type === "good") {
     // good 영역에 drop -> bad, list 확인
-    // goodOptions.value.push(data);
-    console.log("good 추가 드가자");
     listIndex = options.value.findIndex((item) => item.name == data);
     badIndex = badOptions.value.findIndex((item) => item.name == data);
     if (listIndex !== -1) {
@@ -271,7 +245,6 @@ const drop = (type, event) => {
       goodOptions.value.push(options.value[listIndex]);
       console.log(goodOptions.value);
       options.value.splice(listIndex, 1);
-      // options.value[listIndex].checked = 1;
     } else if (badIndex !== -1) {
       console.log(badOptions.value[badIndex]);
       goodOptions.value.push(badOptions.value[badIndex]);
@@ -279,8 +252,6 @@ const drop = (type, event) => {
     }
   } else if (type === "bad") {
     // bad 영역에 drop -> good, list 확인
-    // badOptions.value.push(data);
-    console.log("bad 추가 드가자");
     listIndex = options.value.findIndex((item) => item.name == data);
     goodIndex = goodOptions.value.findIndex((item) => item.name == data);
     if (listIndex !== -1) {
@@ -295,28 +266,11 @@ const drop = (type, event) => {
     }
   } else if (type === "list") {
     // list 영역에 drop -> good, bad 확인
-    console.log("list 추가 드가자");
-    console.log(goodOptions.value);
-    console.log(JSON.parse(JSON.stringify(goodOptions.value)));
     badIndex = badOptions.value.findIndex(
       (item) => item.name == data
-      // {
-      //   console.log(item)
-      //   console.log(item.name)
-      //   console.log(data)
-      //   console.log(item.name == data)
-      //   item.name == data
-      // }
     );
     goodIndex = goodOptions.value.findIndex(
       (item) => item.name == data
-      // {
-      //   console.log(item)
-      //   console.log(item.name)
-      //   console.log(data)
-      //   console.log(item.name == data)
-      //   item.name == data
-      // }
     );
     console.log("bad : ", badIndex, "good : ", goodIndex);
     if (goodIndex !== -1) {
