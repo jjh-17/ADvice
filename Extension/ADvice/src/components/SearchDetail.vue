@@ -112,7 +112,6 @@ onMounted(() => {
 
 <template>
   <div>
-    <canvas ref="chartRef"></canvas>
     <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
     <div
       class="flex flex-wrap max-w-max justify-start items-center mt-5 mb-2 px-12"

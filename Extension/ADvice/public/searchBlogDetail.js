@@ -184,6 +184,7 @@ function optionTwo(iframeDoc) {
     const blackList = [
       "https://coupa.ng/",
       "https://link.coupang.com/",
+      "https://www.coupang.com",
       "https://api3.myrealtrip.com/",
       "https://smartstore.naver.com",
     ];
@@ -447,6 +448,7 @@ function optionEight(crawlResults, iframeDoc) {
         { action: "detail-imagead", crawlResults: crawlResults },
         function (response) {
           var listData = response.data;
+          console.log(listData);
 
           listData.forEach((data) => {
             if (data.score >= 2) {
@@ -493,7 +495,7 @@ function optionEight(crawlResults, iframeDoc) {
                 modal.style.border = "1px solid black";
                 modal.style.zIndex = "1000";
 
-                var flag = selectedGoodOption.includes(3);
+                var flag = selectedGoodOption.includes(8);
                 if (flag) {
                   statusMessage = "해당 항목은 유용한 항목으로 판단됩니다 😀";
                   optionResult = `<div style="margin-top: 1.5625rem; font-size : 0.8rem;">[긍정적으로 평가된 요소]<ul style="list-style: none; padding-left: 0;"><li style="margin-top: 0.3125rem;">• 인위적인 사진 포함</li></ul></div>`;
@@ -804,7 +806,7 @@ async function makeDiv(response, iframeDoc) {
       selectedBadOption,
       keyword
     );
-
+    console.log(res);
     total = res.data.scoreList[0].cnt;
     responseScore = res.data.scoreList[0].optionScore[0];
   } else {
