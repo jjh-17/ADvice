@@ -111,7 +111,7 @@ class OptionService:
         bad_option_length = len(select["bad_option"])
         if bad_option_length > 0:
             bad_score += sum(result[good_option_length:]) / bad_option_length
-        
+
         # 각 옵션별 점수
         optionScore = [980329 for i in range(8)]
         for i in range(good_option_length):
@@ -131,7 +131,7 @@ class OptionService:
         return self.has_not_sponsored_mark(param.soup) * 100
 
     async def calc_contains_keyword(self, param: OptionParameters):
-        if len(param.sentences) < 0:
+        if len(param.sentences) < 0 or len(param.keyword) < 1:
             return 0
 
         return (
@@ -273,7 +273,7 @@ class OptionService:
         p_neu = len(res['neutral']) / len(sentences)
         p_pos = len(res['positive']) / len(sentences)
 
-        return (p_neu + min(1 - p_neu, 1 - abs(p_neg - p_pos))) * 100
+        return (p_neu + (1 - p_neu) * (1 - abs(p_neg - p_pos))) * 100
 
     async def info_detection(self, sentences):
         results = requests.post(
