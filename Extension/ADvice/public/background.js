@@ -139,6 +139,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+      return true;
   } else if (request.action == "hoverAPI") {
     // 검색 전체 화면 - 링크 호버 시
     console.log(request.url);
@@ -157,6 +158,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+      
+      return true;
   } else if (request.action === "detail-textad") {
     fetch("http://k10a403.p.ssafy.io:8000/detail/text-ad", {
       method: "POST",
