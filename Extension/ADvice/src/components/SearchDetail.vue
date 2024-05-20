@@ -86,8 +86,6 @@ const defaultOptions = [
   { index: 6, name: "장점/단점의 비율" },
   { index: 7, name: "인위적인 사진 포함" },
   { index: 8, name: "객관적인 정보 포함" },
-  { index: 9, name: "상세한 설명 포함" },
-  { index: 10, name: "이모티콘 포함" },
 ];
 onMounted(() => {
   new Chart(chartRef.value, {
@@ -112,7 +110,6 @@ onMounted(() => {
 
 <template>
   <div>
-    <canvas ref="chartRef"></canvas>
     <div class="mt-5 mb-2 text-sm font-bold">유용성 판단 기준</div>
     <div
       class="flex flex-wrap max-w-max justify-start items-center mt-5 mb-2 px-12"
@@ -120,7 +117,7 @@ onMounted(() => {
       <div
         v-for="option in defaultOptions"
         :key="option.index"
-        class="w-8 h-8 rounded-full m-1"
+        class="w-8 h-8 rounded-full m-3"
         :class="{
           'bg-theme-green': goodOptions.some((g) => g.index === option.index),
           'bg-red-400': badOptions.some((b) => b.index === option.index),

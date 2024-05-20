@@ -9,7 +9,6 @@ cafeScore = [];
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("db_summary", 1);
-    console.log("db open");
     request.onerror = (event) => {
       console.error("Database error: ", event.target.errorCode);
       reject(event.target.errorCode);
@@ -19,12 +18,10 @@ function openDB() {
       const db = event.target.result;
       if (!db.objectStoreNames.contains("responses")) {
         db.createObjectStore("responses", { keyPath: "url" });
-        console.log("object store open");
       }
     };
 
     request.onsuccess = (event) => {
-      console.log("db onsuccess");
       resolve(event.target.result);
     };
   });
@@ -87,7 +84,6 @@ chrome.webNavigation.onCommitted.addListener(function (details) {
     ) {
       url = details.url;
     }
-    console.log("URL 변경됨:", url);
   }
 });
 
@@ -108,17 +104,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ url: url });
   } else if (request.action === "changeOption") {
     options = request.options;
-    console.log(options);
   } else if (request.action === "updateCheck") {
     // on/off 버튼 토글
     sendResponse({ check: checkflag });
   } else if (request.action === "searchAPI") {
     // 검색 전체 화면 - 유용도 계산
-    console.log("searchAPI 호출");
-    console.log(request.urlList);
-    console.log(request.goodOption);
-    console.log(request.badOption);
-    console.log("keyword : ", request.keyword);
     fetch("http://k10a403.p.ssafy.io:8000/full-option", {
       method: "POST",
       headers: {
@@ -133,15 +123,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("receive data", data);
         sendResponse({ success: true, data: data });
       })
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+      return true;
   } else if (request.action == "hoverAPI") {
     // 검색 전체 화면 - 링크 호버 시
-    console.log(request.url);
     const apiURL = new URL("http://k10a403.p.ssafy.io:8000/summary");
     apiURL.search = new URLSearchParams({
       url: request.url,
@@ -157,6 +146,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .catch((error) =>
         sendResponse({ success: false, error: error.toString() })
       );
+      
+      return true;
   } else if (request.action === "detail-textad") {
     fetch("http://k10a403.p.ssafy.io:8000/detail/text-ad", {
       method: "POST",
@@ -222,18 +213,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     return true; // 비동기 응답을 위해 true 반환
   } else if (request.action === "saveToDB") {
-    console.log("saveToDB 호출");
     saveResponseToDB(request.url, request.data);
   } else if (request.action === "toBlogDetail") {
-    console.log("blogdetail in background");
-    console.log(request.data);
     blogScore = request.data;
-    console.log("blogScore : ", blogScore);
   } else if (request.action === "toCafeDetail") {
-    console.log("cafedetail in background");
-    console.log(request.data);
     cafeScore = request.data;
-    console.log("cafeScore : ", cafeScore);
   } else if (request.action === "analysis") {
     // on/off 버튼 토글
     sendResponse({ score: blogScore, url: url });

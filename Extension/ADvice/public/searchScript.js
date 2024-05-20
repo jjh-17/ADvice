@@ -67,18 +67,13 @@ const makeModal = (index) => {
 if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
   (async () => {
     await sleep(100);
-    console.log("sleep end");
     let content = document.querySelectorAll(".desktop_mode");
     let checkInterval = setInterval(function () {
       let checkflag = true;
       content.forEach((node) => {
-        console.log(node);
         let contentAttr = node.parentNode.getAttribute("data-slog-container");
-        console.log(contentAttr);
         if (contentAttr.endsWith("R")) {
           let contentDetail = node.getElementsByClassName("fds-keep-group");
-          console.log(contentDetail);
-          console.log(contentDetail.length);
           if (contentDetail.length == 0) {
             checkflag = false;
           }
@@ -86,7 +81,6 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
       });
       if (checkflag) {
         clearInterval(checkInterval);
-        console.log("clearInterval");
         makeLoding(".fds-keep-group", "all");
         setting("all");
       }
@@ -98,11 +92,8 @@ if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
 }
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-  console.log(message);
   if (message.action === "updateCheck") {
-    console.log("message receive");
     if (message.isChecked) {
-      console.log("Checkbox is checked. Perform specific action.");
       // 체크박스가 체크되었을 때 실행할 코드
       const url = window.location.href;
       if (!(url.includes("tab.blog") || url.includes("tab.cafe"))) {
@@ -113,7 +104,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         setting("tab");
       }
     } else {
-      console.log("Checkbox is not checked. Perform alternative action.");
       unsetting();
       // 체크박스가 체크되지 않았을 때 실행할 코드
     }
@@ -140,12 +130,10 @@ function updateTopList() {
         )
         .textContent.trim()
         .slice(0, 30);
-      console.log(titleText + " " + descriptionText);
       item.title = titleText;
       item.desc = descriptionText;
     }
   });
-  console.log("topList", topList);
   chrome.runtime.sendMessage({ action: "saveTopList", topList: topList });
 }
 
@@ -162,7 +150,6 @@ function sendMessagePromise(message) {
 }
 
 async function APIsend(userInfoElements, position) {
-  console.log("APIsend", cnt);
   if (cnt == 3) {
     // 5개씩 끊어서 보내기 -> urlList 5개씩 잘라서 sendMessage 호출 ->
     // background.js로 메시지 보내기
@@ -189,28 +176,21 @@ async function APIsend(userInfoElements, position) {
         );
       });
 
-      console.log("API 호출 결과 받음:", response);
       const sortLevel = [];
       Object.keys(response.data.scoreList).forEach((index) => {
         // index -> chunkURL 안에서의 위치
-        console.log(response.data.scoreList[index].url);
         urlIndex = urlList.indexOf(response.data.scoreList[index].url); // urlIndex -> urlList 안에서의 위치
-        console.log(urlIndex);
-        // console.log(response.data.scoreList[urlIndex].url)
         if (urlIndex !== -1) {
           const curLevel = {
             url: response.data.scoreList[index].url,
             level: response.data.scoreList[index].score,
           };
-          console.log("scoreList:", scoreList);
           sortLevel.push(curLevel);
           level[urlIndex] = response.data.scoreList[index].score; //{index : urlIndex, level : response.data[url]};// 각 url-level쌍 object로 저장
           scoreList[urlIndex] = response.data.scoreList[index].optionScore;
           cntList[urlIndex] = response.data.scoreList[index].cnt;
-          console.log(level[urlIndex]);
 
           Array.from(userInfoElements).forEach((element) => {
-            // console.log("ui setting", element);
             if (
               element
                 .querySelector(
@@ -227,9 +207,7 @@ async function APIsend(userInfoElements, position) {
             const curURL = element.querySelector(
               ".view_wrap .title_area a, .desktop_mode .fds-comps-right-image-text-title, .desktop_mode .fds-comps-right-image-text-title-wrap"
             ).href;
-            // console.log(curURL, "setUI 호출 전 확인")
             if (urlChunk[index] == curURL) {
-              console.log("setUI 호출하는 element : ", element);
               setUI(element, urlIndex, position);
             }
           });
@@ -240,10 +218,8 @@ async function APIsend(userInfoElements, position) {
       topList.sort((a, b) => b.level - a.level);
       topList = topList.slice(0, 5);
 
-      console.log("topList", topList);
       updateTopList();
 
-      console.log(level);
     }
     if (apiCnt == urlList.length) {
       const badge = ['🥇', '🥈', '🥉']
@@ -263,11 +239,9 @@ async function APIsend(userInfoElements, position) {
           (response) => {
             if (response) {
               // 2. 있으면 저장된 요약 값 출력
-              console.log("Data found in DB:", response);
               modalTextList[i] = response;
             } else {
               // 3. 없으면 API 호출
-              console.log("Data not found in DB:", urlList[i]);
               // 데이터가 DB에 없으므로 API를 호출하고 결과를 저장
               chrome.runtime.sendMessage(
                 {
@@ -279,7 +253,6 @@ async function APIsend(userInfoElements, position) {
                   (response.data.positive.length != 0 ? `😊 : ${response.data.positive.length > 50 ? response.data.positive.substring(0, 50) + "..." : response.data.positive}<br><br>` : '') +
                   (response.data.neutral.length != 0 ? `😐 : ${response.data.neutral.length > 50 ? response.data.neutral.substring(0, 50) + "..." : response.data.neutral}<br><br>` : '') +
                   (response.data.negative.length != 0 ? `🙁 : ${response.data.negative.length > 50 ? response.data.negative.substring(0, 50) + "..." : response.data.negative}` : '');
-                  console.log("저장된 요약문 : ", modalTextList[i]);
                   chrome.runtime.sendMessage({
                     action: "saveToDB",
                     url: urlList[i],
@@ -296,21 +269,15 @@ async function APIsend(userInfoElements, position) {
 }
 
 function setUI(node, index, position) {
-  console.log("setUI 실행");
   const userInfoElements = node.querySelectorAll(
     // ".fds-keep-group"
     ".api_save_group, .fds-keep-group"
   );
-  console.log("in SetUI", userInfoElements);
 
-  console.log(index);
-  console.log("before", userInfoElements.parentNode);
   const levelValue = level[index];
   const isNegative = levelValue < 0; // 음수 판단
   const percentage = ((levelValue + 100) / 200) * 100; // 최대 단계에 대한 현재 단계의 백분율
-  console.log(index + " " + levelValue + " " + percentage);
   if (userInfoElements.length != 0) {
-    console.log(userInfoElements);
 
     const progressBarHTML = `
     <div class="progress" id="progressBar${index}" style="float: right; display: flex; padding: 1% 2%; border-radius: 15px 15px; border: 1px solid lightgray;
@@ -356,18 +323,13 @@ function setUI(node, index, position) {
       loadingElement.remove(); // 로딩 완료 후 로딩중 삭제
     }
 
-    console.log("after", userInfoElements.parentNode);
     apiCnt++;
   }
 
   Array.from(userInfoElements).forEach((element, index) => {
     // 프로그레스 바를 fds-keep-group 요소 이전에 추가
-    console.log(index);
-    console.log("before", element.parentNode);
     const levelValue = level[index];
     const percentage = (levelValue / maxLevel) * 100; // 최대 단계에 대한 현재 단계의 백분율
-    console.log(index + " " + levelValue + " " + percentage);
-    console.log(element.parentNode.querySelector(".progress"));
     if (!element.parentNode.querySelector(".progress")) {
       // 진행 상태 표시
     }
@@ -376,7 +338,6 @@ function setUI(node, index, position) {
   let goodContent = "";
   let badContent = "";
   goodOption.forEach((element) => {
-    console.log("good : ", element, scoreList[index][0][element]);
     if(element != 8){
       if (scoreList[index][0][element] != 0) {
         if (element == 4) {
@@ -436,8 +397,6 @@ function setUI(node, index, position) {
 function clickHandler(link, index) {
   // 유용도 점수 배열 중 index 번째 점수 보내기
   return function () {
-    console.log("clickevent", link, ":", index);
-    console.log(link.cru);
     const data = [{ optionScore: scoreList[index], url: urlList[index], cnt : cntList[index] }];
     if (link.href.includes("cafe.naver.com")) {
       chrome.runtime.sendMessage({ action: "toCafeDetail", data: data });
@@ -449,7 +408,6 @@ function clickHandler(link, index) {
 
 function hoverHandler(link, index) {
   return function () {
-    console.log("hoverHandler", link.href);
     const Indexedmodal = document.getElementById(`myModal${index}`);
     const IndexedmodalText = document.getElementById(`modalText${index}`);
   
@@ -459,7 +417,6 @@ function hoverHandler(link, index) {
       chrome.runtime.sendMessage(
         { action: "hoverAPI", url: link.href },
         function (response) {
-          console.log("API 호출 결과 받음:", response);
           IndexedmodalText.innerHTML = `<strong style='font-size: 1.1em;'>📌본문 요약 결과📌</strong><br><br>` +
           (response.data.positive.length != 0 ? `😊 : ${response.data.positive.length > 50 ? response.data.positive.substring(0, 50) + "..." : response.data.positive}<br><br>` : '') +
           (response.data.neutral.length != 0 ? `😐 : ${response.data.neutral.length > 50 ? response.data.neutral.substring(0, 50) + "..." : response.data.neutral}<br><br>` : '') +
@@ -500,7 +457,6 @@ function setting(position) {
     link.addEventListener("mouseover", handler);
 
     const curModal = document.getElementById(`myModal${index}`);
-    console.log("curModal", curModal);
     link.addEventListener("mouseout", function () {
       curModal.style.display = "none";
     });
@@ -517,8 +473,6 @@ function setting(position) {
   level = new Array(urlList.length);
   scoreList = new Array(urlList.length);
   cntList = new Array(urlList.length);
-  console.log("urlList", urlList);
-  console.log(level);
 
   cnt = 0;
   chrome.storage.sync.get(["goodOption"], (result) => {
@@ -526,7 +480,6 @@ function setting(position) {
       goodOption = Object.values(result.goodOption).map(
         (option) => option.index
       );
-      console.log("goodOption : ", goodOption);
     }
     cnt++;
     APIsend(userInfoElements, position);
@@ -535,7 +488,6 @@ function setting(position) {
   chrome.storage.sync.get(["badOption"], (result) => {
     if (result.badOption) {
       badOption = Object.values(result.badOption).map((option) => option.index);
-      console.log("badOption : ", badOption);
     }
     cnt++;
     APIsend(userInfoElements, position);
@@ -544,25 +496,17 @@ function setting(position) {
   chrome.storage.sync.get(["keyword"], (result) => {
     if (result.keyword) {
       keyword = result.keyword;
-      console.log("사용자가 저장한 키워드", keyword);
     }
     cnt++;
     APIsend(userInfoElements, position);
   });
 
-  // chrome.storage.sync.get(["keyword"], (result) => {
-  //   if (result.keyword) {
-  //     keyword = result.keyword;
-  //     console.log("사용자가 저장한 키워드", keyword);
-  //   }
-  // });
 
   const searchAllresult = Array.from(
     document.querySelectorAll(".api_subject_bx")
   );
 
   searchAllresult.forEach((result) => {
-    console.log("result", result);
   });
 
   function saveURL(node) {
@@ -581,8 +525,6 @@ function setting(position) {
             if (response) {
               const index = urlList.findIndex((url) => url == link.href);
               // 2. 있으면 저장된 요약 값 출력
-              console.log("Data found in DB:", response);
-              console.log("index = ", index);
               modalTextList[index] = response;
             }
           }
@@ -599,10 +541,6 @@ function setting(position) {
       if (mutation.type === "childList") {
         mutation.addedNodes.forEach((node) => {
           if (node.tagName === "LI" && node.classList.contains("bx")) {
-            console.log(
-              "새로운 LI 태그가 추가됨:",
-              node.querySelector(".view_wrap")
-            );
             const addNode = node.querySelector(".view_wrap");
             if (addNode != null) {
               const urlElement = addNode.querySelector(".title_area a");
@@ -614,7 +552,6 @@ function setting(position) {
               const curModal = document.getElementById(
                 `myModal${level.length}`
               );
-              console.log("curModal", curModal);
               urlElement.addEventListener("mouseout", function () {
                 curModal.style.display = "none";
               });
@@ -628,12 +565,9 @@ function setting(position) {
                 node
                   .querySelector(".api_save_group")
                   .insertAdjacentHTML("afterend", loadGIF);
-                // newLoading = node.querySelector(`#loading${level.length}`)
-                // element.parentNode.insertAdjacentHTML("afterend", loadGIF);
               }
 
               // 새로 추가된 url을 갖고 background.js로 메시지 보내기
-              // urlList.push(node.querySelector(".title_area a").href);
               chrome.runtime.sendMessage(
                 {
                   action: "searchAPI",
@@ -643,9 +577,7 @@ function setting(position) {
                   keyword: keyword,
                 },
                 function (response) {
-                  console.log("API 호출 결과 받음:", response);
                   level.push(response.data.scoreList[0].score);
-                  console.log(level);
                   if (
                     response.data.scoreList[0].score >
                     topList[topList.length - 1]
@@ -717,7 +649,6 @@ function unsetting() {
   const links = document.querySelectorAll(
     ".view_wrap .title_area a, .fds-comps-right-image-text-title"
   );
-  console.log("unsetting", links);
   links.forEach((link) => {
     link.removeEventListener("mouseover", link.handler);
     if (link.handler) {
