@@ -3,7 +3,7 @@
 
 > 광고(advertisement) + 조언(advice)  
 >   
-> 네이버에서 정보를 찾으면서 광고, 영양가 없는 글과 같이 사용자에게 도움이 되지 않는 글에 대해 조언해주는 서비스
+> 네이버에서 정보를 찾으면서 광고, 영양가 없는 글과 같이 사용자에게 도움이 되지 않는 글에 대해 조언해주는 서비스  
 
 ## 목차
 
@@ -36,7 +36,27 @@
 
 ## 1. 프로젝트 주요 기능
 
+### 검색 결과 유용도 평가
 
+![유용도 평가](./image/검색%20결과.webp)
+
+### 게시글 본문 요약
+
+![게시글 요약](./image/검색_게시글.gif)
+
+### 상세 페이지 평가 요약
+
+![평가 요약](./image/게시글%20요약.PNG)
+
+### 사진 평가
+
+![인위적인 사진](./image/인위적인%20사진.PNG)
+
+### 텍스트 평가 & 광고 문구 탐지
+
+![텍스트 감지](./image/텍스트%20감지.PNG)
+
+###
 
 ## 2. 제작 기간
 2024/04/15 ~ 2024/05/17
@@ -45,19 +65,30 @@
 ### 공통 사용 기술
 
 ### Front-End
+<img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
 
 ### Back-End
+<img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=Python&logoColor=white">
+ <img src="https://img.shields.io/badge/fastapi-009688?style=for-the-badge&logo=fastapi&logoColor=black">
+
+ ### AI
+ <img src="https://img.shields.io/badge/KcELECTRA-DB6A26?style=for-the-badge">
+  <img src="https://img.shields.io/badge/KoBERT-512BD4?style=for-the-badge">
+    <img src="https://img.shields.io/badge/DistillKoBERT-A9225C?style=for-the-badge">
+    <img src="https://img.shields.io/badge/YOLO-68BC71?style=for-the-badge">
 
 ### 협업
 <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white"> <img src="https://img.shields.io/badge/gerrit-EEEEEE?style=for-the-badge&logo=gerrit&logoColor=black"> <img src="https://img.shields.io/badge/jira-0052CC?style=for-the-badge&logo=jira&logoColor=white">  <img src="https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white"> 
 
 ## 4. 개발 환경 및 빌드 방법
 
-# 라이선스
+### 라이선스
 
 본 가이드는 [MIT](https://choosealicense.com/licenses/mit/) 라이선스 하에 공개합니다
 
 * 공유 - 복제, 배포, 포맷 변경, 전송, 전시, 공연, 방송할 수 있습니다.
 * 변경 - 리믹스, 변형, 2차적 저작물 작성 및 영리목적의 이용이 가능합니다. 
 
-<br/>
+### 빌드
+
+이하 exec 폴더 참조
